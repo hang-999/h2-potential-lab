@@ -1,0 +1,26 @@
+const H2UI={ns:'http://www.w3.org/2000/svg',blue:'#2378df',orange:'#d47522',ink:'#193c5c',green:'#168875'};
+const h2fmt=(v,n=5)=>Number.isFinite(v)?(v!==0&&Math.abs(v)<10**(-Math.min(4,n))?v.toExponential(Math.min(4,n)):v.toFixed(n)):'—';
+function h2Svg(name,attrs={},parent){const e=document.createElementNS(H2UI.ns,name);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);parent?.append(e);return e;}
+function h2Plot(host,opts){if(host.clientWidth>0)host._h2PlotWidth=host.clientWidth;const w=Math.max(240,host._h2PlotWidth||360),h=opts.height??240,L=55,R=18,T=26,B=46,[xmin,xmax]=opts.bounds??[.3,3],series=opts.series??[];let domain=opts.domain;
+ if(!domain){const vals=series.flatMap(s=>s.data.filter(p=>p.r>=xmin&&p.r<=xmax).map(p=>p.v)).filter(Number.isFinite);let lo=Math.min(0,...vals),hi=Math.max(0,...vals);const pad=Math.max(.05,(hi-lo)*.12);domain=[lo-pad,hi+pad];}
+ const[ymin,ymax]=domain,X=r=>L+(r-xmin)/(xmax-xmin)*(w-L-R),Y=v=>T+(ymax-v)/(ymax-ymin)*(h-T-B),clip=`clip-${host.id}`,svg=h2Svg('svg',{viewBox:`0 0 ${w} ${h}`,width:w,height:h,role:'img','aria-label':opts.label??'曲线图'}),defs=h2Svg('defs',{},svg);h2Svg('rect',{x:L,y:T,width:w-L-R,height:h-T-B},h2Svg('clipPath',{id:clip},defs));
+ const yTicks=h<230?3:4,xTicks=w<420?2:4;
+ for(let i=0;i<=yTicks;i++){const yv=ymin+(ymax-ymin)*i/yTicks;h2Svg('line',{x1:L,y1:Y(yv),x2:w-R,y2:Y(yv),stroke:'#e4ebf3'},svg);const a=h2Svg('text',{x:L-8,y:Y(yv)+4,'text-anchor':'end','font-size':13},svg);a.textContent=yv===0?'0':Math.abs(yv)>=1000||Math.abs(yv)<.01?yv.toExponential(1):Math.abs(yv)>=10?yv.toFixed(1):yv.toFixed(2);}
+ for(let i=0;i<=xTicks;i++){const xv=xmin+(xmax-xmin)*i/xTicks,b=h2Svg('text',{x:X(xv),y:h-24,'text-anchor':'middle','font-size':13},svg);b.textContent=opts.xStep?Math.round(xv):xv.toFixed(2);}
+ h2Svg('text',{x:5,y:15,'font-size':13},svg).textContent=opts.yLabel??'E / eV';h2Svg('text',{x:w-R,y:h-4,'text-anchor':'end','font-size':13},svg).textContent=opts.xStep?'Step':'r / Å';
+ const group=h2Svg('g',{'clip-path':`url(#${clip})`},svg);
+ if(opts.coverage){const[lo,hi]=opts.coverage;for(const[a,b]of [[xmin,Math.min(xmax,lo)],[Math.max(xmin,hi),xmax]])if(b>a)h2Svg('rect',{x:X(a),y:T,width:X(b)-X(a),height:h-T-B,fill:'#dce5ed',opacity:.45},group);}
+ if(ymin<=0&&ymax>=0)h2Svg('line',{x1:L,y1:Y(0),x2:w-R,y2:Y(0),stroke:'#a8b9c9','stroke-dasharray':'4 4'},group);
+ let clipped=0;
+ for(const s of series){const data=s.data.filter(p=>p.r>=xmin&&p.r<=xmax);const d=data.map((p,i)=>`${i?'L':'M'}${X(p.r).toFixed(2)},${Y(p.v).toFixed(2)}`).join(' ');h2Svg('path',{d,fill:'none',stroke:s.color??H2UI.blue,'stroke-width':s.width??2.2,'stroke-dasharray':s.dash??''},group);if(!s.reference)for(let i=0;i<data.length;i++)if(data[i].v<ymin||data[i].v>ymax){clipped++;if(i%15===0){const x=X(data[i].r),y=data[i].v>ymax?T+3:h-B-3;h2Svg('path',{d:`M${x-3},${y+3} L${x},${y-3} L${x+3},${y+3}`,fill:s.color??H2UI.blue},group);}}}
+ for(const p of opts.dots??[]){if(p.r<xmin||p.r>xmax)continue;const e=h2Svg('circle',{cx:X(p.r),cy:Y(p.v),r:p.validation?4:2.8,fill:p.validation?'white':H2UI.blue,stroke:p.validation?H2UI.orange:'white','stroke-width':p.validation?1.5:.6},group);h2Svg('title',{},e).textContent=`样本 ${p.id} · ${p.validation?'验证':'训练'} · r=${h2fmt(p.r,4)} Å`;}
+ if(Number.isFinite(opts.probe)&&opts.probe>=xmin&&opts.probe<=xmax)h2Svg('line',{x1:X(opts.probe),y1:T,x2:X(opts.probe),y2:h-B,stroke:H2UI.green,'stroke-dasharray':'4 4'},group);
+ host.replaceChildren(svg);host.dataset.xmin=xmin;host.dataset.xmax=xmax;host.dataset.left=L;host.dataset.right=R;return{clipped,domain};
+}
+function h2Download(name,content,type='application/json'){const url=URL.createObjectURL(new Blob([content],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);}
+function h2Matrix(host,layer,rows,cols,value,limit,selection){const key=`${layer}-${rows}-${cols}`;let cache=host._h2Matrix;
+ if(!cache||cache.key!==key){const cell=Math.min(32,Math.max(12,480/Math.max(rows,cols))),W=Math.max(220,cols*cell+90),H=Math.max(110,rows*cell+70),svg=h2Svg('svg',{width:W,height:H,viewBox:`0 0 ${W} ${H}`}),cells=[];h2Svg('text',{x:55,y:17,'font-size':13},svg).textContent=`输入列 → 层 ${layer}`;for(let i=0;i<cols;i++)if(cols<=16||i%4===0)h2Svg('text',{x:58+(i+.5)*cell,y:37,'text-anchor':'middle','font-size':12},svg).textContent=i+1;for(let j=0;j<rows;j++){if(rows<=16||j%4===0)h2Svg('text',{x:48,y:47+(j+.7)*cell,'text-anchor':'end','font-size':12},svg).textContent=j+1;for(let i=0;i<cols;i++){const k=j*cols+i,rect=h2Svg('rect',{x:58+i*cell,y:45+j*cell,width:cell-1,height:cell-1,'data-matrix':`${layer},${k}`,class:'matrix-cell',tabindex:0,role:'button'},svg),title=h2Svg('title',{},rect);cells.push({rect,title,i,j,k});}}
+  host.replaceChildren(svg);cache=host._h2Matrix={key,cells};
+ }
+ for(const c of cache.cells){const v=value(c.k),chosen=selection.type==='edge'&&selection.layer===layer&&selection.k===c.k;c.rect.setAttribute('fill',v>=0?H2UI.blue:H2UI.orange);c.rect.setAttribute('fill-opacity',.07+.83*Math.min(1,Math.abs(v)/limit));c.rect.setAttribute('stroke',chosen?'#102d4d':'none');c.rect.setAttribute('stroke-width',chosen?2:0);const label=`W${layer+1}[${c.j+1},${c.i+1}] = ${h2fmt(v,8)}`;c.rect.setAttribute('aria-label',label);c.title.textContent=label;if(c.text)c.text.textContent=h2fmt(v,2);}
+}
