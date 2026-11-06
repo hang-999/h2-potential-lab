@@ -1,4 +1,4 @@
-name: Test and deploy H2 Potential Lab
+name: Test and deploy MLIP Methods Lab
 
 on:
   push:
@@ -22,30 +22,25 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
-      - name: Check JavaScript syntax
+          cache: npm
+      - run: npm ci
+      - name: Syntax checks
         run: |
-          for file in *.js *.cjs; do node --check "$file"; done
-      - name: Test numerical engine
-        run: node test-engine.cjs
-      - name: Test worker and training transactions
-        run: node test-worker.cjs
-      - name: Test numerical robustness
-        run: node test-robustness.cjs
-      - name: Build standalone website
+          for file in *.js *.cjs h2/*.js h2/*.cjs; do node --check "$file"; done
+      - name: Numerical, state, worker and H2 regression tests
+        run: npm test
+      - name: Reproducible offline build
         run: |
-          node build.cjs
-          git diff --exit-code -- index.html
+          npm run build
+          git diff --exit-code -- index.html h2/index.html
           mkdir -p _site
           cp index.html _site/index.html
-      - name: Configure Pages
+      - uses: actions/configure-pages@v5
         if: github.event_name != 'pull_request'
-        uses: actions/configure-pages@v5
-      - name: Upload website
+      - uses: actions/upload-pages-artifact@v4
         if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v4
         with:
           path: _site
-
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: build
@@ -57,6 +52,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Publish GitHub Pages
+      - name: Deploy Pages
         id: deployment
         uses: actions/deploy-pages@v4

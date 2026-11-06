@@ -1,0 +1,13 @@
+{
+  "name": "mlip-methods-lab",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Offline interactive ML interatomic-potential teaching laboratory",
+  "scripts": {
+    "build": "node build.cjs",
+    "test": "node test-operators.cjs && node test-ui-contract.cjs && node test-methods-worker.cjs && node h2/test-engine.cjs && node h2/test-worker.cjs && node h2/test-robustness.cjs",
+    "serve": "node serve.cjs"
+  },
+  "dependencies": {"three": "0.187.0"},
+  "devDependencies": {"esbuild": "0.28.2"}
+}

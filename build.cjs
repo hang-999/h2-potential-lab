@@ -1,3 +1,15 @@
-const fs=require('node:fs'),path=require('node:path'),read=n=>fs.readFileSync(path.join(__dirname,n),'utf8');
-const html=read('page.html').replace('/*STYLES*/',read('ui.css')).replace('/*WORKER*/',read('engine.js')+'\n'+read('worker.js')).replace('/*APP*/',read('engine.js')+'\n'+['charts.js','settings.js','network-panel.js','app.js'].map(read).join('\n'));
-fs.writeFileSync(path.join(__dirname,'index.html'),html);console.log(`Built ${Buffer.byteLength(html)} byte offline HTML`);
+const fs = require('node:fs');
+const path = require('node:path');
+const esbuild = require('esbuild');
+const cp = require('node:child_process');
+const root = __dirname;
+const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+cp.execFileSync(process.execPath, [path.join(root, 'h2/build.cjs')], {stdio:'inherit'});
+const app = esbuild.buildSync({entryPoints:[path.join(root,'app.js')],bundle:true,write:false,format:'iife',target:['chrome110','edge110'],minify:true,legalComments:'inline'}).outputFiles[0].text;
+const h2 = read('h2/index.html');
+const safe = text => text.replace(/<\/script/gi,'<\\/script');
+const data = JSON.stringify({h2}).replace(/</g,'\\u003c');
+const html = read('page.html').replace('/*STYLES*/',()=>read('ui.css')).replace('/*WORKER*/',()=>read('operators.js')+'\n'+read('methods-worker.js')).replace('/*ASSETS*/',()=>data).replace('/*APP*/',()=>safe(app));
+const final=html+'\n<!--\n'+read('THIRD_PARTY_NOTICES.md').replace(/--/g,'—')+'\n-->\n';
+fs.writeFileSync(path.join(root,'index.html'),final);
+console.log(`Built standalone v4: ${Buffer.byteLength(final).toLocaleString()} bytes`);
