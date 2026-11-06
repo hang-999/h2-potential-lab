@@ -1,6 +1,10 @@
 # Numerical conventions and verification
 
-All calculations use JavaScript binary64 numbers. New method chapters implement reduced operators, not pretrained interatomic potentials. No backend, Python or machine-learning package is required to run the site.
+## v5 阅读说明
+
+下文固定种子、四个可编辑系数和“没有优化器”的描述，专指沿用 v4 的**原理观察模式**。v5 新增的**真实训练实验**使用独立引擎，实际优化七类简化模型；其数据公式、标准化、梯度、核求解目标和事务约定见 [TRAINING.md](TRAINING.md)，接口见 [API.md](API.md)。固定表示不等于固定回归参数；可学习消息模型的内部参数也参与训练。
+
+All calculations use JavaScript binary64 numbers. The principle chapters implement reduced operators, not pretrained interatomic potentials. No backend, Python or machine-learning package is required to run the site. Numerical results below describe the retained operator fixtures; current full validation results are recorded in [VALIDATION.md](VALIDATION.md).
 
 ## Geometry and ACSF
 

@@ -9,7 +9,7 @@ const app = esbuild.buildSync({entryPoints:[path.join(root,'app.js')],bundle:tru
 const h2 = read('h2/index.html');
 const safe = text => text.replace(/<\/script/gi,'<\\/script');
 const data = JSON.stringify({h2}).replace(/</g,'\\u003c');
-const html = read('page.html').replace('/*STYLES*/',()=>read('ui.css')).replace('/*WORKER*/',()=>read('operators.js')+'\n'+read('methods-worker.js')).replace('/*ASSETS*/',()=>data).replace('/*APP*/',()=>safe(app));
+const html = read('page.html').replace('/*STYLES*/',()=>read('ui.css')+'\n'+read('workbench.css')+'\n'+read('training-ui.css')).replace('/*WORKER*/',()=>read('operators.js')+'\n'+read('methods-worker.js')).replace('/*TRAINING_WORKER*/',()=>['operators.js','training-data.js','training-models.js','training-engine.js','training-worker.js'].map(read).join('\n')).replace('/*ASSETS*/',()=>data).replace('/*APP*/',()=>safe(app));
 const final=html+'\n<!--\n'+read('THIRD_PARTY_NOTICES.md').replace(/--/g,'—')+'\n-->\n';
 fs.writeFileSync(path.join(root,'index.html'),final);
-console.log(`Built standalone v4: ${Buffer.byteLength(final).toLocaleString()} bytes`);
+console.log(`Built standalone v5: ${Buffer.byteLength(final).toLocaleString()} bytes`);

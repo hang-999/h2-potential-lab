@@ -6,3 +6,116 @@
 @media(max-width:430px){.scene-pair{grid-template-columns:minmax(0,1fr)}.scene-cell+.scene-cell{border-top:1px solid var(--line)}.scene-pair:not(.single) .scene-host{height:240px}.hero h1{font-size:34px}.hero-facts{gap:17px}.hero-facts span{font-size:10px}.library-grid{grid-template-columns:minmax(0,1fr)}.top-links{gap:8px}.top-links button{font-size:10px}.lesson-heading h1{font-size:23px}.snapshot-id{font-size:9px}.feature-card .card-heading{gap:8px;padding-left:13px;padding-right:13px}.feature-card h2{font-size:14px}.experiment-question>span{width:100%}.experiment-question strong{flex-basis:100%}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 .feature-bar-legend{font-size:10px;color:#7b92a4;padding:8px 16px 11px}.actual-weights{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.actual-weights pre{max-height:250px;overflow:auto;padding:13px;background:#f2f7fb;font:12px/1.7 var(--mono);white-space:pre-wrap}.parameter-field:has(input:disabled){opacity:.5}.feature-chart{max-height:430px}.feature-chart svg{max-height:none}
+
+/* v5: the structure and its current calculation share the main workspace. */
+:root{font-size:16px;line-height:1.55}
+button,.button{font-size:14px;min-height:36px}label{font-size:14px}small,.small-note{font-size:13px}
+.topbar{height:56px;padding:0 20px;gap:20px}
+.brand{font-size:17px;gap:9px}.brand-mark{width:33px;height:33px;line-height:33px;font-size:23px}
+.top-links{gap:20px}.top-links>a,.top-links button{font-size:14px}
+.shell{grid-template-columns:64px minmax(0,1fr);max-width:1920px}
+.sidebar{top:56px;height:calc(100dvh - 56px);padding:12px 6px;overflow-x:hidden}
+.sidebar .side-heading,.sidebar-note,.sidebar .chapter-link div,.sidebar .h2-link div{display:none}
+.chapter-link{justify-content:center;min-height:48px;padding:10px 5px;gap:0;margin-bottom:5px}
+.chapter-link>span{font-size:15px}.h2-link{justify-content:center;padding:12px 5px}
+.nav-expanded .shell{grid-template-columns:210px minmax(0,1fr)}.nav-expanded .sidebar{padding:12px 10px}
+.nav-expanded .sidebar .chapter-link div,.nav-expanded .sidebar .h2-link div{display:block}
+.nav-expanded .chapter-link{justify-content:flex-start;gap:10px;padding:10px 8px}
+.nav-expanded .chapter-link strong{font-size:14px}.nav-expanded .chapter-link small{font-size:11px}
+.nav-expanded .h2-link{justify-content:flex-start;gap:10px}#toggle-nav{min-width:34px;padding:5px 8px}
+main{padding:10px 20px 0}
+.lesson-heading{margin-bottom:6px;align-items:center;gap:12px}.lesson-heading h1{font-size:26px;letter-spacing:-.4px}
+.lesson-overline{display:none}.lesson-heading p{font-size:16px;line-height:1.65;margin:8px 0 2px;max-width:none}
+.lesson-introduction{margin:5px 0 9px}.lesson-introduction summary{font-size:14px}.lesson-introduction:not([open]){margin:0}
+.lesson-heading .badge{font-size:12px;padding:4px 8px}
+.experiment-question{padding:6px 11px;gap:9px;margin-bottom:7px;border-radius:7px}
+.experiment-question>span{font-size:13px}.experiment-question strong{font-size:15px;line-height:1.45;font-weight:550}
+.experiment-question button{font-size:13px;min-height:29px;padding:4px 8px}
+.workspace-toolbar{gap:7px;margin-bottom:8px}.toolbar-group{gap:7px}
+.toolbar-group button,.toolbar-group label,.toolbar-group select{font-size:14px;min-height:33px}.toolbar-group button{padding:5px 9px}
+.lab-grid{grid-template-columns:minmax(0,1.63fr) minmax(380px,1fr);gap:16px;align-items:start}
+.card-heading{padding:11px 14px 9px;gap:9px}.card-heading h2{font-size:17px}.card-heading .small-note{font-size:13px}
+.micro-label{font-size:11px;letter-spacing:.9px}
+.scene-pair{grid-template-columns:repeat(2,minmax(0,1fr))}.scene-pair.single{grid-template-columns:minmax(0,1fr)}
+.scene-cell+.scene-cell{border-top:0}.scene-host,.scene-pair:not(.single) .scene-host{height:380px}
+.scene-caption{padding:6px 12px;min-height:32px}.scene-caption strong{font-size:14px}.scene-caption>span:last-child{font-size:13px}
+.scene-legend{font-size:13px;padding:7px 12px;gap:10px;line-height:1.5}.scene-legend i{width:10px;height:10px}
+.transform-bar{padding:8px 12px;gap:6px 9px}.transform-bar>span{font-size:13px;width:auto;margin-right:4px}
+.transform-bar label,.transform-bar select,.transform-bar button{font-size:13px}.transform-bar button,.transform-bar select{min-height:32px;padding:4px 7px}
+.rotation-control{min-width:130px}.rotation-control output{font-size:14px}
+.scene-pair.compare-tabs{grid-template-columns:minmax(0,1fr)}.scene-pair.compare-tabs .scene-cell:nth-child(2){display:none}
+.scene-pair.compare-tabs.show-reference .scene-cell:first-child{display:none}.scene-pair.compare-tabs.show-reference .scene-cell:nth-child(2){display:block}
+.comparison-switch{display:flex;gap:6px;padding:6px 12px;background:#f7fbfe;border-top:1px solid var(--line)}
+.comparison-switch button{font-size:14px;min-height:32px;padding:4px 9px}.comparison-switch button[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--blue)}
+.explanation-card{padding:0 16px 14px}.explanation-card>.card-heading{padding:11px 0 8px}
+.stage-tabs{margin:0 0 12px;gap:7px}.stage-tabs button{min-height:35px;font-size:14px}
+.explanation-card>h2{font-size:22px;margin-bottom:8px}.explanation-card>p{font-size:16px;line-height:1.65}
+.formula{font-size:20px;line-height:1.55;padding:12px;margin:12px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.value-grid{gap:8px;margin:10px 0}.value-item{padding:9px 11px}.value-item span{font-size:13px;line-height:1.45}
+.value-item strong{font-size:24px;line-height:1.25;margin-top:5px}
+.stage-detail{font-size:15px;line-height:1.65}.stage-detail .inline-chip{font-size:14px}
+details summary{font-size:14px;line-height:1.6}#terms-details{margin-top:12px;padding-top:10px}
+.table-scroll{max-height:320px}.table-scroll table{font-size:14px}.table-scroll td,.table-scroll th{padding:8px}
+.check-status,.diagnostic-row,.diagnostic-row code{font-size:13px}.check-card>p{font-size:13px}.caution,.lesson-refs{font-size:13px}
+.feature-card{margin-top:12px}.feature-chart{max-height:430px;padding:0 14px 6px}.feature-chart svg{min-width:360px;max-height:none;overflow:visible}
+.feature-detail,.feature-bar-legend{font-size:14px}.feature-tabs button{font-size:14px;min-height:33px}.snapshot-id{font-size:12px}
+.playback{position:relative;inset:auto;z-index:1;backdrop-filter:none;box-shadow:none;margin:10px 0;padding:10px 12px;gap:12px;background:#fff}
+.playback-buttons button{font-size:14px;min-height:36px}.timeline-label>span{font-size:13px}.speed-label,.speed-label select,.motion-label{font-size:13px}
+.settings-panel{padding:16px}.settings-title strong{font-size:18px}
+.settings-title p,.settings-title button,.parameter-field>span,.parameter-field small{font-size:13px}.parameter-field>input,.parameter-field>select{font-size:16px}
+.weight-editor p,.weight-editor .small-note{font-size:14px}.actual-weights pre{font-size:14px}.atom-edit-actions button{font-size:14px}
+.atom-row{grid-template-columns:36px 70px repeat(3,minmax(0,1fr));gap:8px}.atom-row button,.atom-row label,.atom-row input,.atom-row select{font-size:14px}
+.atom-editor .small-note{font-size:13px}.badge{font-size:12px}
+.hero p,.library-card p{font-size:16px}.map-card strong{font-size:17px}.map-card small,.branch-note,.library-card a,.map-output small{font-size:13px}
+.dialog-body{font-size:16px}.resource-row p{font-size:14px}
+.classroom .shell{grid-template-columns:minmax(0,1fr)}.classroom main{padding:10px 20px 0;max-width:1800px}
+.classroom .lab-grid{grid-template-columns:minmax(0,1.63fr) minmax(390px,1fr)}
+.classroom .scene-host,.classroom .scene-pair:not(.single) .scene-host{height:430px}
+.classroom .formula{font-size:25px}.classroom .stage-detail,.classroom .explanation-card>p{font-size:18px}
+.classroom .lesson-heading h1{font-size:29px}.classroom .value-item strong{font-size:28px}
+@media(min-width:1600px){.scene-host,.scene-pair:not(.single) .scene-host{height:430px}.formula{font-size:22px}.lab-grid{grid-template-columns:minmax(0,1.63fr) minmax(400px,1fr)}}
+@media(min-width:900px) and (max-width:1199px){
+ .shell,.nav-expanded .shell{grid-template-columns:56px minmax(0,1fr)}
+ .sidebar,.nav-expanded .sidebar{top:56px;height:calc(100dvh - 56px);padding:10px 4px;border-right:1px solid var(--line);border-bottom:0;overflow-x:hidden;z-index:15}
+ #chapter-nav{display:block;min-width:0}.chapter-link{display:flex;margin:0 0 5px;padding:9px 4px;min-height:44px}
+ .sidebar .chapter-link div,.sidebar .h2-link div{display:none}.sidebar>.h2-link{display:flex}.sidebar>div{display:none}
+ .chapter-link>span{font-size:14px}.nav-expanded .chapter-link{justify-content:center;gap:0}
+ main{padding:9px 14px 0}.lab-grid,.classroom .lab-grid{grid-template-columns:minmax(0,1.18fr) minmax(360px,1fr);gap:12px}
+ .scene-host,.scene-pair:not(.single) .scene-host{height:350px}.scene-pair{grid-template-columns:minmax(0,1fr)}
+ .scene-pair:not(.single):not(.show-reference) .scene-cell:nth-child(2){display:none}
+ .scene-pair.show-reference .scene-cell:first-child{display:none}.scene-pair.show-reference .scene-cell:nth-child(2){display:block}
+ .lesson-heading h1{font-size:23px}.formula{font-size:20px}.value-item strong{font-size:23px}
+ .motion-label{display:none}.experiment-question{flex-wrap:wrap}.experiment-question button{margin-left:auto}
+ .parameter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:899px){
+ .topbar{height:auto;min-height:56px;padding:8px 12px;gap:8px;flex-wrap:wrap;position:relative}
+ .top-links{gap:12px}.top-links>a{display:none}.offline-pill{display:none}
+ .shell,.nav-expanded .shell{display:block}.sidebar,.nav-expanded .sidebar{position:relative;top:auto;height:auto;padding:7px 10px;border-right:0;border-bottom:1px solid var(--line);overflow-x:auto}
+ #chapter-nav{display:flex;gap:5px;min-width:max-content}.chapter-link,.nav-expanded .chapter-link{min-height:38px;margin:0;padding:5px 9px;gap:6px}
+ .sidebar .chapter-link div,.nav-expanded .sidebar .chapter-link div{display:block}.sidebar .chapter-link small{display:none}
+ .chapter-link strong,.nav-expanded .chapter-link strong{font-size:13px}.chapter-link>span{font-size:12px}
+ .sidebar>.h2-link,.sidebar .side-heading,.sidebar-note{display:none}
+ main,.classroom main{padding:12px 12px 0}.lab-grid,.classroom .lab-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ .lesson-heading{flex-direction:row;flex-wrap:wrap}.lesson-heading h1{font-size:24px}.lesson-heading p{font-size:16px}.lesson-heading>.badge{display:none}
+ .experiment-question{flex-wrap:wrap;align-items:center}.experiment-question strong{font-size:15px;flex:1;min-width:200px}
+ .experiment-question button{margin-left:auto}.workspace-toolbar{gap:7px}
+ .scene-pair{grid-template-columns:minmax(0,1fr)}.scene-pair:not(.single):not(.show-reference) .scene-cell:nth-child(2){display:none}
+ .scene-pair.show-reference .scene-cell:first-child{display:none}.scene-pair.show-reference .scene-cell:nth-child(2){display:block}
+ .scene-host,.scene-pair:not(.single) .scene-host,.classroom .scene-host{height:360px}
+ .scene-caption strong{font-size:14px}.formula,.classroom .formula{font-size:20px}
+ .explanation-card>h2{font-size:22px}.explanation-card>p,.stage-detail{font-size:16px}.value-item strong{font-size:24px}.feature-chart svg{min-width:340px}
+ .playback{position:relative;inset:auto;flex-wrap:wrap;padding:10px;margin:10px 0}.playback-buttons{flex:1;flex-wrap:wrap}
+ .playback-buttons button{font-size:14px;padding:6px 10px}.timeline-label{order:3;flex-basis:100%}.motion-label{display:none}
+ .parameter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .atom-row{grid-template-columns:32px 60px repeat(3,minmax(0,1fr));gap:5px}.atom-row label{display:block}
+ .atom-row input{font-size:14px;padding:6px 3px}.atom-row select{font-size:14px;padding:6px 2px}
+ .settings-title{flex-wrap:wrap}.settings-title button{font-size:14px}
+}
+@media(max-width:430px){
+ .brand small{display:none}.brand b{font-size:14px}.top-links{gap:8px}.top-links button{font-size:13px}
+ .lesson-heading h1{font-size:22px}.experiment-question>span{width:auto}.experiment-question strong{flex-basis:100%;min-width:0}
+ .scene-host,.scene-pair:not(.single) .scene-host{height:360px}.scene-legend{gap:7px;font-size:13px}.card-heading{flex-wrap:wrap}
+ .formula{font-size:20px}.value-item strong{font-size:23px}.toolbar-group button,.toolbar-group label,.toolbar-group select{font-size:14px}
+ .settings-panel{padding:12px}.parameter-grid{gap:10px}.table-scroll table{font-size:14px}
+}
