@@ -37,6 +37,9 @@ const element = id => {
 const requests = [];
 const context = vm.createContext({
   MLIP,
+  MLIPShare:require('./sharing.js'),
+  MLIPTrainingData:require('./training-data.js'),
+  H2Config:{validate:x=>x},
   console,
   document: {
     getElementById: element,
@@ -67,7 +70,8 @@ globalThis.audit = {
     route = state.chapter; roundView = round; position = state.stage;
     referencePinned = false; featureIndex = 0; featurePage = 0;
   },
-  getFeatures, renderStage, renderChecks, renderScenes, setPosition, requestCompute,
+  getFeatures, renderStage, renderChecks, renderScenes, setPosition, requestCompute, stageShared, receiveShared,
+  pending:()=>clone(pendingShare), restoreSourcesFocus,
   read: () => ({state: clone(state), snapshot: clone(snapshot), playing, position})
 };`, context, {filename: 'app-ui-contract.js'});
 const ui = context.audit;
@@ -138,3 +142,23 @@ ui.load({...base, version: 1}, initial);ui.requestCompute(true);
 const generation = requests.at(-1).state.version;
 ui.load({...base, version: 1}, initial);ui.requestCompute(true);
 assert(requests.at(-1).state.version > generation, 'imported config reuses an old worker generation');
+
+// A shared URL is a pending draft. Validation precedes pause/state changes.
+const share={schema:'mlip-experiment',version:1,chapter:'acsf',mode:'principle',config:{...copy(base),schema:'mlip-methods-config',version:1,chapter:'acsf'}};
+ui.load(base,initial);const beforeShare=ui.read(),beforeRequests=requests.length;
+ui.stageShared(share);
+assert.deepEqual(ui.read(),beforeShare,'staging a share must retain geometry/model snapshot');
+assert.equal(requests.length,beforeRequests,'staging a share must not request calculation or training');
+assert.equal(ui.pending().chapter,'acsf');
+const previousPending=JSON.stringify(ui.pending());
+ui.receiveShared('%%%');assert.equal(JSON.stringify(ui.pending()),previousPending,'invalid incoming link replaces a valid pending draft');assert.deepEqual(ui.read(),beforeShare);
+assert.throws(()=>ui.stageShared({...share,config:{...share.config,atoms:[]}}));assert.deepEqual(ui.read(),beforeShare);
+console.log('Share staging passed: no optimizer/update requests, no model overwrite, invalid links retain current and pending state.');
+
+// Restore focus to an actually visible control when the narrow More menu closes.
+const menu=element('more-nav'),summary=new Element('more-summary');menu.querySelector=()=>summary;
+let restored=null;summary.focus=()=>{restored='summary';};element('open-sources').focus=()=>{restored='trigger';};
+context.matchMedia=()=>({matches:false});menu.open=false;ui.restoreSourcesFocus();assert.equal(restored,'summary');
+menu.open=true;ui.restoreSourcesFocus();assert.equal(restored,'trigger');
+context.matchMedia=()=>({matches:true});menu.open=false;ui.restoreSourcesFocus();assert.equal(restored,'trigger');
+console.log('Dialog focus passed: narrow closed/open menu and desktop trigger restoration.');

@@ -1,13 +1,14 @@
 {
   "name": "mlip-methods-lab",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "private": true,
   "description": "Offline interactive ML interatomic-potential teaching laboratory",
   "scripts": {
     "build": "node build.cjs",
-    "test": "node test-operators.cjs && node test-ui-contract.cjs && node test-methods-worker.cjs && node h2/test-engine.cjs && node h2/test-worker.cjs && node h2/test-robustness.cjs && node test-training-models.cjs && node test-training-engine.cjs && node test-training-worker.cjs && node test-training-robustness.cjs && node test-training-convergence.cjs && node test-audit-regressions.cjs && node test-reading.cjs",
+    "test": "node test-operators.cjs && node test-ui-contract.cjs && node test-methods-worker.cjs && node h2/test-engine.cjs && node h2/test-worker.cjs && node h2/test-robustness.cjs && node h2/test-forces.cjs && node h2/test-ui-forces.cjs && node test-sharing.cjs && node test-shell-v51.cjs && node test-training-models.cjs && node test-training-engine.cjs && node test-training-worker.cjs && node test-training-robustness.cjs && node test-training-convergence.cjs && node test-audit-regressions.cjs && node test-reading.cjs",
     "serve": "node serve.cjs",
-    "test:quick": "node test-operators.cjs && node test-ui-contract.cjs && node test-methods-worker.cjs && node h2/test-engine.cjs && node h2/test-worker.cjs && node h2/test-robustness.cjs && node test-training-models.cjs && node test-training-engine.cjs && node test-training-worker.cjs && node test-training-robustness.cjs && node test-audit-regressions.cjs && node test-reading.cjs",
+    "test:quick": "node test-operators.cjs && node test-ui-contract.cjs && node test-methods-worker.cjs && node h2/test-engine.cjs && node h2/test-worker.cjs && node h2/test-robustness.cjs && node h2/test-forces.cjs && node h2/test-ui-forces.cjs && node test-sharing.cjs && node test-shell-v51.cjs && node test-training-models.cjs && node test-training-engine.cjs && node test-training-worker.cjs && node test-training-robustness.cjs && node test-audit-regressions.cjs && node test-reading.cjs",
+    "test:forces": "node h2/test-forces.cjs",
     "test:audit": "node test-audit-regressions.cjs"
   },
   "dependencies": {

@@ -78,3 +78,6 @@
 [data-theme="dark"] .tr-progress{background:#132338}
 [data-theme="dark"] .tr-dirty{background:#2a1f0a;border-color:#785317;color:#fde047}
 [data-theme="dark"] .tr-alert{background:#30130d;border-color:#7f1d1d;color:#fca5a5}
+
+/* v5.1: actual engine state and optional first-use guidance. */
+.tr-state-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px;font-size:14px;color:var(--muted)}.tr-state-row strong{padding:3px 10px;border-radius:20px;color:var(--blue);background:var(--blue-pale);font-size:14px}.tr-onboarding{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;padding:12px;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:9px;background:var(--panel)}.tr-onboarding p{font-size:15px;color:var(--muted)}.tr-onboarding-actions{display:flex;flex-wrap:wrap;gap:6px}.tr-onboarding button{font-size:14px}.tr-controls button:focus-visible{outline:3px solid var(--orange);outline-offset:3px}@media(max-width:899px){.tr-onboarding{align-items:flex-start;flex-direction:column}.tr-onboarding-actions{width:100%}.tr-onboarding-actions button{flex:1}}

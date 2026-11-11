@@ -18,5 +18,5 @@ onmessage=({data:m})=>{try{
  else if(m.type==='probe'){probe=Math.max(.3,Math.min(3,Number(m.r)||.7417));send();}
  else if(m.type==='speed'){speed=Math.min(100,Math.max(1,Number(m.speed)||100));}
  else if(m.type==='gradientCheck'){pause();if(lesson){postMessage({type:'error',version,message:'请退出讲解后检查当前模型梯度。'});return;}postMessage({type:'gradientCheck',version,result:engine.checkGradient(selection.type==='edge'?selection:{layer:Math.max(0,selection.layer-1),k:0})});send();}
- else if(m.type==='export'){postMessage({type:'csv',version,rows:engine.snapshot(probe).data});}
+ else if(m.type==='export'){const snapshot=engine.snapshot(probe);postMessage({type:'csv',version,step:snapshot.step,rows:snapshot.data});}
 }catch(e){pause();postMessage({type:'error',version,message:e.message,field:e.field});}};

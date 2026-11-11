@@ -1,4 +1,4 @@
-# Numerical API（v5；原理接口兼容 v4）
+# Numerical API（v5.1；原理接口兼容 v4）
 
 本文件前半部分描述原理观察的 `MLIP.compute`；固定种子模型不等于后半部分的真实训练模型。训练设置、物理单位和算法目标详见 [TRAINING.md](TRAINING.md)。
 
@@ -107,3 +107,25 @@ parameters 只发送所选参数所在的256项页；`parameterOffset` 标识该
 - 普通连续训练最多每500ms发布完整快照；暂停、单步、讲解提交和完成立即发布。动画只读快照，不调用训练更新。
 
 配置文件为 `{schema:'mlip-training-config',version:1,cfg}`。它只保存设置；原理 `mlip-methods-config` 与 H₂ 格式仍独立处理。`#/方法?mode=train` 打开训练模式，原有 hash 路由保持有效。三维视图接口见 [SCENE.md](SCENE.md)。
+
+## v5.1 H₂ 力接口
+
+H₂ 配置 `{schema:'h2-lab-config',version:2,config}` 新增 `trainingTarget:'energy'|'energy-force'`、`forceWeight:0..10`。默认仅能量、力权重设置1（仅能量时有效权重0）。v1 导入补为仅能量模式。主页面与内嵌 H₂ 共用 `H2Config.validate`，不维护第二套物理配置校验。
+
+`predictForce(r,params?)` 与 `morseForce(r)` 返回 eV/Å。`forwardTangent(x,params?)` 给出激活、输入导数和激活前导数；任意候选参数也可计算，讲解回放因此不读取当前训练模型的另一时刻参数。
+
+- `curve` 与 `data` 追加 `force,predictedForce`。
+- `probe` 追加 `referenceForce,predictionForce`。
+- 指标保留能量 `mse,rmse`，追加 `forceMse,forceRmse,totalLoss`。
+- `beforeLoss/afterLoss` 含 `energyNormalized,forceNormalized,total,energyMSE,forceMSE`。前三项无量纲；后两项分别为 eV²、(eV/Å)²。
+- 更新记录增加 `gradientEnergy` 与未加权的 `gradientForce`，均含 `weights,biases`；原 `gradients,biasGradients` 表示最终目标的总梯度 `gE + update.forceWeight * gF`，其中 `update.forceWeight` 为该模式的有效权重。
+- 样本记录包含 `derivatives,preactivationDerivatives,forceDeltas,forceTangentDeltas`；梯度分解使用能量与导数两条路径。两类 force adjoint 均已含批次平均因子 1/B，尚未乘 λF；单个连接的力项贡献是 `a_prev * forceDelta + derivative_prev * forceTangentDelta`。
+- 原 `physicalLoss,batchBefore,batchAfter` 保留能量 MSE 语义，不改作混合量纲目标。
+
+共享桥只接收实际父窗口发来的 `channel:'mlip-h2-bridge'` 消息，并以 `requestId` 对应请求。`get-config` 返回已应用配置；`validate-config` 只校验；`stage-config` 暂停并填入待应用设置，不重新初始化。所有图线与导数仍属于同一模型 Step。
+
+## v5.1 实验分享
+
+分享包为 `{schema:'mlip-experiment',version:1,chapter,mode,config}`，config 内嵌既有三种配置格式之一。路由通过 `experiment` 参数携带 UTF-8 JSON 的 base64url 编码，编码限8 KiB。仅允许章节、模式与经过对应校验的配置字段，不序列化训练权重、优化器状态或进度。
+
+`MLIPShare.validate` 复用原理、多原子训练与 H₂ 的真实配置校验。链接载入先校验和显示摘要，应用后保持暂停；非法链接不覆盖当前实验。普通章节链接及旧 JSON 保持兼容。

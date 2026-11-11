@@ -114,7 +114,7 @@ export function createScene(host,callbacks={}){
   const labelPositions=new Map();
   const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
 
-  function setEdit(on){edit=!!on&&typeof callbacks.onMove==='function';orbitButton.setAttribute('aria-pressed',String(!edit));editButton.setAttribute('aria-pressed',String(edit));if(controls)controls.enabled=!edit;note.textContent=edit?'拖动原子改变坐标 · 精确值可在坐标编辑器输入':'拖动旋转视角 · 滚轮缩放 · 点击原子查看';if(renderer)renderer.domElement.style.cursor=edit?'crosshair':'grab';}
+  function setEdit(on){edit=!!on&&typeof callbacks.onMove==='function';orbitButton.setAttribute('aria-pressed',String(!edit));editButton.setAttribute('aria-pressed',String(edit));if(controls)controls.enabled=!edit;note.textContent=edit?'拖动原子改变坐标 · 方向键微调':'拖动旋转视角 · 滚轮缩放 · R 适配';note.title='点击原子选择；移动原子模式下可拖动原子，方向键每次移动 0.05 Å，Shift 加速。观察视角模式下方向键旋转，R 适配结构，Escape 退出编辑。';if(renderer)renderer.domElement.style.cursor=edit?'crosshair':'grab';}
   function syncViewMenu(){viewMenu.hidden=!compact;viewMenu.setAttribute('aria-expanded',String(compact&&viewOpen));viewActions.hidden=compact&&!viewOpen;}
   function closeViewMenu(){if(!viewOpen)return;viewOpen=false;syncViewMenu();measure();if(compact)viewMenu.focus();}
   viewMenu.onclick=()=>{viewOpen=!viewOpen;syncViewMenu();measure();};
@@ -153,7 +153,7 @@ export function createScene(host,callbacks={}){
     labels.hidden=false;leaders.hidden=false;
     if(!warning){warning=document.createElement('div');warning.className='scene-warning';host.appendChild(warning);}warning.textContent=message;
     if(fallback)return;
-    fallback=svgNode('svg',{class:'scene-fallback',role:'img','aria-label':'原子环境二维投影，可点击原子；输入坐标可在编辑器中修改',tabindex:0});host.prepend(fallback);
+    fallback=svgNode('svg',{class:'scene-fallback',role:'img','aria-label':'二维投影：拖动旋转视角；移动原子模式可拖动原子或用方向键微调；R 适配，Escape 退出编辑',tabindex:0});host.prepend(fallback);
     fallback.addEventListener('pointerdown',pointerDown,true);fallback.addEventListener('pointermove',pointerMove);fallback.addEventListener('pointerup',pointerUp);fallback.addEventListener('pointercancel',pointerUp);fallback.addEventListener('keydown',keyDown);
     fallback.addEventListener('wheel',e=>{e.preventDefault();autoFit=false;viewScale=Math.max(8,Math.min(400,viewScale*Math.exp(-e.deltaY*.001)));schedule();notifyCamera();},{passive:false});
   }
@@ -514,6 +514,6 @@ export function createScene(host,callbacks={}){
   function resetCamera(){fitMode='structure';setPresetView('iso');}
   function dispose(){disposed=true;if(frame)cancelAnimationFrame(frame);observer.disconnect();controls?.dispose();if(scene)disposeGroup(scene);renderer?.dispose();host.replaceChildren();host.classList.remove('mlip-scene');}
 
-  setupWebGL();const observer=new ResizeObserver(measure);observer.observe(host);measure();cameraCallbacksReady=true;
+  setupWebGL();setEdit(false);const observer=new ResizeObserver(measure);observer.observe(host);measure();cameraCallbacksReady=true;
   return{update,setPhase,setVisible,resetCamera,fit,getCamera,setCamera,dispose,inspect,getLabelState:()=>[...atomLabels,...vectorLabels].map(a=>({index:a.index,text:a.el.textContent,hidden:a.el.hidden,rect:a.el.getBoundingClientRect().toJSON()})),get isWebGL(){return!!renderer;}};
 }

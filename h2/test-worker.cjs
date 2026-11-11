@@ -6,3 +6,12 @@ s=send('prepareLesson');const step=s.step,before=s.network.weights;assert.equal(
 send('play');send('step');assert.equal(messages.at(-1).step,step);s=send('nextLesson');assert.equal(s.step,step+1);assert.equal(s.lessonNetwork.step,step+1);send('nextLesson');assert.equal(messages.at(-1).step,step+1);s=send('viewLesson',{phase:1});assert.equal(s.step,step+1);assert.equal(s.lessonNetwork.step,step);s=send('nextLesson');assert.equal(s.step,step+1);assert.equal(s.lesson.viewPhase,null);
 send('prepareLesson');s=send('invalidateLesson');assert.equal(s.lesson,null);assert.equal(s.step,step+1);s=send('select',{selection:{type:'node',layer:2,k:0}});assert(s.network.response.lastHidden);s=send('probe',{r:1.2});assert.equal(s.network.r,1.2);const original=s.step;send('gradientCheck');s=messages.findLast(m=>m.type==='gradientCheck');assert(s.result.relative<1e-4);assert.equal(messages.at(-1).step,original);
 assert(!messages.some(m=>m.type==='error'));console.log('PASS: snapshot throttling, stage-only commit, read-only replay, invalidation, selection, probe and gradient-check counts.');
+const jointConfig={hiddenLayers:[3,2],activations:['softplus','tanh'],trainingTarget:'energy-force',forceWeight:.7};
+s=send('init',{config:jointConfig});assert.equal(s.step,0);assert(Number.isFinite(s.probe.predictionForce));
+s=send('prepareLesson');assert(Number.isFinite(s.lesson.trace.loss.forceMSE));assert.equal(s.step,0);
+for(let phase=1;phase<=3;phase++){s=send('nextLesson');assert.equal(s.step,0);assert(Number.isFinite(s.lessonNetwork.derivatives.at(-1)[0]));}
+s=send('nextLesson');assert.equal(s.step,1);const expected=ctx.createEngine(jointConfig);expected.trainStep();const expectedSnap=expected.snapshot();
+assert.equal(JSON.stringify(s.network.weights),JSON.stringify(expectedSnap.network.weights));assert.equal(s.probe.predictionForce,expectedSnap.probe.predictionForce);
+send('viewLesson',{phase:2});s=send('cancelLesson');assert.equal(s.step,1);s=send('export');assert.equal(s.step,1);assert(s.rows.every(p=>Number.isFinite(p.force)&&Number.isFinite(p.predictedForce)));
+s=send('probe',{r:1.5});assert.equal(s.step,1);assert.equal(s.probe.referenceForce,ctx.createEngine({}).morseForce(1.5));
+assert(!messages.some(m=>m.type==='error'));console.log('PASS: joint force stages, matching direct update, read-only replay/probe and force CSV Step.');

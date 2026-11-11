@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>H₂ 势能实验室 v3.1 · 交互训练与计算</title><meta name="description" content="离线、本地 CPU、真实训练的 H₂ 势能曲线交互实验室。"><style>:root{--ink:#172e49;--muted:#597086;--line:#dce5ef;--blue:#2378df;--orange:#c96d20;--green:#167d6c;--pale:#f4f8fc;--bar-height:144px;color-scheme:light}
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>H₂ 势能实验室 v5.1 · 能量与力联合训练</title><meta name="description" content="离线、本地 CPU、真实能量与力联合训练的 H₂ 势能曲线交互实验室。"><style>:root{--ink:#172e49;--muted:#597086;--line:#dce5ef;--blue:#2378df;--orange:#c96d20;--green:#167d6c;--pale:#f4f8fc;--bar-height:144px;color-scheme:light}
 *{box-sizing:border-box} [hidden]{display:none!important}
 body{margin:0;background:#f4f7fb;color:var(--ink);font:15px/1.5 'Segoe UI','Microsoft YaHei',sans-serif}
 button,input,select{font:inherit}button,summary,select{cursor:pointer}button{border:1px solid #cbd8e5;border-radius:8px;background:#fff;color:var(--ink);padding:9px 12px;min-height:40px;line-height:1.35;font-size:14px;font-weight:600}
@@ -34,14 +34,16 @@ h1,h2,h3,p{overflow-wrap:break-word}h1{font-size:27px;line-height:1.3;margin:4px
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
 body.embedded .header{display:none}body.embedded main{padding-top:8px}body.embedded{overflow:hidden;min-height:0;height:auto}
+.first-guide{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 16px;margin-bottom:14px;border:1px solid #a8cced;background:#edf6ff;border-radius:12px;font-size:15px}.first-guide p{margin:4px 0;color:#3c5b77}.first-guide button{flex-shrink:0}.comparison-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:12px;margin-top:12px;border-top:1px solid var(--line)}.comparison-actions .hint{flex-basis:100%;margin:0}.line.comparison{border-color:#8056aa;border-top-style:dashed}.metric-pairs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:12px}.metric-pairs section{padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--pale)}.metric-pairs strong{font-variant-numeric:tabular-nums;color:#185da9;overflow-wrap:anywhere}.metric-pairs small{color:var(--muted);font-size:13px}.force-summary{margin-top:16px}.molecule svg{height:88px}.math-inspector .formula{font-size:16px;line-height:1.65}.math-inspector .math-value strong{font-size:16px}.math-inspector p{font-size:14px}.lesson-loss p{font-size:14px;max-width:850px}.comparison-actions button{font-size:14px}#force-note{font-size:14px}.status-line{flex-wrap:wrap}#force-target-hint{margin:0 0 12px}.plot-toolbar .legend{min-width:0}.plot-toolbar .legend span{overflow-wrap:anywhere}.stat strong{white-space:normal}.probe-grid>.molecule{min-width:0}.probe-grid .probe-metric span{overflow-wrap:anywhere}
+@media(max-width:520px){.first-guide{align-items:flex-start;flex-wrap:wrap;font-size:14px}.first-guide button{margin-left:auto}.metric-pairs{grid-template-columns:1fr}.metric-pairs section{padding:12px}.comparison-actions button{flex:1;min-width:0}.probe-grid{grid-template-columns:1fr 1fr}.molecule{grid-column:1/-1}.molecule svg{max-width:320px;margin:auto}.plot-toolbar .segmented{width:100%;justify-content:space-between}.plot-toolbar .segmented button{white-space:normal}.math-inspector .formula{font-size:16px}}
 </style></head><body>
-<header class="header"><div><div class="eyebrow">MLMD / INTERACTIVE LAB</div><h1>H₂ 势能实验室 <span>让计算与拟合同屏</span></h1></div><div class="header-tags"><span class="pill"><i></i> 本地 CPU · 离线运行</span><span class="version">v3.1</span></div></header>
+<header class="header"><div><div class="eyebrow">MLMD / INTERACTIVE LAB</div><h1>H₂ 势能实验室 <span>能量、力与真实训练</span></h1></div><div class="header-tags"><span class="pill"><i></i> 本地 CPU · 离线运行</span><span class="version">v5.1</span></div></header>
 <main>
 <section class="training-bar" aria-label="训练操作与当前指标"><div class="training-main"><div class="training-actions"><button id="play" class="primary" disabled>开始训练</button><button id="step" disabled>+1 Step</button><button id="reset">重置</button></div><section class="stats"><div class="stat"><span>累计更新 / Step</span><strong id="steps">0</strong><small id="step-total"></small></div><div class="stat"><span>已完成 / Epoch</span><strong id="epoch">0</strong><small id="epoch-current"></small></div><div class="stat"><span>训练 RMSE</span><strong id="train-rmse"></strong><small id="train-mse"></small></div><div class="stat"><span>验证 RMSE</span><strong id="val-rmse"></strong><small id="val-mse"></small></div></section>
 </div><div class="training-secondary"><nav class="workspace-nav" role="tablist" aria-label="实验室视图"><button id="tab-overview" role="tab" data-view="overview" aria-selected="true" aria-controls="view-overview">拟合与误差</button><button id="tab-computation" role="tab" data-view="computation" aria-selected="false" aria-controls="view-computation" tabindex="-1">网络与计算</button><button id="tab-data" role="tab" data-view="data" aria-selected="false" aria-controls="view-data" tabindex="-1">样本与批次</button></nav><div class="toolbar-extras"><button id="settings-toggle" class="text-button">参数设置</button><details class="display-options"><summary>演示速度</summary><div class="display-popover"><label for="speed">每秒更新上限</label><input id="speed" type="number" min="1" max="100" step="1" value="100"><label for="animation-speed">阶段动画速度</label><select id="animation-speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select><p class="hint">仅改变播放速度，保留训练结果。</p></div></details></div></div><div class="status-line"><span id="status" class="status" role="status">正在初始化…</span><span id="config-state"></span></div></section>
 <div class="lab-layout" data-view="overview"><aside class="settings-column"><details id="settings-drawer" open><summary><span>模型与训练参数</span><span class="settings-chevron">展开 / 收起</span></summary><div class="controls" id="settings">
 <div id="dirty-note" role="status" hidden>待应用设置 · 训练已暂停，图表保留已提交结果。</div>
-<div class="settings-scroll"><div class="field"><label for="depth">隐藏层数 <span>0 = 线性基线</span></label><input id="depth" type="number" min="0" max="4" step="1" value="2"></div><div id="layer-editors"></div><div id="draft-size" class="hint"></div>
+<div class="settings-scroll"><div class="field"><label for="trainingTarget">训练目标</label><select id="trainingTarget"><option value="energy">仅能量</option><option value="energy-force">能量＋力</option></select></div><div class="field"><label for="forceWeight">力损失权重 λF <span>无量纲</span></label><input id="forceWeight" type="number" min="0" max="10" step=".1" value="1"></div><p id="force-target-hint" class="hint"></p><div class="field"><label for="depth">隐藏层数 <span>0 = 线性基线</span></label><input id="depth" type="number" min="0" max="4" step="1" value="2"></div><div id="layer-editors"></div><div id="draft-size" class="hint"></div>
 <div class="field-pair"><div class="field"><label for="optimizer">优化器</label><select id="optimizer"><option value="adam">Adam</option><option value="sgd">SGD</option><option value="momentum">Momentum SGD</option></select></div><div class="field"><label for="lr">初始学习率</label><input id="lr" type="number" min="0.0001" max="0.1" step="0.0001" value="0.01"></div></div><datalist id="rates"><option value=".001"><option value=".003"><option value=".01"><option value=".03"><option value=".1"></datalist>
 <div class="field-pair"><div class="field"><label for="n">总样本数</label><input id="n" type="number" min="20" max="400" step="5" value="80"></div><div class="field"><label for="batch">批次大小</label><input id="batch" type="number" min="1" max="64" step="1" value="8"></div></div><div class="hint" id="split"></div><div class="field"><label for="epochs">训练轮数 / Epoch</label><input id="epochs" type="number" min="1" max="2000" step="1" value="500"></div>
 <details id="advanced"><summary>高级模型与采样设置</summary>
@@ -57,12 +59,12 @@ body.embedded .header{display:none}body.embedded main{padding-top:8px}body.embed
 </details>
 <div class="button-row config-files"><button id="config-export">导出配置</button><button id="config-import">导入配置</button><input id="config-file" type="file" accept=".json,application/json" hidden></div><div id="model-note" class="model-note"></div></div>
 <div class="settings-apply"><div id="config-error" class="error" role="alert" hidden></div><button id="apply" class="primary">应用并重新初始化</button><div class="button-row"><button id="undo">撤销编辑</button><button id="defaults">恢复默认</button></div></div></div></details></aside><div class="workspace-content">
-<section id="view-overview" role="tabpanel" aria-labelledby="tab-overview"><details class="guide panel" id="guide-drawer"><summary>实验引导 · 一次更新、网络容量与 Batch 对比</summary><div class="section-top"><div><h2>选择一个实验</h2><p class="sub">引导只填写待应用设置，点击“应用并重新初始化”后开始。</p></div><button id="guide-clear">自由探索</button></div><div class="guide-buttons"><button data-guide="step">一次真实更新</button><button data-guide="capacity">网络容量比较</button><button data-guide="batch">Batch Size 比较</button><button data-guide="activation">激活与分区误差</button></div><div id="guide-detail" hidden></div></details>
+<section id="view-overview" role="tabpanel" aria-labelledby="tab-overview"><div id="first-guide" class="first-guide" role="status"><div><strong>当前是初始化模型，尚未训练</strong><p>点击“开始训练”观察拟合，或打开“网络与计算 → 逐步讲解”，暂停在一次真实更新。</p></div><button id="dismiss-guide" aria-label="关闭首次操作提示">知道了</button></div><details class="guide panel" id="guide-drawer"><summary>实验引导 · 联合训练、外推与一次更新</summary><div class="section-top"><div><h2>选择一个实验</h2><p class="sub">引导只填写待应用设置，点击“应用并重新初始化”后开始。</p></div><button id="guide-clear">自由探索</button></div><div class="guide-buttons"><button data-guide="step">一次真实更新</button><button data-guide="forces">能量与力</button><button data-guide="coverage">外推实验</button><button data-guide="capacity">网络容量比较</button><button data-guide="batch">Batch Size 比较</button><button data-guide="activation">激活与分区误差</button></div><div id="guide-detail" hidden></div></details>
 <section class="plot-panel panel"><div class="section-top"><div><h2>参考曲线与实时拟合</h2><p class="sub">输入键长 r / Å，预测势能 E / eV</p></div><button id="csv">导出 CSV ↗</button></div>
-<div class="plot-toolbar"><div class="legend"><span><i class="line reference"></i>Morse 参考</span><span><i class="line predicted"></i>网络预测</span><span><i class="dot train"></i>训练点</span><span><i class="dot val"></i>验证点</span></div><div class="segmented"><button id="energy-view" aria-pressed="true">势能</button><button id="residual-view" aria-pressed="false">残差</button></div></div>
+<div class="plot-toolbar"><div class="legend"><span><i class="line reference"></i>Morse 参考</span><span><i class="line predicted"></i><span id="prediction-label">初始化模型</span></span><span><i class="dot train"></i>训练点</span><span><i class="dot val"></i>验证点</span><span id="comparison-legend" hidden><i class="line comparison"></i>保存的对照</span></div><div class="segmented"><button id="energy-view" aria-pressed="true">能量</button><button id="force-view" aria-pressed="false">力</button><button id="residual-view" aria-pressed="false">能量残差</button></div></div>
 <div id="energy-chart" class="svg-frame" role="img" aria-label="参考势能与实时拟合，可移动探针"></div><div class="range-row"><label>显示范围<select id="range"><option value="all">完整 · 0.30–3.00 Å</option><option value="well">势阱 · 0.45–1.25 Å</option><option value="tail">长键区 · 1.20–3.00 Å</option></select></label><label>纵轴<select id="plot-scale"><option value="locked">锁定参考范围</option><option value="auto">自动范围</option></select></label></div>
-<div class="probe-grid"><div class="molecule"><svg id="molecule" viewBox="0 0 240 78" aria-label="H—H 键长"></svg><label for="probe">键长探针<output id="probe-r"></output></label><input id="probe" type="range" min=".3" max="3" step=".0001" value=".7417"></div><div class="probe-metric"><span>参考 / eV</span><strong id="probe-ref"></strong></div><div class="probe-metric"><span>预测 / eV</span><strong id="probe-pred"></strong></div><div class="probe-metric"><span>预测 − 参考 / eV</span><strong id="probe-error"></strong></div></div><div id="coverage-note" class="hint"></div>
-</section><div class="history-section"><section class="panel"><h2>真实损失历史</h2><p class="sub">完整训练／验证集的 MSE / eV²，按真实评估点记录。</p><div id="loss-chart" class="loss-frame"></div><div id="region-metrics" class="hint"></div></section></div></section>
+<div class="probe-grid"><div class="molecule"><svg id="molecule" viewBox="0 0 280 112" aria-label="H—H 键长及能量导出的预测力"></svg><label for="probe">键长探针<output id="probe-r"></output></label><input id="probe" type="range" min=".3" max="3" step=".0001" value=".7417"></div><div class="probe-metric"><span id="probe-ref-label">参考 / eV</span><strong id="probe-ref"></strong></div><div class="probe-metric"><span id="probe-pred-label">预测 / eV</span><strong id="probe-pred"></strong></div><div class="probe-metric"><span id="probe-error-label">预测 − 参考 / eV</span><strong id="probe-error"></strong></div></div><p id="force-note" class="hint"></p><div id="coverage-note" class="hint"></div><div class="comparison-actions"><button id="save-comparison">保存当前结果为对照</button><button id="clear-comparison" hidden>清除对照</button><span id="comparison-note" class="hint" role="status"></span></div>
+</section><div class="force-summary panel"><h2>能量与力的实际误差</h2><div id="force-metrics" class="metric-pairs"></div><p class="hint">力始终由当前能量模型求导。只有“能量＋力”模式把力标签加入训练目标。</p></div><div class="history-section"><section class="panel"><h2>真实损失历史</h2><p id="history-note" class="sub">完整训练／验证集的 MSE / eV²，按真实评估点记录。</p><div id="loss-chart" class="loss-frame"></div><div id="region-metrics" class="hint"></div></section></div></section>
 <section id="view-computation" role="tabpanel" aria-labelledby="tab-computation" hidden><section class="panel network-panel" id="network-panel"><div class="section-top"><div><h2>看见一次计算</h2><p class="sub" id="network-summary"></p></div><div class="segmented"><button id="net-live" aria-pressed="true">实时观察</button><button id="net-lesson" aria-pressed="false">逐步讲解</button></div></div>
 <div class="network-toolbar"><label>连线／矩阵<select id="net-value"><option value="weight">权重 w</option><option value="gradient">批次梯度 ∂L*/∂w</option><option value="delta">实际更新量 Δw</option></select></label><label>标尺<select id="net-scale"><option value="locked">锁定</option><option value="auto">自动</option></select></label><button id="scale-reset">重新锁定本帧</button><label class="check-label"><input id="net-all" type="checkbox">全部连接</label><button id="net-output">聚焦输出</button><button id="gradient-check">数值梯度检查</button></div><div id="net-legend" class="hint"></div><div id="gradient-result" class="hint" role="status"></div>
 <div id="lesson-controls" class="lesson-controls" hidden><div class="lesson-heading"><strong id="lesson-heading"></strong><label>讲解样本<select id="lesson-sample"></select></label></div><div class="lesson-stages"><button data-phase="1">1 前向传播</button><button data-phase="2">2 平均损失</button><button data-phase="3">3 反向传播</button><button data-phase="4">4 参数更新</button></div><div class="lesson-actions"><button id="lesson-next" class="accent">开始前向传播</button><button id="lesson-replay">重播阶段</button><button id="lesson-pause">暂停动画</button><button id="lesson-new">讲解下一批</button><button id="lesson-cancel">退出讲解</button></div><p id="lesson-status" role="status"></p></div>
@@ -70,12 +72,13 @@ body.embedded .header{display:none}body.embedded main{padding-top:8px}body.embed
 <div class="teaching-workspace"><div class="network-zone"><div class="view-tabs"><label class="zoom-control">图缩放<select id="net-zoom"><option value="0.8">80%</option><option value="1" selected>100%</option><option value="1.25">125%</option><option value="1.5">150%</option></select></label><button id="graph-tab" aria-pressed="true">网络图</button><button id="matrix-tab" aria-pressed="false">权重矩阵</button><label id="matrix-layer-label" hidden>层<select id="matrix-layer"></select></label></div><div id="graph-wrap" class="network-scroll"><div id="network" role="group" aria-label="真实神经网络，可选择节点和连线"></div></div><div id="matrix-wrap" hidden><div id="matrix" role="group" aria-label="输出行、输入列的真实权重矩阵"></div><p id="matrix-caption" class="hint"></p></div><p id="path-note" class="hint"></p></div>
 <aside class="explain-zone"><div class="mini-card"><div class="section-top"><h3 id="mini-title">同一模型的拟合</h3><span id="mini-step" class="tiny"></span></div><div id="mini-plot" role="img" aria-label="参考、更新前与更新后拟合"></div><div id="mini-metrics" class="hint"></div></div><div class="math-inspector"><h3 id="math-title"></h3><div class="inspector-tabs" role="tablist" aria-label="计算详情"><button role="tab" id="inspect-summary" data-inspector="summary" aria-selected="true" aria-controls="math-content">数值与公式</button><button role="tab" id="inspect-activation" data-inspector="activation" aria-selected="false" aria-controls="activation-plot" tabindex="-1">激活函数</button><button role="tab" id="inspect-terms" data-inspector="terms" aria-selected="false" aria-controls="math-terms" tabindex="-1">逐项计算</button></div><div id="math-content"></div><div id="activation-plot" hidden></div><div id="math-terms" class="math-terms" hidden></div></div></aside></div>
 <div id="response-card" class="response-card" hidden><div class="section-top"><div><h3 id="response-title"></h3><p class="hint">网络的数学表达；贡献项不代表独立物理作用。</p></div><label><input id="show-contribution" type="checkbox">显示最后隐藏层贡献 / eV</label></div><div id="response-plot"></div><p id="response-note" class="hint"></p></div>
-<div id="lesson-loss" class="lesson-loss" hidden></div><p class="net-footnote">线条蓝正／橙负；蓝色光点向右表示前向计算，橙色箭头向左表示反向求导。L* 为归一化 MSE；主图和误差使用 eV／eV²。实时视图最多每秒 10 次快照；动画只读取真实记录，不驱动训练。</p></section>
+<div id="lesson-loss" class="lesson-loss" hidden></div><p class="net-footnote">线条蓝正／橙负；蓝色光点向右表示前向计算，橙色箭头向左表示反向求导。L* 为无量纲目标：归一化能量 MSE＋λF×归一化力 MSE；仅能量模式 λF=0。能量误差和力误差分别使用 eV² 与 (eV/Å)²。动画只读取真实记录，不驱动训练。</p></section>
 </section>
 <section id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden><div class="data-intro"><h2>每个批次，都是一次真实更新</h2><p class="sub">点击样本可跳转到拟合图查看对应键长。验证点仅用于评估。</p></div><section class="panel"><div class="section-top"><div><h2>一个 Batch，一次更新</h2><p id="batch-description" class="sub"></p></div><span id="batch-count" class="pill"></span></div><div id="sample-grid" class="sample-grid"></div><div class="legend small"><span>✓ 本轮已处理</span><span>蓝框：讲解中或最近更新的 Batch</span><span class="val-text">验证点不参与更新</span></div><div id="validation-points" class="validation-points"></div></section></section>
-</div></div><details class="panel source-panel"><summary>参考模型、参数与计算说明</summary><div class="source-content"><p>经验势参考数据：E(r)=Dₑ[1−exp(−a(r−rₑ))]²−Dₑ，Dₑ=4.748 eV，a=1.944 Å⁻¹，rₑ=0.7417 Å。解离极限取零，势阱最低点为 −Dₑ。这是经验模型，不是量子化学数据库数据。</p><p><a href="https://escholarship.org/content/qt6wk7d53s/qt6wk7d53s.pdf" target="_blank" rel="noopener">Lawrence Berkeley National Laboratory 参数资料</a>。参考曲线固定 601 点；标准化统计仅使用训练集。</p><p>本地 CPU / JavaScript Float64 / 内嵌 Web Worker，无 GPU、服务器、外部 CDN 或遥测。所有损失和梯度来自实际模型；训练进度只存在页面内存中，关闭或刷新即丢失。配置 JSON 只保存设置，CSV 保存当前采样点的预测与残差。</p></div></details><footer>H₂ POTENTIAL LAB · v3.1<span>键长 Å · 势能 eV · 本地真实训练</span></footer>
+</div></div><details class="panel source-panel"><summary>参考模型、参数与计算说明</summary><div class="source-content"><p>经验势参考数据：E(r)=Dₑ[1−exp(−a(r−rₑ))]²−Dₑ，Dₑ=4.748 eV，a=1.944 Å⁻¹，rₑ=0.7417 Å。解离极限取零，势阱最低点为 −Dₑ。这是经验模型，不是量子化学数据库数据。</p><p><a href="https://escholarship.org/content/qt6wk7d53s/qt6wk7d53s.pdf" target="_blank" rel="noopener">Lawrence Berkeley National Laboratory 参数资料</a>。参考曲线固定 601 点；标准化统计仅使用训练集。</p><p>预测力 Fᵣ=−(σE/σr)∂ŷ/∂x，与预测能量来自同一个网络。联合训练 L*=MSE(ŷ,y)+λF MSE(F̂*,F*)，F*=Fᵣσr/σE。模型同时传播激活及其输入导数，再对两路求参数梯度。总目标无量纲，能量 MSE 与力 MSE 分开报告。</p><p>可微能量的负梯度具有保守性；加入力标签用于改善拟合约束。参见 <a href="https://schnetpack.readthedocs.io/en/latest/tutorials/tutorial_03_force_models.html" target="_blank" rel="noopener">SchNetPack 能量与力教程</a>。这里直接输入键长的一维 ReLU 网络可产生分段常力，不能推广到所有 MLIP。当前没有分子动力学积分。</p><p>本地 CPU / JavaScript Float64 / 内嵌 Web Worker，无 GPU、服务器、外部 CDN 或遥测。所有损失和梯度来自实际模型；训练进度只存在页面内存中，关闭或刷新即丢失。配置 JSON 导出已应用设置，CSV 保存当前采样点的能量、力、残差和模型 Step。保存对照仅保留当前页面中的只读曲线。</p></div></details><footer>H₂ POTENTIAL LAB · v5.1<span>键长 Å · 势能 eV · 力 eV/Å · 本地真实训练</span></footer>
 </main><script id="worker-source" type="text/plain">/* Numerical core shared verbatim by the offline Worker and Node verification. */
-const H2Defaults = Object.freeze({hiddenLayers:[32,32],activations:['tanh','tanh'],initialization:'auto',seed:42,optimizer:'adam',lr:.01,schedule:'cosine',endFactor:.02,momentum:.9,beta1:.9,beta2:.999,n:80,batch:8,epochs:500,validationRatio:.2,split:'interval',sampling:'uniform',rMin:.3,rMax:3});
+/** @typedef {{trainingTarget:'energy'|'energy-force',forceWeight:number,hiddenLayers:number[],activations:string[]}} H2TrainingConfig */
+const H2Defaults = Object.freeze({hiddenLayers:[32,32],activations:['tanh','tanh'],initialization:'auto',seed:42,optimizer:'adam',lr:.01,schedule:'cosine',endFactor:.02,momentum:.9,beta1:.9,beta2:.999,n:80,batch:8,epochs:500,validationRatio:.2,split:'interval',sampling:'uniform',rMin:.3,rMax:3,trainingTarget:'energy',forceWeight:1});
 function validateH2Config(input={}) {
   if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('配置必须是 JSON 对象。');
   if(!Array.isArray(input.hiddenLayers??H2Defaults.hiddenLayers)||!Array.isArray(input.activations??[]))throw new Error('网络层和激活函数必须为数组。');
@@ -84,7 +87,10 @@ function validateH2Config(input={}) {
   const fail=(field,message)=>{const e=new Error(message);e.field=field;throw e;};
   const num=(key,min,max,integer=false)=>{if(typeof c[key]!=='number'||!Number.isFinite(c[key])||c[key]<min||c[key]>max||(integer&&!Number.isInteger(c[key])))fail(key,`${key} 必须为 ${min}–${max} 范围内的${integer?'整数':'数值'}。`);};
   if(!Array.isArray(input.hiddenLayers??H2Defaults.hiddenLayers)||c.hiddenLayers.length>4||c.hiddenLayers.some(n=>!Number.isInteger(n)||n<1||n>64))fail('hiddenLayers','隐藏层为 0–4 层，每层 1–64 个神经元。');
-  if(c.activations.length!==c.hiddenLayers.length||c.activations.some(a=>!['tanh','relu','leaky','sigmoid'].includes(a)))fail('activations','请为每个隐藏层选择有效的激活函数。');
+  if(c.activations.length!==c.hiddenLayers.length||c.activations.some(a=>!['tanh','relu','leaky','sigmoid','softplus'].includes(a)))fail('activations','请为每个隐藏层选择有效的激活函数。');
+  if(!['energy','energy-force'].includes(c.trainingTarget))fail('trainingTarget','训练目标必须为仅能量或能量＋力。');
+  num('forceWeight',0,10);
+  if(c.trainingTarget==='energy-force'&&c.activations.some(a=>a==='relu'||a==='leaky'))fail('activations','联合训练请使用 tanh、sigmoid 或 Softplus；ReLU 系列可用于仅能量训练与力曲线观察。');
   const enums={initialization:['auto','xavier','he','zero'],optimizer:['adam','sgd','momentum'],schedule:['constant','cosine'],split:['interval','random'],sampling:['uniform','stratified','well']};
   for(const [k,choices]of Object.entries(enums))if(!choices.includes(c[k]))fail(k,`${k} 选项无效。`);
   num('seed',0,4294967295,true);num('n',20,400,true);if(c.n%5)fail('n','样本数须为 5 的倍数。');
@@ -93,15 +99,20 @@ function validateH2Config(input={}) {
   if(c.rMax-c.rMin<.2-1e-10)fail('rMax','采样区间宽度至少为 0.20 Å。');
   return Object.fromEntries(Object.keys(H2Defaults).map(k=>[k,c[k]]));
 }
-function h2Activation(name,z) {if(name==='tanh')return Math.tanh(z);if(name==='relu')return Math.max(0,z);if(name==='leaky')return z>=0?z:.01*z;return z>=0?1/(1+Math.exp(-z)):Math.exp(z)/(1+Math.exp(z));}
-function h2Derivative(name,z,a) {return name==='tanh'?1-a*a:name==='relu'?(z>0?1:0):name==='leaky'?(z>=0?1:.01):a*(1-a);}
+// The outer laboratory imports this script to reuse exactly the same config validator.
+globalThis.H2Config=Object.freeze({defaults:H2Defaults,validate:validateH2Config});
+function h2Sigmoid(z){return z>=0?1/(1+Math.exp(-z)):Math.exp(z)/(1+Math.exp(z));}
+function h2Activation(name,z) {if(name==='tanh')return Math.tanh(z);if(name==='relu')return Math.max(0,z);if(name==='leaky')return z>=0?z:.01*z;if(name==='softplus')return Math.max(0,z)+Math.log1p(Math.exp(-Math.abs(z)));return h2Sigmoid(z);}
+function h2Derivative(name,z,a) {return name==='tanh'?1-a*a:name==='relu'?(z>0?1:0):name==='leaky'?(z>=0?1:.01):name==='softplus'?h2Sigmoid(z):a*(1-a);}
+function h2SecondDerivative(name,z,a){if(name==='tanh')return -2*a*(1-a*a);if(name==='sigmoid')return a*(1-a)*(1-2*a);if(name==='softplus'){const s=h2Sigmoid(z);return s*(1-s);}return 0;}
 function createEngine(options={}) {
-  const cfg=validateH2Config(options),sizes=[1,...cfg.hiddenLayers,1],last=sizes.length-1;
+  const cfg=validateH2Config(options),sizes=[1,...cfg.hiddenLayers,1],last=sizes.length-1,forceWeight=cfg.trainingTarget==='energy-force'?cfg.forceWeight:0;
   const randomStream=start=>{let state=start>>>0;return{next(){state+=0x6D2B79F5;state>>>=0;let t=state;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;},get:()=>state,set:s=>{state=s>>>0;}};};
   // Independent streams: architecture never changes data, split or epoch order.
   const initRng=randomStream(cfg.seed),dataRng=randomStream((cfg.seed^0x85ebca6b)>>>0),shuffleRng=randomStream((cfg.seed^0xc2b2ae35)>>>0);
   const shuffle=(arr,rng=shuffleRng)=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(rng.next()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
   const morse=r=>4.748*(1-Math.exp(-1.944*(r-.7417)))**2-4.748;
+  const morseForce=r=>{const q=Math.exp(-1.944*(r-.7417));return -2*4.748*1.944*q*(1-q);};
   const warning=cfg.sampling==='well'&&(Math.min(1.25,cfg.rMax)<=Math.max(.45,cfg.rMin))?'势阱区与采样区间无交集，本次退回等距采样。':'';
   let positions;
   if(cfg.sampling==='uniform'||warning)positions=Array.from({length:cfg.n},(_,i)=>cfg.rMin+(cfg.rMax-cfg.rMin)*i/(cfg.n-1));
@@ -112,38 +123,110 @@ function createEngine(options={}) {
     positions.push(cfg.rMin,cfg.rMax);positions.sort((a,b)=>a-b);
   }
   const valCount=Math.round(cfg.n*cfg.validationRatio),validationIds=new Set(cfg.split==='random'?shuffle(Array.from({length:cfg.n},(_,i)=>i+1),dataRng).slice(0,valCount):Array.from({length:cfg.n},(_,i)=>Math.floor((i+1)*valCount/cfg.n)>Math.floor(i*valCount/cfg.n)?i+1:null).filter(Boolean));
-  const data=positions.map((r,i)=>({id:i+1,r,energy:morse(r),split:validationIds.has(i+1)?'validation':'train'})),train=data.filter(p=>p.split==='train'),validation=data.filter(p=>p.split==='validation');
+  const data=positions.map((r,i)=>({id:i+1,r,energy:morse(r),force:morseForce(r),split:validationIds.has(i+1)?'validation':'train'})),train=data.filter(p=>p.split==='train'),validation=data.filter(p=>p.split==='validation');
   const mean=a=>a.reduce((s,v)=>s+v,0)/a.length,xm=mean(train.map(p=>p.r)),ym=mean(train.map(p=>p.energy)),xs=Math.sqrt(mean(train.map(p=>(p.r-xm)**2))),ys=Math.sqrt(mean(train.map(p=>(p.energy-ym)**2)));
   if(!(xs>1e-12&&ys>1e-12))throw new Error('训练数据方差太小，无法可靠标准化。');
   const normalization={xm,xs,ym,ys};data.forEach(p=>{p.x=(p.r-xm)/xs;p.y=(p.energy-ym)/ys;});
   const layers=sizes.slice(1).map((out,l)=>{const input=sizes[l],activation=l<cfg.activations.length?cfg.activations[l]:'linear',he=cfg.initialization==='he'||(cfg.initialization==='auto'&&['relu','leaky'].includes(activation)),bound=he?Math.sqrt(6/input):Math.sqrt(6/(input+out));return{input,out,w:Float64Array.from({length:input*out},()=>cfg.initialization==='zero'?0:(initRng.next()*2-1)*bound),b:new Float64Array(out),gw:new Float64Array(input*out),gb:new Float64Array(out),mw:new Float64Array(input*out),vw:new Float64Array(input*out),mb:new Float64Array(out),vb:new Float64Array(out)};});
   const parameterCount=layers.reduce((s,l)=>s+l.w.length+l.b.length,0),connectionCount=layers.reduce((s,l)=>s+l.w.length,0);
+  layers.forEach(l=>{l.gew=new Float64Array(l.w.length);l.geb=new Float64Array(l.b.length);l.gfw=new Float64Array(l.w.length);l.gfb=new Float64Array(l.b.length);});
   let order=shuffle(train.map(p=>p.id)),cursor=0,step=0,completedEpochs=0,lastBatch=[],lastBatchLoss=null,lastUpdate=null,lastGradientTraces=[],pendingStep=null,tokenCounter=0,history=[];
   function forward(x,trace=false,params=null){const a=[[x]],zs=[[x]];layers.forEach((l,index)=>{const w=params?params.weights[index]:l.w,b=params?params.biases[index]:l.b,z=new Float64Array(l.out),out=new Float64Array(l.out);for(let j=0;j<l.out;j++){let s=b[j];for(let i=0;i<l.input;i++)s+=w[j*l.input+i]*a[index][i];z[j]=s;out[j]=index===layers.length-1?s:h2Activation(cfg.activations[index],s);}a.push(out);if(trace)zs.push(z);});if(trace)a.zs=zs;return a;}
   const predict=(r,params=null)=>forward((r-xm)/xs,false,params)[last][0]*ys+ym;
-  function gradients(points,trace=false){layers.forEach(l=>{l.gw.fill(0);l.gb.fill(0);});lastGradientTraces=[];let loss=0;for(const p of points){const a=forward(p.x,true),error=a[last][0]-p.y,deltas=Array.from({length:sizes.length},()=>[]);loss+=error*error/points.length;let delta=[2*error/points.length];for(let l=layers.length-1;l>=0;l--){const layer=layers[l];if(trace)deltas[l+1]=Array.from(delta);const next=new Float64Array(layer.input);for(let j=0;j<layer.out;j++){layer.gb[j]+=delta[j];for(let i=0;i<layer.input;i++){const k=j*layer.input+i;layer.gw[k]+=delta[j]*a[l][i];next[i]+=layer.w[k]*delta[j];}}if(l>0)for(let i=0;i<next.length;i++)next[i]*=h2Derivative(cfg.activations[l-1],a.zs[l][i],a[l][i]);delta=next;}if(trace)lastGradientTraces.push({id:p.id,r:p.r,target:p.energy,normalizedTarget:p.y,prediction:a[last][0]*ys+ym,normalizedPrediction:a[last][0],activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),deltas,normalizedLoss:error**2,physicalLoss:error**2*ys**2});}return loss;}
-  const batchLoss=points=>mean(points.map(p=>(forward(p.x)[last][0]-p.y)**2));
-  const metrics=(points,params=null)=>{const mse=mean(points.map(p=>(predict(p.r,params)-p.energy)**2));return{mse,rmse:Math.sqrt(mse)};};
+  /** Propagate da/dx alongside the value. No finite differences enter training. */
+  function forwardTangent(x,params=null){
+    const a=forward(x,true,params),derivatives=[[1]],preactivationDerivatives=[[1]];
+    layers.forEach((l,index)=>{
+      const w=params?params.weights[index]:l.w,t=new Float64Array(l.out),d=new Float64Array(l.out);
+      for(let j=0;j<l.out;j++){
+        for(let i=0;i<l.input;i++)t[j]+=w[j*l.input+i]*derivatives[index][i];
+        d[j]=index===layers.length-1?t[j]:h2Derivative(cfg.activations[index],a.zs[index+1][j],a[index+1][j])*t[j];
+      }
+      derivatives.push(d);preactivationDerivatives.push(t);
+    });
+    a.derivatives=derivatives;a.preactivationDerivatives=preactivationDerivatives;return a;
+  }
+  const predictForce=(r,params=null)=>-ys/xs*forwardTangent((r-xm)/xs,params).derivatives[last][0];
+  const lossParts=(energyNormalized,forceNormalized)=>({energyNormalized,forceNormalized,total:energyNormalized+forceWeight*forceNormalized,energyMSE:energyNormalized*ys**2,forceMSE:forceNormalized*(ys/xs)**2});
+  function batchLossParts(points,params=null){
+    let energyNormalized=0,forceNormalized=0;
+    for(const p of points){const a=forwardTangent(p.x,params),de=a[last][0]-p.y,df=-a.derivatives[last][0]-p.force*xs/ys;energyNormalized+=de*de/points.length;forceNormalized+=df*df/points.length;}
+    return lossParts(energyNormalized,forceNormalized);
+  }
+  function gradients(points,trace=false){
+    layers.forEach(l=>{for(const k of ['gw','gb','gew','geb','gfw','gfb'])l[k].fill(0);});
+    lastGradientTraces=[];let energyLoss=0,forceLoss=0;
+    for(const p of points){
+      const a=forwardTangent(p.x),error=a[last][0]-p.y,forceTarget=p.force*xs/ys,forcePrediction=-a.derivatives[last][0],forceError=forcePrediction-forceTarget;
+      const deltas=Array.from({length:sizes.length},()=>[]),forceDeltas=Array.from({length:sizes.length},()=>[]),forceTangentDeltas=Array.from({length:sizes.length},()=>[]);
+      energyLoss+=error*error/points.length;forceLoss+=forceError*forceError/points.length;
+      // Preserve the original energy gradient arithmetic and ordering.
+      let delta=[2*error/points.length];
+      for(let l=layers.length-1;l>=0;l--){
+        const layer=layers[l];if(trace)deltas[l+1]=Array.from(delta);const next=new Float64Array(layer.input);
+        for(let j=0;j<layer.out;j++){layer.geb[j]+=delta[j];for(let i=0;i<layer.input;i++){const k=j*layer.input+i;layer.gew[k]+=delta[j]*a[l][i];next[i]+=layer.w[k]*delta[j];}}
+        if(l>0)for(let i=0;i<next.length;i++)next[i]*=h2Derivative(cfg.activations[l-1],a.zs[l][i],a[l][i]);delta=next;
+      }
+      // Reverse both a and da/dx. g_F is the unweighted force-MSE gradient.
+      let adjA=[0],adjD=[-2*forceError/points.length];
+      for(let l=layers.length-1;l>=0;l--){
+        const layer=layers[l],nextA=new Float64Array(layer.input),nextD=new Float64Array(layer.input),dz=new Float64Array(layer.out),dt=new Float64Array(layer.out);
+        for(let j=0;j<layer.out;j++){
+          const linear=l===layers.length-1,d1=linear?1:h2Derivative(cfg.activations[l],a.zs[l+1][j],a[l+1][j]),d2=linear?0:h2SecondDerivative(cfg.activations[l],a.zs[l+1][j],a[l+1][j]);
+          dz[j]=adjA[j]*d1+adjD[j]*d2*a.preactivationDerivatives[l+1][j];dt[j]=adjD[j]*d1;layer.gfb[j]+=dz[j];
+          for(let i=0;i<layer.input;i++){const k=j*layer.input+i;layer.gfw[k]+=dz[j]*a[l][i]+dt[j]*a.derivatives[l][i];nextA[i]+=layer.w[k]*dz[j];nextD[i]+=layer.w[k]*dt[j];}
+        }
+        if(trace){forceDeltas[l+1]=Array.from(dz);forceTangentDeltas[l+1]=Array.from(dt);}adjA=nextA;adjD=nextD;
+      }
+      if(trace)lastGradientTraces.push({id:p.id,r:p.r,target:p.energy,normalizedTarget:p.y,prediction:a[last][0]*ys+ym,normalizedPrediction:a[last][0],referenceForce:p.force,predictionForce:forcePrediction*ys/xs,normalizedForceTarget:forceTarget,normalizedForcePrediction:forcePrediction,activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),derivatives:a.derivatives.map(v=>Array.from(v)),preactivationDerivatives:a.preactivationDerivatives.map(v=>Array.from(v)),deltas,forceDeltas,forceTangentDeltas,normalizedLoss:error**2,physicalLoss:error**2*ys**2,loss:lossParts(error**2,forceError**2)});
+    }
+    layers.forEach(l=>{for(let k=0;k<l.w.length;k++)l.gw[k]=forceWeight?l.gew[k]+forceWeight*l.gfw[k]:l.gew[k];for(let k=0;k<l.b.length;k++)l.gb[k]=forceWeight?l.geb[k]+forceWeight*l.gfb[k]:l.geb[k];});
+    return energyLoss+forceWeight*forceLoss;
+  }
+  const batchLoss=points=>batchLossParts(points).total;
+  const metrics=(points,params=null)=>{const loss=batchLossParts(points,params);return{mse:loss.energyMSE,rmse:Math.sqrt(loss.energyMSE),forceMse:loss.forceMSE,forceRmse:Math.sqrt(loss.forceMSE),totalLoss:loss.total};};
   const evaluate=()=>({step,train:metrics(train),validation:metrics(validation)}),initialMetrics=evaluate();history.push(initialMetrics);
   const record=()=>{if(history.at(-1).step!==step)history.push(evaluate());return history.at(-1);};
   const parameters=()=>({weights:layers.map(l=>Array.from(l.w)),biases:layers.map(l=>Array.from(l.b))});
   const moments=()=>layers.map(l=>({m:Array.from(l.mw),v:Array.from(l.vw),mb:Array.from(l.mb),vb:Array.from(l.vb)}));
   const finished=()=>completedEpochs>=cfg.epochs;
   const learningRate=s=>cfg.lr*(cfg.schedule==='constant'?1:cfg.endFactor+(1-cfg.endFactor)*(1+Math.cos(Math.PI*s/(Math.ceil(train.length/cfg.batch)*cfg.epochs)))/2);
-  const stateKeys=['w','b','gw','gb','mw','vw','mb','vb'];
+  const stateKeys=['w','b','gw','gb','gew','geb','gfw','gfb','mw','vw','mb','vb'];
   const saveState=()=>({shuffleSeed:shuffleRng.get(),order:[...order],cursor,step,completedEpochs,lastBatch:[...lastBatch],lastBatchLoss,lastUpdate,lastGradientTraces,history:[...history],layers:layers.map(l=>Object.fromEntries(stateKeys.map(k=>[k,Array.from(l[k])])))});
   function restoreState(s){shuffleRng.set(s.shuffleSeed);order=[...s.order];cursor=s.cursor;step=s.step;completedEpochs=s.completedEpochs;lastBatch=[...s.lastBatch];lastBatchLoss=s.lastBatchLoss;lastUpdate=s.lastUpdate;lastGradientTraces=s.lastGradientTraces;history=[...s.history];layers.forEach((l,i)=>stateKeys.forEach(k=>l[k].set(s.layers[i][k])));}
-  function trainStep(trace=false){if(pendingStep&&!trace)throw new Error('请先提交或取消当前讲解。');if(finished())return false;const backup=saveState();try{if(cursor>=order.length){order=shuffle([...order]);cursor=0;}const ids=order.slice(cursor,cursor+cfg.batch),points=ids.map(id=>data[id-1]),before=parameters(),oldMoments=moments(),loss=gradients(points,trace);if(!Number.isFinite(loss))throw new Error('损失非有限，已保留最后有效模型，请降低学习率或调整设置。');const nextStep=step+1,lr=learningRate(nextStep);const update=(w,g,m,v)=>{for(let i=0;i<w.length;i++){let direction=g[i];if(cfg.optimizer==='adam'){m[i]=cfg.beta1*m[i]+(1-cfg.beta1)*g[i];v[i]=cfg.beta2*v[i]+(1-cfg.beta2)*g[i]**2;direction=(m[i]/(1-cfg.beta1**nextStep))/(Math.sqrt(v[i]/(1-cfg.beta2**nextStep))+1e-8);}else if(cfg.optimizer==='momentum'){m[i]=cfg.momentum*m[i]+g[i];direction=m[i];}w[i]-=lr*direction;if(!Number.isFinite(w[i])||!Number.isFinite(m[i])||!Number.isFinite(v[i]))throw new Error('参数非有限，已停止并保留最后有效模型。');}};layers.forEach(l=>{update(l.w,l.gw,l.mw,l.vw);update(l.b,l.gb,l.mb,l.vb);});step=nextStep;lastUpdate={step,optimizer:cfg.optimizer,learningRate:lr,before,after:parameters(),oldMoments,moments:moments(),gradients:layers.map(l=>Array.from(l.gw)),biasGradients:layers.map(l=>Array.from(l.gb)),deltaWeights:layers.map((l,j)=>Array.from(l.w,(v,i)=>v-before.weights[j][i])),deltaBiases:layers.map((l,j)=>Array.from(l.b,(v,i)=>v-before.biases[j][i])),batchBefore:loss*ys**2,batchAfter:batchLoss(points)*ys**2};if(!Number.isFinite(lastUpdate.batchAfter))throw new Error('更新后的批次损失非有限，已保留最后有效模型。');lastBatch=ids;lastBatchLoss=lastUpdate.batchBefore;cursor+=ids.length;if(cursor>=order.length)completedEpochs++;return true;}catch(e){restoreState(backup);throw e;}}
-  const curve=params=>Array.from({length:601},(_,i)=>{const r=.3+2.7*i/600;return{r,energy:morse(r),prediction:predict(r,params)};});
+  function trainStep(trace=false){
+    if(pendingStep&&!trace)throw new Error('请先提交或取消当前讲解。');if(finished())return false;
+    const backup=saveState();
+    try{
+      if(cursor>=order.length){order=shuffle([...order]);cursor=0;}
+      const ids=order.slice(cursor,cursor+cfg.batch),points=ids.map(id=>data[id-1]),before=parameters(),oldMoments=moments(),loss=gradients(points,trace),beforeLoss=batchLossParts(points);
+      if(!Number.isFinite(loss)||!Number.isFinite(beforeLoss.forceMSE))throw new Error('损失非有限，已保留最后有效模型，请降低学习率或调整设置。');
+      const nextStep=step+1,lr=learningRate(nextStep);
+      const update=(w,g,m,v)=>{for(let i=0;i<w.length;i++){
+        let direction=g[i];
+        if(cfg.optimizer==='adam'){m[i]=cfg.beta1*m[i]+(1-cfg.beta1)*g[i];v[i]=cfg.beta2*v[i]+(1-cfg.beta2)*g[i]**2;direction=(m[i]/(1-cfg.beta1**nextStep))/(Math.sqrt(v[i]/(1-cfg.beta2**nextStep))+1e-8);}
+        else if(cfg.optimizer==='momentum'){m[i]=cfg.momentum*m[i]+g[i];direction=m[i];}
+        w[i]-=lr*direction;if(!Number.isFinite(w[i])||!Number.isFinite(m[i])||!Number.isFinite(v[i]))throw new Error('参数非有限，已停止并保留最后有效模型。');
+      }};
+      layers.forEach(l=>{update(l.w,l.gw,l.mw,l.vw);update(l.b,l.gb,l.mb,l.vb);});
+      step=nextStep;const afterLoss=batchLossParts(points);
+      lastUpdate={step,optimizer:cfg.optimizer,learningRate:lr,forceWeight,before,after:parameters(),oldMoments,moments:moments(),gradients:layers.map(l=>Array.from(l.gw)),biasGradients:layers.map(l=>Array.from(l.gb)),gradientEnergy:{weights:layers.map(l=>Array.from(l.gew)),biases:layers.map(l=>Array.from(l.geb))},gradientForce:{weights:layers.map(l=>Array.from(l.gfw)),biases:layers.map(l=>Array.from(l.gfb))},deltaWeights:layers.map((l,j)=>Array.from(l.w,(v,i)=>v-before.weights[j][i])),deltaBiases:layers.map((l,j)=>Array.from(l.b,(v,i)=>v-before.biases[j][i])),batchBefore:beforeLoss.energyMSE,batchAfter:afterLoss.energyMSE,beforeLoss,afterLoss};
+      if(Object.values(afterLoss).some(x=>!Number.isFinite(x)))throw new Error('更新后的批次损失非有限，已保留最后有效模型。');
+      lastBatch=ids;lastBatchLoss=lastUpdate.batchBefore;cursor+=ids.length;if(cursor>=order.length)completedEpochs++;return true;
+    }catch(e){restoreState(backup);throw e;}
+  }
+  const curve=params=>Array.from({length:601},(_,i)=>{const r=.3+2.7*i/600,a=forwardTangent((r-xm)/xs,params);return{r,energy:morse(r),force:morseForce(r),prediction:a[last][0]*ys+ym,predictedForce:-ys/xs*a.derivatives[last][0]};});
   function response(selection,params=null){if(selection?.type!=='node'||selection.layer<=0||selection.layer>=last)return null;const l=selection.layer,j=selection.k;if(j>=sizes[l])return null;return{layer:l,k:j,lastHidden:l===last-1,baseline:ym+ys*(params?params.biases[last-1][0]:layers[last-1].b[0]),points:Array.from({length:151},(_,i)=>{const r=.3+2.7*i/150,a=forward((r-xm)/xs,false,params)[l][j],w=l===last-1?(params?params.weights[last-1][j]:layers[last-1].w[j]):0;return{r,a,contribution:ys*w*a,prediction:predict(r,params)};})};}
-  function network(r,selection=null,params=null){const a=forward((r-xm)/xs,true,params);return{step,sizes,activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),...(params??parameters()),r,normalization,update:lastUpdate,response:response(selection,params)};}
-  function snapshot(probe=.7417,selection=null){const latest=record();return{cfg,sizes,parameterCount,connectionCount,warning,step,data:data.map(p=>({...p,prediction:predict(p.r)})),order:[...order],cursor,completedEpochs,currentEpoch:Math.min(cfg.epochs,completedEpochs+(cursor>=order.length?0:1)),lastBatch:[...lastBatch],lastBatchLoss,finished:finished(),stepsPerEpoch:Math.ceil(train.length/cfg.batch),latest,initial:initialMetrics,history:history.filter((_,i)=>i%Math.max(1,Math.ceil(history.length/400))===0||i===history.length-1),curve:curve(),network:network(probe,selection),probe:{r:probe,reference:morse(probe),prediction:predict(probe)}};}
-  function prepareStep(){if(pendingStep)return pendingStep.trace;if(finished())return null;const original=saveState(),beforeCurve=curve(),beforeMetrics=evaluate();try{trainStep(true);const trace={token:++tokenCounter,targetStep:step,batchIds:[...lastBatch],samples:lastGradientTraces,afterSamples:lastBatch.map(id=>{const p=data[id-1],a=forward(p.x,true);return{id,r:p.r,activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),prediction:a[last][0]*ys+ym};}),update:lastUpdate,normalizedLoss:lastBatchLoss/ys**2,physicalLoss:lastBatchLoss,normalization,sizes,beforeCurve,afterCurve:curve(),beforeMetrics,afterMetrics:evaluate()};const candidate=saveState();restoreState(original);pendingStep={candidate,trace,baseStep:step};return trace;}catch(e){restoreState(original);throw e;}}
+  function network(r,selection=null,params=null){const a=forwardTangent((r-xm)/xs,params);return{step,sizes,activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),derivatives:a.derivatives.map(v=>Array.from(v)),preactivationDerivatives:a.preactivationDerivatives.map(v=>Array.from(v)),...(params??parameters()),r,normalization,update:lastUpdate,response:response(selection,params)};}
+  /** One snapshot owns the energies, forces and gradients of one committed model Step. */
+  function snapshot(probe=.7417,selection=null){const latest=record();return{cfg,sizes,parameterCount,connectionCount,warning,step,data:data.map(p=>({...p,prediction:predict(p.r),predictedForce:predictForce(p.r)})),order:[...order],cursor,completedEpochs,currentEpoch:Math.min(cfg.epochs,completedEpochs+(cursor>=order.length?0:1)),lastBatch:[...lastBatch],lastBatchLoss,finished:finished(),stepsPerEpoch:Math.ceil(train.length/cfg.batch),latest,initial:initialMetrics,history:history.filter((_,i)=>i%Math.max(1,Math.ceil(history.length/400))===0||i===history.length-1),curve:curve(),network:network(probe,selection),probe:{r:probe,reference:morse(probe),prediction:predict(probe),referenceForce:morseForce(probe),predictionForce:predictForce(probe)}};}
+  /** Candidate transaction; physicalLoss stays energy MSE for v1 consumers. */
+  function prepareStep(){if(pendingStep)return pendingStep.trace;if(finished())return null;const original=saveState(),beforeCurve=curve(),beforeMetrics=evaluate();try{trainStep(true);const trace={token:++tokenCounter,targetStep:step,batchIds:[...lastBatch],samples:lastGradientTraces,afterSamples:lastBatch.map(id=>{const p=data[id-1],a=forwardTangent(p.x);return{id,r:p.r,activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),derivatives:a.derivatives.map(v=>Array.from(v)),preactivationDerivatives:a.preactivationDerivatives.map(v=>Array.from(v)),prediction:a[last][0]*ys+ym,predictionForce:-a.derivatives[last][0]*ys/xs,referenceForce:p.force};}),update:lastUpdate,loss:lastUpdate.beforeLoss,afterLoss:lastUpdate.afterLoss,normalizedLoss:lastUpdate.beforeLoss.energyNormalized,physicalLoss:lastBatchLoss,normalization,sizes,beforeCurve,afterCurve:curve(),beforeMetrics,afterMetrics:evaluate()};const candidate=saveState();restoreState(original);pendingStep={candidate,trace,baseStep:step};return trace;}catch(e){restoreState(original);throw e;}}
   function commitStep(token){if(!pendingStep||pendingStep.trace.token!==token||pendingStep.baseStep!==step)throw new Error('讲解已过期或已提交。');const p=pendingStep;pendingStep=null;restoreState(p.candidate);return p.trace;}
   const cancelStep=()=>{pendingStep=null;};
   function lessonNetwork(lesson,selection){const phase=lesson.viewPhase??lesson.phase,trace=lesson.trace,p=trace.samples[lesson.sampleIndex],params=phase===4?trace.update.after:trace.update.before,n=network(p.r,selection,params);return{...n,step:phase===4?trace.targetStep:trace.targetStep-1,update:trace.update};}
   function checkGradient(selection){const original=saveState();try{const l=Math.max(0,Math.min(layers.length-1,selection.layer??0)),k=Math.max(0,Math.min(layers[l].w.length-1,selection.k??0)),points=(lastBatch.length?lastBatch:order.slice(0,cfg.batch)).map(id=>data[id-1]);gradients(points);const analytic=layers[l].gw[k],w=layers[l].w[k],h=1e-5;layers[l].w[k]=w+h;const plus=batchLoss(points);layers[l].w[k]=w-h;const minus=batchLoss(points);const numeric=(plus-minus)/(2*h);return{step,layer:l,k,analytic,numeric,absolute:Math.abs(analytic-numeric),relative:Math.abs(analytic-numeric)/Math.max(1e-6,Math.abs(analytic),Math.abs(numeric)),note:'ReLU 在 z=0 处不可微，邻近折点时数值差分可能不一致。'};}finally{restoreState(original);}}
-  return{cfg,sizes,layers,data,train,validation,normalization,parameterCount,connectionCount,morse,forward,predict,gradients,batchLoss,metrics,trainStep,finished,learningRate,snapshot,network,response,prepareStep,commitStep,cancelStep,lessonNetwork,saveState,checkGradient};
+  return{cfg,sizes,layers,data,train,validation,normalization,parameterCount,connectionCount,morse,morseForce,forward,forwardTangent,predict,predictForce,gradients,batchLoss,batchLossParts,metrics,trainStep,finished,learningRate,snapshot,network,response,prepareStep,commitStep,cancelStep,lessonNetwork,saveState,checkGradient};
 }
 
 let engine,running=false,timer=null,version=0,speed=100,probe=.7417,lesson=null,selection={type:'node',layer:3,k:0},lastSent=-Infinity;
@@ -166,10 +249,11 @@ onmessage=({data:m})=>{try{
  else if(m.type==='probe'){probe=Math.max(.3,Math.min(3,Number(m.r)||.7417));send();}
  else if(m.type==='speed'){speed=Math.min(100,Math.max(1,Number(m.speed)||100));}
  else if(m.type==='gradientCheck'){pause();if(lesson){postMessage({type:'error',version,message:'请退出讲解后检查当前模型梯度。'});return;}postMessage({type:'gradientCheck',version,result:engine.checkGradient(selection.type==='edge'?selection:{layer:Math.max(0,selection.layer-1),k:0})});send();}
- else if(m.type==='export'){postMessage({type:'csv',version,rows:engine.snapshot(probe).data});}
+ else if(m.type==='export'){const snapshot=engine.snapshot(probe);postMessage({type:'csv',version,step:snapshot.step,rows:snapshot.data});}
 }catch(e){pause();postMessage({type:'error',version,message:e.message,field:e.field});}};
 </script><script>/* Numerical core shared verbatim by the offline Worker and Node verification. */
-const H2Defaults = Object.freeze({hiddenLayers:[32,32],activations:['tanh','tanh'],initialization:'auto',seed:42,optimizer:'adam',lr:.01,schedule:'cosine',endFactor:.02,momentum:.9,beta1:.9,beta2:.999,n:80,batch:8,epochs:500,validationRatio:.2,split:'interval',sampling:'uniform',rMin:.3,rMax:3});
+/** @typedef {{trainingTarget:'energy'|'energy-force',forceWeight:number,hiddenLayers:number[],activations:string[]}} H2TrainingConfig */
+const H2Defaults = Object.freeze({hiddenLayers:[32,32],activations:['tanh','tanh'],initialization:'auto',seed:42,optimizer:'adam',lr:.01,schedule:'cosine',endFactor:.02,momentum:.9,beta1:.9,beta2:.999,n:80,batch:8,epochs:500,validationRatio:.2,split:'interval',sampling:'uniform',rMin:.3,rMax:3,trainingTarget:'energy',forceWeight:1});
 function validateH2Config(input={}) {
   if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('配置必须是 JSON 对象。');
   if(!Array.isArray(input.hiddenLayers??H2Defaults.hiddenLayers)||!Array.isArray(input.activations??[]))throw new Error('网络层和激活函数必须为数组。');
@@ -178,7 +262,10 @@ function validateH2Config(input={}) {
   const fail=(field,message)=>{const e=new Error(message);e.field=field;throw e;};
   const num=(key,min,max,integer=false)=>{if(typeof c[key]!=='number'||!Number.isFinite(c[key])||c[key]<min||c[key]>max||(integer&&!Number.isInteger(c[key])))fail(key,`${key} 必须为 ${min}–${max} 范围内的${integer?'整数':'数值'}。`);};
   if(!Array.isArray(input.hiddenLayers??H2Defaults.hiddenLayers)||c.hiddenLayers.length>4||c.hiddenLayers.some(n=>!Number.isInteger(n)||n<1||n>64))fail('hiddenLayers','隐藏层为 0–4 层，每层 1–64 个神经元。');
-  if(c.activations.length!==c.hiddenLayers.length||c.activations.some(a=>!['tanh','relu','leaky','sigmoid'].includes(a)))fail('activations','请为每个隐藏层选择有效的激活函数。');
+  if(c.activations.length!==c.hiddenLayers.length||c.activations.some(a=>!['tanh','relu','leaky','sigmoid','softplus'].includes(a)))fail('activations','请为每个隐藏层选择有效的激活函数。');
+  if(!['energy','energy-force'].includes(c.trainingTarget))fail('trainingTarget','训练目标必须为仅能量或能量＋力。');
+  num('forceWeight',0,10);
+  if(c.trainingTarget==='energy-force'&&c.activations.some(a=>a==='relu'||a==='leaky'))fail('activations','联合训练请使用 tanh、sigmoid 或 Softplus；ReLU 系列可用于仅能量训练与力曲线观察。');
   const enums={initialization:['auto','xavier','he','zero'],optimizer:['adam','sgd','momentum'],schedule:['constant','cosine'],split:['interval','random'],sampling:['uniform','stratified','well']};
   for(const [k,choices]of Object.entries(enums))if(!choices.includes(c[k]))fail(k,`${k} 选项无效。`);
   num('seed',0,4294967295,true);num('n',20,400,true);if(c.n%5)fail('n','样本数须为 5 的倍数。');
@@ -187,15 +274,20 @@ function validateH2Config(input={}) {
   if(c.rMax-c.rMin<.2-1e-10)fail('rMax','采样区间宽度至少为 0.20 Å。');
   return Object.fromEntries(Object.keys(H2Defaults).map(k=>[k,c[k]]));
 }
-function h2Activation(name,z) {if(name==='tanh')return Math.tanh(z);if(name==='relu')return Math.max(0,z);if(name==='leaky')return z>=0?z:.01*z;return z>=0?1/(1+Math.exp(-z)):Math.exp(z)/(1+Math.exp(z));}
-function h2Derivative(name,z,a) {return name==='tanh'?1-a*a:name==='relu'?(z>0?1:0):name==='leaky'?(z>=0?1:.01):a*(1-a);}
+// The outer laboratory imports this script to reuse exactly the same config validator.
+globalThis.H2Config=Object.freeze({defaults:H2Defaults,validate:validateH2Config});
+function h2Sigmoid(z){return z>=0?1/(1+Math.exp(-z)):Math.exp(z)/(1+Math.exp(z));}
+function h2Activation(name,z) {if(name==='tanh')return Math.tanh(z);if(name==='relu')return Math.max(0,z);if(name==='leaky')return z>=0?z:.01*z;if(name==='softplus')return Math.max(0,z)+Math.log1p(Math.exp(-Math.abs(z)));return h2Sigmoid(z);}
+function h2Derivative(name,z,a) {return name==='tanh'?1-a*a:name==='relu'?(z>0?1:0):name==='leaky'?(z>=0?1:.01):name==='softplus'?h2Sigmoid(z):a*(1-a);}
+function h2SecondDerivative(name,z,a){if(name==='tanh')return -2*a*(1-a*a);if(name==='sigmoid')return a*(1-a)*(1-2*a);if(name==='softplus'){const s=h2Sigmoid(z);return s*(1-s);}return 0;}
 function createEngine(options={}) {
-  const cfg=validateH2Config(options),sizes=[1,...cfg.hiddenLayers,1],last=sizes.length-1;
+  const cfg=validateH2Config(options),sizes=[1,...cfg.hiddenLayers,1],last=sizes.length-1,forceWeight=cfg.trainingTarget==='energy-force'?cfg.forceWeight:0;
   const randomStream=start=>{let state=start>>>0;return{next(){state+=0x6D2B79F5;state>>>=0;let t=state;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;},get:()=>state,set:s=>{state=s>>>0;}};};
   // Independent streams: architecture never changes data, split or epoch order.
   const initRng=randomStream(cfg.seed),dataRng=randomStream((cfg.seed^0x85ebca6b)>>>0),shuffleRng=randomStream((cfg.seed^0xc2b2ae35)>>>0);
   const shuffle=(arr,rng=shuffleRng)=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(rng.next()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
   const morse=r=>4.748*(1-Math.exp(-1.944*(r-.7417)))**2-4.748;
+  const morseForce=r=>{const q=Math.exp(-1.944*(r-.7417));return -2*4.748*1.944*q*(1-q);};
   const warning=cfg.sampling==='well'&&(Math.min(1.25,cfg.rMax)<=Math.max(.45,cfg.rMin))?'势阱区与采样区间无交集，本次退回等距采样。':'';
   let positions;
   if(cfg.sampling==='uniform'||warning)positions=Array.from({length:cfg.n},(_,i)=>cfg.rMin+(cfg.rMax-cfg.rMin)*i/(cfg.n-1));
@@ -206,38 +298,110 @@ function createEngine(options={}) {
     positions.push(cfg.rMin,cfg.rMax);positions.sort((a,b)=>a-b);
   }
   const valCount=Math.round(cfg.n*cfg.validationRatio),validationIds=new Set(cfg.split==='random'?shuffle(Array.from({length:cfg.n},(_,i)=>i+1),dataRng).slice(0,valCount):Array.from({length:cfg.n},(_,i)=>Math.floor((i+1)*valCount/cfg.n)>Math.floor(i*valCount/cfg.n)?i+1:null).filter(Boolean));
-  const data=positions.map((r,i)=>({id:i+1,r,energy:morse(r),split:validationIds.has(i+1)?'validation':'train'})),train=data.filter(p=>p.split==='train'),validation=data.filter(p=>p.split==='validation');
+  const data=positions.map((r,i)=>({id:i+1,r,energy:morse(r),force:morseForce(r),split:validationIds.has(i+1)?'validation':'train'})),train=data.filter(p=>p.split==='train'),validation=data.filter(p=>p.split==='validation');
   const mean=a=>a.reduce((s,v)=>s+v,0)/a.length,xm=mean(train.map(p=>p.r)),ym=mean(train.map(p=>p.energy)),xs=Math.sqrt(mean(train.map(p=>(p.r-xm)**2))),ys=Math.sqrt(mean(train.map(p=>(p.energy-ym)**2)));
   if(!(xs>1e-12&&ys>1e-12))throw new Error('训练数据方差太小，无法可靠标准化。');
   const normalization={xm,xs,ym,ys};data.forEach(p=>{p.x=(p.r-xm)/xs;p.y=(p.energy-ym)/ys;});
   const layers=sizes.slice(1).map((out,l)=>{const input=sizes[l],activation=l<cfg.activations.length?cfg.activations[l]:'linear',he=cfg.initialization==='he'||(cfg.initialization==='auto'&&['relu','leaky'].includes(activation)),bound=he?Math.sqrt(6/input):Math.sqrt(6/(input+out));return{input,out,w:Float64Array.from({length:input*out},()=>cfg.initialization==='zero'?0:(initRng.next()*2-1)*bound),b:new Float64Array(out),gw:new Float64Array(input*out),gb:new Float64Array(out),mw:new Float64Array(input*out),vw:new Float64Array(input*out),mb:new Float64Array(out),vb:new Float64Array(out)};});
   const parameterCount=layers.reduce((s,l)=>s+l.w.length+l.b.length,0),connectionCount=layers.reduce((s,l)=>s+l.w.length,0);
+  layers.forEach(l=>{l.gew=new Float64Array(l.w.length);l.geb=new Float64Array(l.b.length);l.gfw=new Float64Array(l.w.length);l.gfb=new Float64Array(l.b.length);});
   let order=shuffle(train.map(p=>p.id)),cursor=0,step=0,completedEpochs=0,lastBatch=[],lastBatchLoss=null,lastUpdate=null,lastGradientTraces=[],pendingStep=null,tokenCounter=0,history=[];
   function forward(x,trace=false,params=null){const a=[[x]],zs=[[x]];layers.forEach((l,index)=>{const w=params?params.weights[index]:l.w,b=params?params.biases[index]:l.b,z=new Float64Array(l.out),out=new Float64Array(l.out);for(let j=0;j<l.out;j++){let s=b[j];for(let i=0;i<l.input;i++)s+=w[j*l.input+i]*a[index][i];z[j]=s;out[j]=index===layers.length-1?s:h2Activation(cfg.activations[index],s);}a.push(out);if(trace)zs.push(z);});if(trace)a.zs=zs;return a;}
   const predict=(r,params=null)=>forward((r-xm)/xs,false,params)[last][0]*ys+ym;
-  function gradients(points,trace=false){layers.forEach(l=>{l.gw.fill(0);l.gb.fill(0);});lastGradientTraces=[];let loss=0;for(const p of points){const a=forward(p.x,true),error=a[last][0]-p.y,deltas=Array.from({length:sizes.length},()=>[]);loss+=error*error/points.length;let delta=[2*error/points.length];for(let l=layers.length-1;l>=0;l--){const layer=layers[l];if(trace)deltas[l+1]=Array.from(delta);const next=new Float64Array(layer.input);for(let j=0;j<layer.out;j++){layer.gb[j]+=delta[j];for(let i=0;i<layer.input;i++){const k=j*layer.input+i;layer.gw[k]+=delta[j]*a[l][i];next[i]+=layer.w[k]*delta[j];}}if(l>0)for(let i=0;i<next.length;i++)next[i]*=h2Derivative(cfg.activations[l-1],a.zs[l][i],a[l][i]);delta=next;}if(trace)lastGradientTraces.push({id:p.id,r:p.r,target:p.energy,normalizedTarget:p.y,prediction:a[last][0]*ys+ym,normalizedPrediction:a[last][0],activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),deltas,normalizedLoss:error**2,physicalLoss:error**2*ys**2});}return loss;}
-  const batchLoss=points=>mean(points.map(p=>(forward(p.x)[last][0]-p.y)**2));
-  const metrics=(points,params=null)=>{const mse=mean(points.map(p=>(predict(p.r,params)-p.energy)**2));return{mse,rmse:Math.sqrt(mse)};};
+  /** Propagate da/dx alongside the value. No finite differences enter training. */
+  function forwardTangent(x,params=null){
+    const a=forward(x,true,params),derivatives=[[1]],preactivationDerivatives=[[1]];
+    layers.forEach((l,index)=>{
+      const w=params?params.weights[index]:l.w,t=new Float64Array(l.out),d=new Float64Array(l.out);
+      for(let j=0;j<l.out;j++){
+        for(let i=0;i<l.input;i++)t[j]+=w[j*l.input+i]*derivatives[index][i];
+        d[j]=index===layers.length-1?t[j]:h2Derivative(cfg.activations[index],a.zs[index+1][j],a[index+1][j])*t[j];
+      }
+      derivatives.push(d);preactivationDerivatives.push(t);
+    });
+    a.derivatives=derivatives;a.preactivationDerivatives=preactivationDerivatives;return a;
+  }
+  const predictForce=(r,params=null)=>-ys/xs*forwardTangent((r-xm)/xs,params).derivatives[last][0];
+  const lossParts=(energyNormalized,forceNormalized)=>({energyNormalized,forceNormalized,total:energyNormalized+forceWeight*forceNormalized,energyMSE:energyNormalized*ys**2,forceMSE:forceNormalized*(ys/xs)**2});
+  function batchLossParts(points,params=null){
+    let energyNormalized=0,forceNormalized=0;
+    for(const p of points){const a=forwardTangent(p.x,params),de=a[last][0]-p.y,df=-a.derivatives[last][0]-p.force*xs/ys;energyNormalized+=de*de/points.length;forceNormalized+=df*df/points.length;}
+    return lossParts(energyNormalized,forceNormalized);
+  }
+  function gradients(points,trace=false){
+    layers.forEach(l=>{for(const k of ['gw','gb','gew','geb','gfw','gfb'])l[k].fill(0);});
+    lastGradientTraces=[];let energyLoss=0,forceLoss=0;
+    for(const p of points){
+      const a=forwardTangent(p.x),error=a[last][0]-p.y,forceTarget=p.force*xs/ys,forcePrediction=-a.derivatives[last][0],forceError=forcePrediction-forceTarget;
+      const deltas=Array.from({length:sizes.length},()=>[]),forceDeltas=Array.from({length:sizes.length},()=>[]),forceTangentDeltas=Array.from({length:sizes.length},()=>[]);
+      energyLoss+=error*error/points.length;forceLoss+=forceError*forceError/points.length;
+      // Preserve the original energy gradient arithmetic and ordering.
+      let delta=[2*error/points.length];
+      for(let l=layers.length-1;l>=0;l--){
+        const layer=layers[l];if(trace)deltas[l+1]=Array.from(delta);const next=new Float64Array(layer.input);
+        for(let j=0;j<layer.out;j++){layer.geb[j]+=delta[j];for(let i=0;i<layer.input;i++){const k=j*layer.input+i;layer.gew[k]+=delta[j]*a[l][i];next[i]+=layer.w[k]*delta[j];}}
+        if(l>0)for(let i=0;i<next.length;i++)next[i]*=h2Derivative(cfg.activations[l-1],a.zs[l][i],a[l][i]);delta=next;
+      }
+      // Reverse both a and da/dx. g_F is the unweighted force-MSE gradient.
+      let adjA=[0],adjD=[-2*forceError/points.length];
+      for(let l=layers.length-1;l>=0;l--){
+        const layer=layers[l],nextA=new Float64Array(layer.input),nextD=new Float64Array(layer.input),dz=new Float64Array(layer.out),dt=new Float64Array(layer.out);
+        for(let j=0;j<layer.out;j++){
+          const linear=l===layers.length-1,d1=linear?1:h2Derivative(cfg.activations[l],a.zs[l+1][j],a[l+1][j]),d2=linear?0:h2SecondDerivative(cfg.activations[l],a.zs[l+1][j],a[l+1][j]);
+          dz[j]=adjA[j]*d1+adjD[j]*d2*a.preactivationDerivatives[l+1][j];dt[j]=adjD[j]*d1;layer.gfb[j]+=dz[j];
+          for(let i=0;i<layer.input;i++){const k=j*layer.input+i;layer.gfw[k]+=dz[j]*a[l][i]+dt[j]*a.derivatives[l][i];nextA[i]+=layer.w[k]*dz[j];nextD[i]+=layer.w[k]*dt[j];}
+        }
+        if(trace){forceDeltas[l+1]=Array.from(dz);forceTangentDeltas[l+1]=Array.from(dt);}adjA=nextA;adjD=nextD;
+      }
+      if(trace)lastGradientTraces.push({id:p.id,r:p.r,target:p.energy,normalizedTarget:p.y,prediction:a[last][0]*ys+ym,normalizedPrediction:a[last][0],referenceForce:p.force,predictionForce:forcePrediction*ys/xs,normalizedForceTarget:forceTarget,normalizedForcePrediction:forcePrediction,activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),derivatives:a.derivatives.map(v=>Array.from(v)),preactivationDerivatives:a.preactivationDerivatives.map(v=>Array.from(v)),deltas,forceDeltas,forceTangentDeltas,normalizedLoss:error**2,physicalLoss:error**2*ys**2,loss:lossParts(error**2,forceError**2)});
+    }
+    layers.forEach(l=>{for(let k=0;k<l.w.length;k++)l.gw[k]=forceWeight?l.gew[k]+forceWeight*l.gfw[k]:l.gew[k];for(let k=0;k<l.b.length;k++)l.gb[k]=forceWeight?l.geb[k]+forceWeight*l.gfb[k]:l.geb[k];});
+    return energyLoss+forceWeight*forceLoss;
+  }
+  const batchLoss=points=>batchLossParts(points).total;
+  const metrics=(points,params=null)=>{const loss=batchLossParts(points,params);return{mse:loss.energyMSE,rmse:Math.sqrt(loss.energyMSE),forceMse:loss.forceMSE,forceRmse:Math.sqrt(loss.forceMSE),totalLoss:loss.total};};
   const evaluate=()=>({step,train:metrics(train),validation:metrics(validation)}),initialMetrics=evaluate();history.push(initialMetrics);
   const record=()=>{if(history.at(-1).step!==step)history.push(evaluate());return history.at(-1);};
   const parameters=()=>({weights:layers.map(l=>Array.from(l.w)),biases:layers.map(l=>Array.from(l.b))});
   const moments=()=>layers.map(l=>({m:Array.from(l.mw),v:Array.from(l.vw),mb:Array.from(l.mb),vb:Array.from(l.vb)}));
   const finished=()=>completedEpochs>=cfg.epochs;
   const learningRate=s=>cfg.lr*(cfg.schedule==='constant'?1:cfg.endFactor+(1-cfg.endFactor)*(1+Math.cos(Math.PI*s/(Math.ceil(train.length/cfg.batch)*cfg.epochs)))/2);
-  const stateKeys=['w','b','gw','gb','mw','vw','mb','vb'];
+  const stateKeys=['w','b','gw','gb','gew','geb','gfw','gfb','mw','vw','mb','vb'];
   const saveState=()=>({shuffleSeed:shuffleRng.get(),order:[...order],cursor,step,completedEpochs,lastBatch:[...lastBatch],lastBatchLoss,lastUpdate,lastGradientTraces,history:[...history],layers:layers.map(l=>Object.fromEntries(stateKeys.map(k=>[k,Array.from(l[k])])))});
   function restoreState(s){shuffleRng.set(s.shuffleSeed);order=[...s.order];cursor=s.cursor;step=s.step;completedEpochs=s.completedEpochs;lastBatch=[...s.lastBatch];lastBatchLoss=s.lastBatchLoss;lastUpdate=s.lastUpdate;lastGradientTraces=s.lastGradientTraces;history=[...s.history];layers.forEach((l,i)=>stateKeys.forEach(k=>l[k].set(s.layers[i][k])));}
-  function trainStep(trace=false){if(pendingStep&&!trace)throw new Error('请先提交或取消当前讲解。');if(finished())return false;const backup=saveState();try{if(cursor>=order.length){order=shuffle([...order]);cursor=0;}const ids=order.slice(cursor,cursor+cfg.batch),points=ids.map(id=>data[id-1]),before=parameters(),oldMoments=moments(),loss=gradients(points,trace);if(!Number.isFinite(loss))throw new Error('损失非有限，已保留最后有效模型，请降低学习率或调整设置。');const nextStep=step+1,lr=learningRate(nextStep);const update=(w,g,m,v)=>{for(let i=0;i<w.length;i++){let direction=g[i];if(cfg.optimizer==='adam'){m[i]=cfg.beta1*m[i]+(1-cfg.beta1)*g[i];v[i]=cfg.beta2*v[i]+(1-cfg.beta2)*g[i]**2;direction=(m[i]/(1-cfg.beta1**nextStep))/(Math.sqrt(v[i]/(1-cfg.beta2**nextStep))+1e-8);}else if(cfg.optimizer==='momentum'){m[i]=cfg.momentum*m[i]+g[i];direction=m[i];}w[i]-=lr*direction;if(!Number.isFinite(w[i])||!Number.isFinite(m[i])||!Number.isFinite(v[i]))throw new Error('参数非有限，已停止并保留最后有效模型。');}};layers.forEach(l=>{update(l.w,l.gw,l.mw,l.vw);update(l.b,l.gb,l.mb,l.vb);});step=nextStep;lastUpdate={step,optimizer:cfg.optimizer,learningRate:lr,before,after:parameters(),oldMoments,moments:moments(),gradients:layers.map(l=>Array.from(l.gw)),biasGradients:layers.map(l=>Array.from(l.gb)),deltaWeights:layers.map((l,j)=>Array.from(l.w,(v,i)=>v-before.weights[j][i])),deltaBiases:layers.map((l,j)=>Array.from(l.b,(v,i)=>v-before.biases[j][i])),batchBefore:loss*ys**2,batchAfter:batchLoss(points)*ys**2};if(!Number.isFinite(lastUpdate.batchAfter))throw new Error('更新后的批次损失非有限，已保留最后有效模型。');lastBatch=ids;lastBatchLoss=lastUpdate.batchBefore;cursor+=ids.length;if(cursor>=order.length)completedEpochs++;return true;}catch(e){restoreState(backup);throw e;}}
-  const curve=params=>Array.from({length:601},(_,i)=>{const r=.3+2.7*i/600;return{r,energy:morse(r),prediction:predict(r,params)};});
+  function trainStep(trace=false){
+    if(pendingStep&&!trace)throw new Error('请先提交或取消当前讲解。');if(finished())return false;
+    const backup=saveState();
+    try{
+      if(cursor>=order.length){order=shuffle([...order]);cursor=0;}
+      const ids=order.slice(cursor,cursor+cfg.batch),points=ids.map(id=>data[id-1]),before=parameters(),oldMoments=moments(),loss=gradients(points,trace),beforeLoss=batchLossParts(points);
+      if(!Number.isFinite(loss)||!Number.isFinite(beforeLoss.forceMSE))throw new Error('损失非有限，已保留最后有效模型，请降低学习率或调整设置。');
+      const nextStep=step+1,lr=learningRate(nextStep);
+      const update=(w,g,m,v)=>{for(let i=0;i<w.length;i++){
+        let direction=g[i];
+        if(cfg.optimizer==='adam'){m[i]=cfg.beta1*m[i]+(1-cfg.beta1)*g[i];v[i]=cfg.beta2*v[i]+(1-cfg.beta2)*g[i]**2;direction=(m[i]/(1-cfg.beta1**nextStep))/(Math.sqrt(v[i]/(1-cfg.beta2**nextStep))+1e-8);}
+        else if(cfg.optimizer==='momentum'){m[i]=cfg.momentum*m[i]+g[i];direction=m[i];}
+        w[i]-=lr*direction;if(!Number.isFinite(w[i])||!Number.isFinite(m[i])||!Number.isFinite(v[i]))throw new Error('参数非有限，已停止并保留最后有效模型。');
+      }};
+      layers.forEach(l=>{update(l.w,l.gw,l.mw,l.vw);update(l.b,l.gb,l.mb,l.vb);});
+      step=nextStep;const afterLoss=batchLossParts(points);
+      lastUpdate={step,optimizer:cfg.optimizer,learningRate:lr,forceWeight,before,after:parameters(),oldMoments,moments:moments(),gradients:layers.map(l=>Array.from(l.gw)),biasGradients:layers.map(l=>Array.from(l.gb)),gradientEnergy:{weights:layers.map(l=>Array.from(l.gew)),biases:layers.map(l=>Array.from(l.geb))},gradientForce:{weights:layers.map(l=>Array.from(l.gfw)),biases:layers.map(l=>Array.from(l.gfb))},deltaWeights:layers.map((l,j)=>Array.from(l.w,(v,i)=>v-before.weights[j][i])),deltaBiases:layers.map((l,j)=>Array.from(l.b,(v,i)=>v-before.biases[j][i])),batchBefore:beforeLoss.energyMSE,batchAfter:afterLoss.energyMSE,beforeLoss,afterLoss};
+      if(Object.values(afterLoss).some(x=>!Number.isFinite(x)))throw new Error('更新后的批次损失非有限，已保留最后有效模型。');
+      lastBatch=ids;lastBatchLoss=lastUpdate.batchBefore;cursor+=ids.length;if(cursor>=order.length)completedEpochs++;return true;
+    }catch(e){restoreState(backup);throw e;}
+  }
+  const curve=params=>Array.from({length:601},(_,i)=>{const r=.3+2.7*i/600,a=forwardTangent((r-xm)/xs,params);return{r,energy:morse(r),force:morseForce(r),prediction:a[last][0]*ys+ym,predictedForce:-ys/xs*a.derivatives[last][0]};});
   function response(selection,params=null){if(selection?.type!=='node'||selection.layer<=0||selection.layer>=last)return null;const l=selection.layer,j=selection.k;if(j>=sizes[l])return null;return{layer:l,k:j,lastHidden:l===last-1,baseline:ym+ys*(params?params.biases[last-1][0]:layers[last-1].b[0]),points:Array.from({length:151},(_,i)=>{const r=.3+2.7*i/150,a=forward((r-xm)/xs,false,params)[l][j],w=l===last-1?(params?params.weights[last-1][j]:layers[last-1].w[j]):0;return{r,a,contribution:ys*w*a,prediction:predict(r,params)};})};}
-  function network(r,selection=null,params=null){const a=forward((r-xm)/xs,true,params);return{step,sizes,activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),...(params??parameters()),r,normalization,update:lastUpdate,response:response(selection,params)};}
-  function snapshot(probe=.7417,selection=null){const latest=record();return{cfg,sizes,parameterCount,connectionCount,warning,step,data:data.map(p=>({...p,prediction:predict(p.r)})),order:[...order],cursor,completedEpochs,currentEpoch:Math.min(cfg.epochs,completedEpochs+(cursor>=order.length?0:1)),lastBatch:[...lastBatch],lastBatchLoss,finished:finished(),stepsPerEpoch:Math.ceil(train.length/cfg.batch),latest,initial:initialMetrics,history:history.filter((_,i)=>i%Math.max(1,Math.ceil(history.length/400))===0||i===history.length-1),curve:curve(),network:network(probe,selection),probe:{r:probe,reference:morse(probe),prediction:predict(probe)}};}
-  function prepareStep(){if(pendingStep)return pendingStep.trace;if(finished())return null;const original=saveState(),beforeCurve=curve(),beforeMetrics=evaluate();try{trainStep(true);const trace={token:++tokenCounter,targetStep:step,batchIds:[...lastBatch],samples:lastGradientTraces,afterSamples:lastBatch.map(id=>{const p=data[id-1],a=forward(p.x,true);return{id,r:p.r,activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),prediction:a[last][0]*ys+ym};}),update:lastUpdate,normalizedLoss:lastBatchLoss/ys**2,physicalLoss:lastBatchLoss,normalization,sizes,beforeCurve,afterCurve:curve(),beforeMetrics,afterMetrics:evaluate()};const candidate=saveState();restoreState(original);pendingStep={candidate,trace,baseStep:step};return trace;}catch(e){restoreState(original);throw e;}}
+  function network(r,selection=null,params=null){const a=forwardTangent((r-xm)/xs,params);return{step,sizes,activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),derivatives:a.derivatives.map(v=>Array.from(v)),preactivationDerivatives:a.preactivationDerivatives.map(v=>Array.from(v)),...(params??parameters()),r,normalization,update:lastUpdate,response:response(selection,params)};}
+  /** One snapshot owns the energies, forces and gradients of one committed model Step. */
+  function snapshot(probe=.7417,selection=null){const latest=record();return{cfg,sizes,parameterCount,connectionCount,warning,step,data:data.map(p=>({...p,prediction:predict(p.r),predictedForce:predictForce(p.r)})),order:[...order],cursor,completedEpochs,currentEpoch:Math.min(cfg.epochs,completedEpochs+(cursor>=order.length?0:1)),lastBatch:[...lastBatch],lastBatchLoss,finished:finished(),stepsPerEpoch:Math.ceil(train.length/cfg.batch),latest,initial:initialMetrics,history:history.filter((_,i)=>i%Math.max(1,Math.ceil(history.length/400))===0||i===history.length-1),curve:curve(),network:network(probe,selection),probe:{r:probe,reference:morse(probe),prediction:predict(probe),referenceForce:morseForce(probe),predictionForce:predictForce(probe)}};}
+  /** Candidate transaction; physicalLoss stays energy MSE for v1 consumers. */
+  function prepareStep(){if(pendingStep)return pendingStep.trace;if(finished())return null;const original=saveState(),beforeCurve=curve(),beforeMetrics=evaluate();try{trainStep(true);const trace={token:++tokenCounter,targetStep:step,batchIds:[...lastBatch],samples:lastGradientTraces,afterSamples:lastBatch.map(id=>{const p=data[id-1],a=forwardTangent(p.x);return{id,r:p.r,activations:a.map(v=>Array.from(v)),zs:a.zs.map(v=>Array.from(v)),derivatives:a.derivatives.map(v=>Array.from(v)),preactivationDerivatives:a.preactivationDerivatives.map(v=>Array.from(v)),prediction:a[last][0]*ys+ym,predictionForce:-a.derivatives[last][0]*ys/xs,referenceForce:p.force};}),update:lastUpdate,loss:lastUpdate.beforeLoss,afterLoss:lastUpdate.afterLoss,normalizedLoss:lastUpdate.beforeLoss.energyNormalized,physicalLoss:lastBatchLoss,normalization,sizes,beforeCurve,afterCurve:curve(),beforeMetrics,afterMetrics:evaluate()};const candidate=saveState();restoreState(original);pendingStep={candidate,trace,baseStep:step};return trace;}catch(e){restoreState(original);throw e;}}
   function commitStep(token){if(!pendingStep||pendingStep.trace.token!==token||pendingStep.baseStep!==step)throw new Error('讲解已过期或已提交。');const p=pendingStep;pendingStep=null;restoreState(p.candidate);return p.trace;}
   const cancelStep=()=>{pendingStep=null;};
   function lessonNetwork(lesson,selection){const phase=lesson.viewPhase??lesson.phase,trace=lesson.trace,p=trace.samples[lesson.sampleIndex],params=phase===4?trace.update.after:trace.update.before,n=network(p.r,selection,params);return{...n,step:phase===4?trace.targetStep:trace.targetStep-1,update:trace.update};}
   function checkGradient(selection){const original=saveState();try{const l=Math.max(0,Math.min(layers.length-1,selection.layer??0)),k=Math.max(0,Math.min(layers[l].w.length-1,selection.k??0)),points=(lastBatch.length?lastBatch:order.slice(0,cfg.batch)).map(id=>data[id-1]);gradients(points);const analytic=layers[l].gw[k],w=layers[l].w[k],h=1e-5;layers[l].w[k]=w+h;const plus=batchLoss(points);layers[l].w[k]=w-h;const minus=batchLoss(points);const numeric=(plus-minus)/(2*h);return{step,layer:l,k,analytic,numeric,absolute:Math.abs(analytic-numeric),relative:Math.abs(analytic-numeric)/Math.max(1e-6,Math.abs(analytic),Math.abs(numeric)),note:'ReLU 在 z=0 处不可微，邻近折点时数值差分可能不一致。'};}finally{restoreState(original);}}
-  return{cfg,sizes,layers,data,train,validation,normalization,parameterCount,connectionCount,morse,forward,predict,gradients,batchLoss,metrics,trainStep,finished,learningRate,snapshot,network,response,prepareStep,commitStep,cancelStep,lessonNetwork,saveState,checkGradient};
+  return{cfg,sizes,layers,data,train,validation,normalization,parameterCount,connectionCount,morse,morseForce,forward,forwardTangent,predict,predictForce,gradients,batchLoss,batchLossParts,metrics,trainStep,finished,learningRate,snapshot,network,response,prepareStep,commitStep,cancelStep,lessonNetwork,saveState,checkGradient};
 }
 
 const H2UI={ns:'http://www.w3.org/2000/svg',blue:'#2378df',orange:'#d47522',ink:'#193c5c',green:'#168875'};
@@ -268,24 +432,27 @@ function h2Matrix(host,layer,rows,cols,value,limit,selection){const key=`${layer
 }
 
 function createSettings(onDirty,onApply){
- const $=id=>document.getElementById(id),numeric=['lr','n','batch','epochs','seed','endFactor','beta1','beta2','momentum','validationRatio','rMin','rMax'],strings=['optimizer','initialization','schedule','sampling'],clone=x=>JSON.parse(JSON.stringify(x));let applied=clone(H2Defaults),layerDraft=[32,32],activationDraft=['tanh','tanh'];
- function layers(){const host=$('layer-editors');host.replaceChildren();for(let i=0;i<+$('depth').value;i++){const row=document.createElement('div');row.className='layer-row';row.innerHTML=`<label for="width-${i}">隐藏层 ${i+1}</label><input id="width-${i}" data-width="${i}" type="number" min="1" max="64" step="1" value="${layerDraft[i]??32}" aria-label="隐藏层 ${i+1} 神经元数量"><select data-activation="${i}" aria-label="隐藏层 ${i+1} 激活函数"><option value="tanh">tanh</option><option value="relu">ReLU</option><option value="leaky">Leaky ReLU</option><option value="sigmoid">sigmoid</option></select>`;row.querySelector('select').value=activationDraft[i]??'tanh';host.append(row);}}
+ const $=id=>document.getElementById(id),numeric=['lr','n','batch','epochs','seed','endFactor','beta1','beta2','momentum','validationRatio','rMin','rMax','forceWeight'],strings=['optimizer','initialization','schedule','sampling','trainingTarget'],clone=x=>JSON.parse(JSON.stringify(x));let applied=clone(H2Defaults),layerDraft=[32,32],activationDraft=['tanh','tanh'];
+ function layers(){const host=$('layer-editors');host.replaceChildren();for(let i=0;i<+$('depth').value;i++){const row=document.createElement('div');row.className='layer-row';row.innerHTML=`<label for="width-${i}">隐藏层 ${i+1}</label><input id="width-${i}" data-width="${i}" type="number" min="1" max="64" step="1" value="${layerDraft[i]??32}" aria-label="隐藏层 ${i+1} 神经元数量"><select data-activation="${i}" aria-label="隐藏层 ${i+1} 激活函数"><option value="tanh">tanh</option><option value="relu">ReLU</option><option value="leaky">Leaky ReLU</option><option value="sigmoid">sigmoid</option><option value="softplus">Softplus (β=1)</option></select>`;row.querySelector('select').value=activationDraft[i]??'tanh';host.append(row);}}
  function read(){return{...Object.fromEntries(numeric.map(k=>[k,$(k).value.trim()===''?NaN:+$(k).value])),...Object.fromEntries(strings.map(k=>[k,$(k).value])),split:$('splitMode').value,hiddenLayers:[...document.querySelectorAll('[data-width]')].map(e=>e.value.trim()===''?NaN:+e.value),activations:[...document.querySelectorAll('[data-activation]')].map(e=>e.value)};}
- function hints(){const c=read(),sizes=[1,...c.hiddenLayers,1],count=sizes.slice(1).reduce((n,v,i)=>n+v*(sizes[i]+1),0),vc=Math.round(c.n*c.validationRatio),tc=c.n-vc;$('draft-size').textContent=`待应用 ${sizes.join(' → ')} · ${Number.isFinite(count)?count.toLocaleString():'—'} 个参数`;$('batch').max=tc;$('split').textContent=`${tc} 个训练点 · ${vc} 个验证点`;$('adam-options').hidden=c.optimizer!=='adam';$('momentum-options').hidden=c.optimizer!=='momentum';$('endFactor').disabled=c.schedule==='constant';}
+ function hints(){const c=read(),sizes=[1,...c.hiddenLayers,1],count=sizes.slice(1).reduce((n,v,i)=>n+v*(sizes[i]+1),0),vc=Math.round(c.n*c.validationRatio),tc=c.n-vc;$('draft-size').textContent=`待应用 ${sizes.join(' → ')} · ${Number.isFinite(count)?count.toLocaleString():'—'} 个参数`;$('batch').max=tc;$('split').textContent=`${tc} 个训练点 · ${vc} 个验证点`;$('adam-options').hidden=c.optimizer!=='adam';$('momentum-options').hidden=c.optimizer!=='momentum';$('endFactor').disabled=c.schedule==='constant';$('forceWeight').disabled=c.trainingTarget==='energy';$('force-target-hint').textContent=c.trainingTarget==='energy'?'仅能量模式的力权重为 0；仍可观察从能量求导的力。':'联合训练支持 tanh、sigmoid、Softplus 或无隐藏层。L* = MSE(ŷ,y) + λF MSE(F̂*,F*)，无量纲。';}
  function set(c){numeric.forEach(k=>{$(k).value=c[k];if($(k).tagName==='SELECT')$(k).value=[...$(k).options].find(o=>+o.value===c[k])?.value??'';});strings.forEach(k=>$(k).value=c[k]);$('splitMode').value=c.split;layerDraft=[...c.hiddenLayers];activationDraft=[...c.activations];$('depth').value=c.hiddenLayers.length;layers();hints();}
- function showError(e){window.dispatchEvent(new Event('h2-open-settings'));$('config-error').hidden=false;$('config-error').textContent=e.message;const id=e.field==='hiddenLayers'||e.field==='activations'?'depth':e.field==='split'?'splitMode':e.field;const badWidth=e.field==='hiddenLayers'?[...document.querySelectorAll('[data-width]')].find(x=>!Number.isInteger(x.valueAsNumber)||x.valueAsNumber<1||x.valueAsNumber>64):null,target=badWidth||$(id)||$('depth');for(let p=target.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;requestAnimationFrame(()=>{target.focus({preventScroll:true});target.scrollIntoView({block:'nearest'});});}
+ function showError(e){window.dispatchEvent(new Event('h2-open-settings'));$('config-error').hidden=false;$('config-error').textContent=e.message;const id=e.field==='hiddenLayers'||e.field==='activations'?'depth':e.field==='split'?'splitMode':e.field;const badWidth=e.field==='hiddenLayers'?[...document.querySelectorAll('[data-width]')].find(x=>!Number.isInteger(x.valueAsNumber)||x.valueAsNumber<1||x.valueAsNumber>64):null,badActivation=e.field==='activations'?[...document.querySelectorAll('[data-activation]')].find(x=>['relu','leaky'].includes(x.value)):null,target=badWidth||badActivation||$(id)||$('depth');for(let p=target.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;requestAnimationFrame(()=>{target.focus({preventScroll:true});target.scrollIntoView({block:'nearest'});});}
  function mark(){hints();$('dirty-note').hidden=false;$('config-error').hidden=true;onDirty(true);}
  $('settings').addEventListener('input',e=>{if(!e.target.matches('input,select')||['speed','animation-speed','config-file'].includes(e.target.id))return;if(e.target.id==='depth'){const n=+e.target.value;if(Number.isInteger(n)&&n>=0&&n<=4){layerDraft=read().hiddenLayers;activationDraft=read().activations;layers();}}if(e.target.matches('[data-width]'))layerDraft[+e.target.dataset.width]=+e.target.value;if(e.target.matches('[data-activation]'))activationDraft[+e.target.dataset.activation]=e.target.value;mark();});
  $('apply').onclick=()=>{try{const raw=read();if(!Number.isInteger(+$('depth').value)||+$('depth').value<0||+$('depth').value>4||raw.hiddenLayers.length!==+$('depth').value)throw Object.assign(new Error('隐藏层数须为 0–4。'),{field:'hiddenLayers'});const c=validateH2Config(raw);applied=clone(c);$('dirty-note').hidden=true;$('config-error').hidden=true;onDirty(false);onApply(c);}catch(e){showError(e);}};
  $('undo').onclick=()=>{set(applied);$('dirty-note').hidden=true;$('config-error').hidden=true;onDirty(false);};
  $('defaults').onclick=()=>{set(clone(H2Defaults));mark();};
- $('config-export').onclick=()=>{try{h2Download('h2-lab-v3-config.json',JSON.stringify({schema:'h2-lab-config',version:1,config:validateH2Config(read())},null,2));}catch(e){showError(e);}};
- $('config-import').onclick=()=>$('config-file').click();$('config-file').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>131072)throw new Error('配置文件应小于 128 KB。');const json=JSON.parse(await f.text());if(json.schema!=='h2-lab-config'||json.version!==1)throw new Error('不支持的配置格式；请选择本网站导出的配置 JSON。');const c=validateH2Config(json.config);set(c);mark();window.dispatchEvent(new Event('h2-open-settings'));}catch(e){showError(e);}finally{e.target.value='';}};
- set(applied);return{current:()=>clone(applied),read,draft(c){set(validateH2Config({...H2Defaults,...c}));mark();},resetDirty(){set(applied);$('dirty-note').hidden=true;$('config-error').hidden=true;onDirty(false);}};
+ /** Configuration files contain settings only; v1 always migrates to energy-only. */
+ function parseEnvelope(json){if(!json||json.schema!=='h2-lab-config'||![1,2].includes(json.version)||!json.config||typeof json.config!=='object'||Array.isArray(json.config))throw new Error('不支持的配置格式；请选择 H₂ 配置 v1 或 v2。');return validateH2Config({...json.config,...(json.version===1?{trainingTarget:'energy',forceWeight:1}:{})});}
+ function importEnvelope(json){const c=parseEnvelope(json);set(c);mark();window.dispatchEvent(new Event('h2-open-settings'));return c;}
+ $('config-export').onclick=()=>{try{h2Download('h2-lab-v2-config.json',JSON.stringify({schema:'h2-lab-config',version:2,config:clone(applied)},null,2));}catch(e){showError(e);}};
+ $('config-import').onclick=()=>$('config-file').click();$('config-file').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>131072)throw new Error('配置文件应小于 128 KB。');importEnvelope(JSON.parse(await f.text()));}catch(e){showError(e);}finally{e.target.value='';}};
+ set(applied);return{current:()=>clone(applied),read,parseEnvelope,importEnvelope,exportEnvelope:()=>({schema:'h2-lab-config',version:2,config:clone(applied)}),draft(c){set(validateH2Config({...H2Defaults,...c}));mark();},resetDirty(){set(applied);$('dirty-note').hidden=true;$('config-error').hidden=true;onDirty(false);}};
 }
 
 function createNetworkPanel(send){
- const $=id=>document.getElementById(id),F=h2fmt,actLabel={tanh:'tanh',relu:'ReLU',leaky:'Leaky ReLU',sigmoid:'sigmoid'};
+ const $=id=>document.getElementById(id),F=h2fmt,actLabel={tanh:'tanh',relu:'ReLU',leaky:'Leaky ReLU',sigmoid:'sigmoid',softplus:'Softplus'};
  let latest=null,shown=null,net=null,sizes=[],selected={type:'node',layer:3,k:0},field='weight',scaleMode='locked',locks={},all=false,matrixMode=false,matrixLayer=0,topology='',graphWidth=0,edgeGroup=null,edges=[],nodes=[],particles=[],halos=[],animation=null,raf=null,paused=false,queue=null,phaseKey='',animationSpeed=1,zoom=1,maxCache={};
  const card=(label,v)=>`<div class="math-value"><span>${label}</span><strong>${v}</strong></div>`;
  const phase=()=>shown?.lesson?(shown.lesson.viewPhase??shown.lesson.phase):null;
@@ -331,7 +498,21 @@ function createNetworkPanel(send){
   if(!l)return;const tr=l.trace;$('lesson-heading').textContent=`讲解 Step ${tr.targetStep} · 本批 ${tr.samples.length} 个训练样本`;if($('lesson-sample').dataset.token!==`${tr.token}`){$('lesson-sample').innerHTML=tr.samples.map((s,i)=>`<option value="${i}">样本 ${s.id} · ${F(s.r,4)} Å</option>`).join('');$('lesson-sample').dataset.token=tr.token;}$('lesson-sample').value=l.sampleIndex;document.querySelectorAll('[data-phase]').forEach(b=>{const n=+b.dataset.phase;b.disabled=n>l.phase;b.classList.toggle('active',p===n);b.classList.toggle('done',l.phase>=n);b.classList.toggle('backward',n===3);});const replay=l.viewPhase!==null&&l.viewPhase!==l.phase;$('lesson-next').disabled=l.phase===4&&!replay;$('lesson-next').textContent=replay?'返回当前阶段（不训练）':['开始前向传播','下一阶段：计算损失','下一阶段：反向传播','提交一次参数更新','本步已提交'][l.phase];$('lesson-new').disabled=l.phase<4||shown.finished;$('lesson-replay').disabled=p===0;$('lesson-status').textContent=l.phase<4?'准备中的数据与计算已冻结；模型、优化器和计数尚未改变。主图探针与讲解样本独立。':'本步已提交一次。已完成阶段均为只读回放，不再更新参数。';
  }
  function mini(){const l=shown.lesson,p=phase(),tr=l?.trace,series=[{data:shown.curve.map(x=>({r:x.r,v:x.energy})),color:H2UI.ink,reference:true}];if(l){series.push({data:tr.beforeCurve.map(x=>({r:x.r,v:x.prediction})),color:'#8195ac',dash:'5 4'});if(p===4)series.push({data:tr.afterCurve.map(x=>({r:x.r,v:x.prediction})),color:H2UI.blue});}else series.push({data:shown.curve.map(x=>({r:x.r,v:x.prediction})),color:H2UI.blue});const reference=shown.curve.map(x=>x.energy),lo=Math.min(...reference),hi=Math.max(...reference),pad=(hi-lo)*.12,domain=$('plot-scale').value==='locked'?[lo-pad,hi+pad]:null,result=h2Plot($('mini-plot'),{series,height:160,domain,probe:net.r,coverage:[shown.cfg.rMin,shown.cfg.rMax]});$('mini-title').textContent=l?'参考／更新前／提交后':'同一模型的拟合';$('mini-step').textContent=`MODEL STEP ${net.step}`;
-  const m=l?(p===4?tr.afterMetrics:tr.beforeMetrics):shown.latest;$('mini-metrics').innerHTML=`<span class="legend-key" style="border-color:${H2UI.ink}"></span>参考　${l?'<span class="legend-key" style="border-color:#8195ac;border-top-style:dashed"></span>更新前　':''}<span class="legend-key" style="border-color:${H2UI.blue}"></span>${l?'提交后（仅阶段 4）':'当前预测'}<br>训练 RMSE ${F(m.train.rmse)} eV · 验证 ${F(m.validation.rmse)} eV${l?`<br>本批更新前 MSE ${F(tr.update.batchBefore)} eV²${p===4?` → 更新后 ${F(tr.update.batchAfter)} eV²`:''}`:''}${result.clipped?'<br>△ 预测超出锁定范围，可切换自动纵轴。':''}`;
+  const m=l?(p===4?tr.afterMetrics:tr.beforeMetrics):shown.latest;$('mini-metrics').innerHTML=`<span class="legend-key" style="border-color:${H2UI.ink}"></span>参考　${l?'<span class="legend-key" style="border-color:#8195ac;border-top-style:dashed"></span>更新前　':''}<span class="legend-key" style="border-color:${H2UI.blue}"></span>${l?'提交后（仅阶段 4）':'当前预测'}<br>能量 RMSE：训练 ${F(m.train.rmse)} / 验证 ${F(m.validation.rmse)} eV<br>力 RMSE：训练 ${F(m.train.forceRmse)} / 验证 ${F(m.validation.forceRmse)} eV/Å${l?`<br>本批 L* ${F(tr.update.beforeLoss?.total)}${p===4?` → ${F(tr.update.afterLoss?.total)}`:''}（无量纲）<br>本批能量 MSE ${F(tr.update.batchBefore)} eV²${p===4?` → ${F(tr.update.batchAfter)} eV²`:''}<br>本批力 MSE ${F(tr.update.beforeLoss?.forceMSE)}${p===4?` → ${F(tr.update.afterLoss?.forceMSE)}`:''} (eV/Å)²`:''}${result.clipped?'<br>△ 预测超出锁定范围，可切换自动纵轴。':''}`;
+ }
+ /** Read frozen tangent/adjoint records; this panel never invokes training. */
+ function forceMath(){
+  const u=net.update,p=phase(),l=selected.layer,k=selected.k,last=sizes.length-1,ready=u&&(!shown.lesson||p>=3),sample=shown.lesson?.trace.samples[shown.lesson.sampleIndex];
+  if(selected.type==='node'){
+   const tangent=net.derivatives?.[l]?.[k],t=net.preactivationDerivatives?.[l]?.[k],force=-net.normalization.ys/net.normalization.xs*net.derivatives?.[last]?.[0];
+   if(shown.cfg.trainingTarget==='energy-force')$('math-content').innerHTML=$('math-content').innerHTML.replaceAll('δ','δE');
+   $('math-content').insertAdjacentHTML('beforeend',`<div class="math-values">${card('输入导数 a′ = da/dx',F(tangent,7))}${l?card('加权和导数 z′',F(t,7)):''}${l===last?card('预测力 / eV/Å',F(force,7)):''}</div><div class="formula">${l?'z′ = Σwᵢaᵢ′<br>a′ = f′(z) z′':'x = (r−μr)/σr，dx/dx = 1'}${l===last?'<br>Fᵣ = −(σE/σr) a′':''}</div>`);
+   if(sample&&ready&&l>0&&shown.cfg.trainingTarget==='energy-force')$('math-content').insertAdjacentHTML('beforeend',`<p>δE 为能量项。力损失有 z 与 z′ 两路伴随量；以下为更新前选中样本的求导记录，已含 1/B，尚未乘 λF。</p><div class="math-values">${card('δF = ∂LF/∂z',F(sample.forceDeltas?.[l]?.[k],8))}${card('δF′ = ∂LF/∂z′',F(sample.forceTangentDeltas?.[l]?.[k],8))}</div>`);
+  }else if(ready){
+   const i=k%sizes[l],j=Math.floor(k/sizes[l]),gE=u.gradientEnergy?.weights[l][k],gF=u.gradientForce?.weights[l][k],lambda=u.forceWeight??0;
+   $('math-content').insertAdjacentHTML('beforeend',`<div class="math-values">${card('能量项 gE',F(gE,8))}${card('未加权力项 gF',F(gF,8))}${card('λF × gF',F(lambda*gF,8))}${card('总梯度 gE + λF gF',F(u.gradients[l][k],8))}</div><div class="formula">g = gE + λF gF<br>gF = Σ样本(aᵢ δFⱼ + aᵢ′ δF′ⱼ)</div><p>δF 与 δF′ 已含批次平均因子。第一项来自激活值路径，第二项来自输入导数路径。</p>`);
+   if(sample)$('math-terms').innerHTML=`<p>每行来自更新前同一批样本，列中的贡献已含 1/B。λF=${F(lambda,3)}。各行“总和”相加得到 ${F(u.gradients[l][k],8)}。</p><table><thead><tr><th>ID</th><th>能量 aᵢδEⱼ</th><th>力 aᵢδFⱼ</th><th>力 aᵢ′δF′ⱼ</th><th>总和</th></tr></thead><tbody>${shown.lesson.trace.samples.map(x=>{const e=x.activations[l][i]*x.deltas[l+1][j],f=x.activations[l][i]*x.forceDeltas[l+1][j],t=x.derivatives[l][i]*x.forceTangentDeltas[l+1][j];return `<tr><td>${x.id}</td><td>${F(e,7)}</td><td>${F(f,7)}</td><td>${F(t,7)}</td><td>${F(e+lambda*(f+t),7)}</td></tr>`;}).join('')}</tbody></table>`;
+  }
  }
  function activationPlot(name,z,a){
   const host=$('activation-plot');if(!name){host.innerHTML='<p>输入层和线性输出不使用隐藏层激活函数。选择隐藏神经元查看函数与导数。</p>';return;}
@@ -352,12 +533,12 @@ function createNetworkPanel(send){
   }
  }
  function response(){const r=net.response;$('response-card').hidden=!r;if(!r){$('response-note').textContent=sizes.length===2?'线性基线没有隐藏神经元。':'选择隐藏神经元查看其响应。';return;}$('show-contribution').disabled=!r.lastHidden;const contribution=r.lastHidden&&$('show-contribution').checked;$('response-title').textContent=`隐藏层 ${r.layer} #${r.k+1} · ${contribution?'能量输出贡献':'神经元响应 aⱼ(r)'}`;h2Plot($('response-plot'),{height:240,probe:net.r,yLabel:contribution?'贡献 / eV':'aⱼ(r)',series:contribution?[{data:r.points.map(p=>({r:p.r,v:p.prediction})),color:H2UI.blue},{data:r.points.map(p=>({r:p.r,v:p.contribution})),color:H2UI.orange},{data:r.points.map(p=>({r:p.r,v:p.prediction-p.contribution})),color:'#879aae',dash:'5 4'}]:[{data:r.points.map(p=>({r:p.r,v:p.a})),color:H2UI.green}]});$('response-note').textContent=contribution?`橙：cⱼ(r)=σEwⱼaⱼ(r)；灰虚线：其余贡献与基线之和；蓝：两者相加的预测。基线 μE+σEb = ${F(r.baseline)} eV。`:'这张图展示神经元对键长的响应；上方激活函数图展示 f(z)，两者含义不同。';}
- function loss(){if(!shown.lesson)return;const tr=shown.lesson.trace;$('lesson-loss').innerHTML=`<h3>本批更新前：归一化 MSE ${F(tr.normalizedLoss)} · 物理 MSE ${F(tr.physicalLoss)} eV²</h3><table><thead><tr><th>ID</th><th>r / Å</th><th>更新前预测 / eV</th><th>参考 / eV</th><th>平方误差 / eV²</th></tr></thead><tbody>${tr.samples.map((p,i)=>`<tr class="${i===shown.lesson.sampleIndex?'selected':''}"><td>${p.id}</td><td>${F(p.r,4)}</td><td>${F(p.prediction)}</td><td>${F(p.target)}</td><td>${F(p.physicalLoss)}</td></tr>`).join('')}</tbody></table>`;}
+ function loss(){if(!shown.lesson)return;const tr=shown.lesson.trace,b=tr.update.beforeLoss;$('lesson-loss').innerHTML=`<h3>本批更新前 · L* = ${F(b?.total)}（无量纲）</h3><p>归一化能量 MSE ${F(b?.energyNormalized)} ＋ λF ${F(tr.update.forceWeight,2)} × 归一化力 MSE ${F(b?.forceNormalized)}。下表为同批每个样本，均值形成批次目标。</p><table><thead><tr><th>ID</th><th>r / Å</th><th>预测能量 / eV</th><th>参考能量 / eV</th><th>能量误差² / eV²</th><th>预测力 / eV/Å</th><th>参考力 / eV/Å</th><th>力误差² / (eV/Å)²</th></tr></thead><tbody>${tr.samples.map((p,i)=>`<tr class="${i===shown.lesson.sampleIndex?'selected':''}"><td>${p.id}</td><td>${F(p.r,4)}</td><td>${F(p.prediction)}</td><td>${F(p.target)}</td><td>${F(p.physicalLoss)}</td><td>${F(p.predictionForce)}</td><td>${F(p.referenceForce)}</td><td>${F(p.loss?.forceMSE)}</td></tr>`).join('')}</tbody></table>`;}
  function render(s,force=false){latest=s;const old=shown,oldSelection=JSON.stringify(selected),incoming=s.lesson?s.lessonNetwork:s.network,newSelected=s.selection,newTopology=s.sizes.join(','),newWidth=measuredGraphWidth(s.sizes),newPhase=s.lesson?`${s.lesson.trace.token}-${s.lesson.viewPhase??s.lesson.phase}-${s.lesson.sampleIndex}`:'live',rChanged=!net||Math.abs(incoming.r-net.r)>1e-10;
   if(!force&&!s.lesson&&!old?.lesson&&animation&&s.running&&old.step!==s.step&&!rChanged&&oldSelection===JSON.stringify(newSelected)){queue=s;return;}
   if(!s.running&&queue){queue=null;stopAnimation();}shown=s;net=incoming;maxCache={};selected=newSelected;sizes=s.sizes;const structureChanged=topology!==newTopology;if(structureChanged){stopAnimation();locks={};topology=newTopology;matrixMode=s.connectionCount>2000;matrixLayer=0;all=false;$('matrix-layer').innerHTML=sizes.slice(1).map((n,i)=>`<option value="${i}">W${i+1} · ${n}×${sizes[i]}</option>`).join('');}
   const changedPhase=phaseKey!==newPhase;if(changedPhase&&s.lesson){field=phase()===3?'gradient':phase()===4?'delta':'weight';$('net-value').value=field;}phaseKey=newPhase;
-  if(structureChanged||Math.abs(newWidth-graphWidth)>1)buildGraph();else if(s.connectionCount>2000&&(oldSelection!==JSON.stringify(selected)||old?.step!==s.step||changedPhase))rebuildEdges();styleGraph();legend();views();controls();math();mini();response();loss();
+  if(structureChanged||Math.abs(newWidth-graphWidth)>1)buildGraph();else if(s.connectionCount>2000&&(oldSelection!==JSON.stringify(selected)||old?.step!==s.step||changedPhase))rebuildEdges();styleGraph();legend();views();controls();math();forceMath();mini();response();loss();
   const p=phase();$('net-frame-label').textContent=s.lesson?`Step ${s.lesson.trace.targetStep} · ${['准备就绪','前向传播','平均损失','反向传播','更新已提交'][p]} · 样本 ${s.lesson.trace.samples[s.lesson.sampleIndex].id}${s.lesson.viewPhase!==null&&s.lesson.viewPhase!==s.lesson.phase?' · 只读回放':''}`:`探针 ${F(net.r,4)} Å · 展示模型 Step ${net.step}（当前计数见上方）`;
   if(s.lesson&&changedPhase)animate(p===1?'forward':p===2?'loss':p===3?'backward':p===4?'update':'none');else if(!s.lesson&&(rChanged||old?.lesson))animate('forward');else if(!s.lesson&&old&&old.step!==s.step)animate('update');else if(animation)drawFrame(Math.min(1,((paused?animation.pausedAt:performance.now())-animation.start)/animation.duration));
  }
@@ -373,36 +554,150 @@ function createNetworkPanel(send){
 }
 
 (()=>{'use strict';
- const $=id=>document.getElementById(id);if(document.body.classList.contains('embedded')){new ResizeObserver(()=>parent.postMessage({type:'mlip-h2-size',height:Math.ceil(document.body.getBoundingClientRect().height)},'*')).observe(document.body);}let worker=null,version=0,state=null,pending=null,scheduled=false,dirty=false,lastError='',mode='energy',probeTimer=null,nextProbe=null,view='overview',inspector='summary';
+ const $=id=>document.getElementById(id),clone=x=>JSON.parse(JSON.stringify(x));
+ if(document.body.classList.contains('embedded'))new ResizeObserver(()=>parent.postMessage({type:'mlip-h2-size',height:Math.ceil(document.body.getBoundingClientRect().height)},'*')).observe(document.body);
+ let worker=null,version=0,state=null,pending=null,scheduled=false,dirty=false,lastError='',quantity='energy',residual=false,probeTimer=null,nextProbe=null,view='overview',inspector='summary',comparison=null,guideDismissed=false,gridKey='';
  const workerURL=URL.createObjectURL(new Blob([$('worker-source').textContent],{type:'text/javascript'}));
  const post=(type,extra={})=>worker?.postMessage({type,version,...extra});
  const panel=createNetworkPanel(post);
- const settings=createSettings(value=>{if(value&&!dirty){post('invalidateLesson');}dirty=value;updateButtons();},config=>reset(config));
- function reset(config=settings.current()){version++;worker?.terminate();panel.reset();state=null;pending=null;lastError='';$('play').disabled=$('step').disabled=$('csv').disabled=true;$('status').textContent='正在初始化本地训练引擎…';worker=new Worker(workerURL);worker.onerror=e=>{lastError='Worker 无法运行：'+e.message;$('status').textContent=lastError;};worker.onmessage=({data:m})=>{if(m.version!==version)return;if(m.type==='error'){lastError=m.message;$('status').textContent=m.message;updateButtons();return;}if(m.type==='csv'){h2Download('h2-potential-fit.csv','\uFEFFr_A,reference_eV,split,prediction_eV,residual_eV\r\n'+m.rows.map(p=>[p.r,p.energy,p.split,p.prediction,p.prediction-p.energy].join(',')).join('\r\n'),'text/csv;charset=utf-8');return;}if(m.type==='gradientCheck'){panel.gradient(m.result);return;}pending=m;if(!scheduled){scheduled=true;requestAnimationFrame(paint);}};post('init',{config,speed:+$('speed').value,probe:+$('probe').value});}
- function updateButtons(){const ready=!!state;$('play').disabled=!ready||dirty||!!state?.lesson||state?.finished||!!lastError;$('step').disabled=!ready||dirty||!!state?.lesson||state?.running||state?.finished||!!lastError;$('csv').disabled=!ready;$('net-lesson').disabled=!ready||dirty||state?.finished&&!state?.lesson;$('gradient-check').disabled=!ready||dirty||!!state?.lesson;$('play').textContent=dirty?'待应用设置':state?.lesson?'讲解进行中':state?.finished?'训练已完成':state?.running?'暂停训练':state?.step?'继续训练':'开始训练';$('config-state').textContent=dirty?'参数尚未应用':'';}
+ const settings=createSettings(value=>{if(value&&!dirty)post('invalidateLesson');dirty=value;updateButtons();},config=>reset(config));
+ const unit=()=>quantity==='force'?'eV/Å':'eV';
+ const reference=p=>quantity==='force'?p.force:p.energy;
+ const prediction=p=>quantity==='force'?p.predictedForce:p.prediction;
+ const stateLabel=()=>lastError?'错误':dirty?'设置待应用':!state?'初始化中':state.lesson?'讲解中':state.finished?'完成':state.running?'训练中':state.step?'暂停':'待训练';
+
+ function reset(config=settings.current()){
+  version++;worker?.terminate();panel.reset();state=null;pending=null;lastError='';gridKey='';
+  $('status').textContent='初始化中 · 本地训练引擎';updateButtons();
+  worker=new Worker(workerURL);
+  worker.onerror=e=>{lastError='本地计算线程无法运行：'+e.message;updateButtons();};
+  worker.onmessage=({data:m})=>{
+   if(m.version!==version)return;
+   if(m.type==='error'){lastError=m.message;updateButtons();return;}
+   if(m.type==='csv'){
+    const step=m.step??state?.step??0;
+    h2Download(`h2-potential-fit-step-${step}.csv`,'\uFEFFr_A,reference_eV,split,prediction_eV,residual_eV,reference_force_eV_per_A,prediction_force_eV_per_A,residual_force_eV_per_A,model_step\r\n'+m.rows.map(p=>[p.r,p.energy,p.split,p.prediction,p.prediction-p.energy,p.force,p.predictedForce,p.predictedForce-p.force,step].join(',')).join('\r\n'),'text/csv;charset=utf-8');return;
+   }
+   if(m.type==='gradientCheck'){panel.gradient(m.result);return;}
+   pending=m;if(!scheduled){scheduled=true;requestAnimationFrame(paint);}
+  };
+  post('init',{config,speed:+$('speed').value,probe:+$('probe').value});
+ }
+ function updateButtons(){
+  const ready=!!state;
+  $('play').disabled=!ready||dirty||!!state?.lesson||state?.finished||!!lastError;
+  $('step').disabled=!ready||dirty||!!state?.lesson||state?.running||state?.finished||!!lastError;
+  $('csv').disabled=$('save-comparison').disabled=!ready;
+  $('net-lesson').disabled=!ready||dirty||state?.finished&&!state?.lesson;
+  $('gradient-check').disabled=!ready||dirty||!!state?.lesson;
+  $('play').textContent=dirty?'待应用设置':state?.lesson?'讲解进行中':state?.finished?'训练已完成':state?.running?'暂停训练':state?.step?'继续训练':'开始训练';
+  $('config-state').textContent=dirty?'参数尚未应用':'';
+  const used=state?.network.update?.learningRate;
+  $('status').textContent=`${stateLabel()}${lastError?' · '+lastError:state?' · 模型 Step '+state.step+' · '+(used?'最近实际 η '+used.toPrecision(3):'初始 η '+state.cfg.lr):''}`;
+  $('first-guide').hidden=guideDismissed||!ready||!!state.step;
+ }
  function paint(){scheduled=false;if(!pending)return;state=pending;pending=null;metrics();probe();drawVisible();updateButtons();}
  function drawVisible(){if(!state)return;if(view==='overview'){energy();history();}else if(view==='computation'){panel.render(state);setInspector(inspector);}else grid();}
  function setInspector(name){inspector=name;for(const b of document.querySelectorAll('[data-inspector]')){const active=b.dataset.inspector===name;b.setAttribute('aria-selected',active);b.tabIndex=active?0:-1;const host=$(b.getAttribute('aria-controls'));host.hidden=!active;host.setAttribute('role','tabpanel');host.setAttribute('aria-labelledby',b.id);}}
  function switchView(name,focus=false){if(!['overview','computation','data'].includes(name))return;const changed=view!==name;view=name;document.querySelector('.lab-layout').dataset.view=name;for(const b of document.querySelectorAll('[data-view][role=tab]')){const active=b.dataset.view===name;b.setAttribute('aria-selected',active);b.tabIndex=active?0:-1;$(b.getAttribute('aria-controls')).hidden=!active;}if(focus)$('tab-'+name).focus();requestAnimationFrame(()=>{drawVisible();updateButtons();if(changed)document.querySelector('.lab-layout').scrollIntoView({block:'start'});});}
  function openSettings(){switchView('overview');$('settings-drawer').open=true;requestAnimationFrame(()=>$('settings-drawer').scrollIntoView({block:'nearest'}));}
- document.querySelectorAll('[data-view][role=tab]').forEach(b=>b.onclick=()=>switchView(b.dataset.view));document.querySelectorAll('[data-inspector]').forEach(b=>b.onclick=()=>setInspector(b.dataset.inspector));
+ document.querySelectorAll('[data-view][role=tab]').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+ document.querySelectorAll('[data-inspector]').forEach(b=>b.onclick=()=>setInspector(b.dataset.inspector));
  for(const group of document.querySelectorAll('[role=tablist]'))group.addEventListener('keydown',e=>{const tabs=[...group.querySelectorAll('[role=tab]')],i=tabs.indexOf(document.activeElement);if(i<0||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const n=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[n].click();tabs[n].focus();});
- $('settings-toggle').onclick=openSettings;window.addEventListener('h2-open-settings',openSettings);const compact=matchMedia('(max-width:1000px)');$('settings-drawer').open=!compact.matches;compact.addEventListener('change',e=>{$('settings-drawer').open=!e.matches;});$('lr').setAttribute('list','rates');
- function metrics(){const s=state,c=s.cfg,total=s.stepsPerEpoch*c.epochs;$('steps').textContent=s.step.toLocaleString();$('step-total').textContent=`${s.stepsPerEpoch} 步/轮 · 共 ${total.toLocaleString()} 步 · ${s.parameterCount.toLocaleString()} 参数`;$('epoch').textContent=`${s.completedEpochs} / ${c.epochs}`;$('epoch-current').textContent=s.finished?'训练轮次全部完成':s.cursor>=s.order.length?'本轮完成，下一步重新打乱':`第 ${s.currentEpoch} 轮 · 已处理 ${s.cursor}/${s.order.length} 样本`;$('train-rmse').textContent=h2fmt(s.latest.train.rmse)+' eV';$('train-mse').textContent='MSE '+h2fmt(s.latest.train.mse,6)+' eV²';$('val-rmse').textContent=h2fmt(s.latest.validation.rmse)+' eV';$('val-mse').textContent='MSE '+h2fmt(s.latest.validation.mse,6)+' eV²';const used=s.network.update?.learningRate;$('status').textContent=lastError||`${s.finished?'已完成':s.running?'训练中':s.lesson?'讲解中':s.step?'已暂停':'引擎就绪'} · ${used?'最近实际 η '+used.toPrecision(3):'初始 η '+c.lr}${s.step?' · 验证 RMSE 改善 '+(100*(1-s.latest.validation.rmse/s.initial.validation.rmse)).toFixed(1)+'%':''}`;$('model-note').innerHTML=`<b>已应用：${s.sizes.join(' → ')}</b><span>${c.activations.join(' / ')||'无隐藏层：线性基线'} · ${c.optimizer.toUpperCase()} · MSE</span><span>种子 ${c.seed} · ${s.order.length} 训练 / ${s.data.length-s.order.length} 验证</span><span>本地 CPU · 仅训练集参与标准化</span>`;}
- const bounds=()=>$('range').value==='well'?[.45,1.25]:$('range').value==='tail'?[1.2,3]:[.3,3];
- function energy(){if(!state||view!=='overview')return;const residual=mode==='residual',curve=state.curve,reference=curve.map(p=>p.energy),lo=Math.min(...reference),hi=Math.max(...reference),pad=(hi-lo)*.12,locked=$('plot-scale').value==='locked',domain=locked?(residual?[-1,1]:[lo-pad,hi+pad]):null;const result=h2Plot($('energy-chart'),{height:$('energy-chart').clientHeight||360,bounds:bounds(),domain,coverage:[state.cfg.rMin,state.cfg.rMax],yLabel:residual?'残差 / eV':'E / eV',series:[...(residual?[]:[{data:curve.map(p=>({r:p.r,v:p.energy})),color:H2UI.ink,reference:true}]),{data:curve.map(p=>({r:p.r,v:residual?p.prediction-p.energy:p.prediction})),color:H2UI.blue}],dots:state.data.map(p=>({id:p.id,r:p.r,v:residual?p.prediction-p.energy:p.energy,validation:p.split==='validation'})),probe:state.probe.r});
-  $('coverage-note').textContent=`灰色区域：样本采样区间之外。当前区间 ${h2fmt(state.cfg.rMin,2)}–${h2fmt(state.cfg.rMax,2)} Å。${result.clipped?' △ 有预测超出锁定纵轴；边缘三角为提示，可切换自动范围。':''}${state.warning?' '+state.warning:''}`;
+ $('settings-toggle').onclick=openSettings;window.addEventListener('h2-open-settings',openSettings);
+ const compact=matchMedia('(max-width:1000px)');$('settings-drawer').open=!compact.matches;compact.addEventListener('change',e=>{$('settings-drawer').open=!e.matches;});$('lr').setAttribute('list','rates');
+ $('dismiss-guide').onclick=()=>{guideDismissed=true;$('first-guide').hidden=true;};
+
+ function metrics(){
+  const s=state,c=s.cfg,total=s.stepsPerEpoch*c.epochs;
+  $('steps').textContent=s.step.toLocaleString();$('step-total').textContent=`${s.stepsPerEpoch} 步/轮 · 共 ${total.toLocaleString()} 步 · ${s.parameterCount.toLocaleString()} 参数`;
+  $('epoch').textContent=`${s.completedEpochs} / ${c.epochs}`;$('epoch-current').textContent=s.finished?'训练轮次全部完成':s.cursor>=s.order.length?'本轮完成，下一步重新打乱':`第 ${s.currentEpoch} 轮 · 已处理 ${s.cursor}/${s.order.length} 样本`;
+  $('train-rmse').textContent=h2fmt(s.latest.train.rmse)+' eV';$('train-mse').textContent='力 RMSE '+h2fmt(s.latest.train.forceRmse)+' eV/Å';
+  $('val-rmse').textContent=h2fmt(s.latest.validation.rmse)+' eV';$('val-mse').textContent='力 RMSE '+h2fmt(s.latest.validation.forceRmse)+' eV/Å';
+  const init={auto:'自动匹配',xavier:'Xavier 均匀',he:'He 均匀',zero:'全零'}[c.initialization];
+  $('prediction-label').textContent=s.step?'当前模型 · Step '+s.step:'初始化模型 · '+init;
+  $('model-note').innerHTML=`<b>已应用：${s.sizes.join(' → ')}</b><span>${c.activations.join(' / ')||'无隐藏层：线性基线'} · ${c.optimizer.toUpperCase()}</span><span>${c.trainingTarget==='energy-force'?'能量＋力 · λF='+c.forceWeight:'仅能量 · λF=0'}</span><span>种子 ${c.seed} · ${s.order.length} 训练 / ${s.data.length-s.order.length} 验证</span><span>本地 CPU · 仅训练集参与标准化</span>`;
+  $('force-metrics').innerHTML=['train','validation'].map((key,i)=>{const m=s.latest[key];return `<section><h3>${i?'验证集':'训练集'}</h3><p>能量 RMSE <strong>${h2fmt(m.rmse)} eV</strong></p><p>力 RMSE <strong>${h2fmt(m.forceRmse)} eV/Å</strong></p><small>能量 MSE ${h2fmt(m.mse,6)} eV²<br>力 MSE ${h2fmt(m.forceMse,6)} (eV/Å)²</small></section>`;}).join('');
+  renderComparisonNote();
  }
- function probe(){const p=state.probe;$('probe-r').textContent=h2fmt(p.r,4)+' Å';$('probe-ref').textContent=h2fmt(p.reference);$('probe-pred').textContent=h2fmt(p.prediction);$('probe-error').textContent=h2fmt(p.prediction-p.reference);const dist=35+Math.min(150,(p.r-.3)/2.7*150);$('molecule').innerHTML=`<line x1="${120-dist/2}" y1="34" x2="${120+dist/2}" y2="34" stroke="#8faac2" stroke-width="3"/><circle cx="${120-dist/2}" cy="34" r="18" fill="#deedff" stroke="#2378df"/><circle cx="${120+dist/2}" cy="34" r="18" fill="#deedff" stroke="#2378df"/><text x="${120-dist/2}" y="39" text-anchor="middle" font-size="14">H</text><text x="${120+dist/2}" y="39" text-anchor="middle" font-size="14">H</text>`;}
- function history(){h2Plot($('loss-chart'),{height:$('loss-chart').clientHeight||240,xStep:true,bounds:[0,Math.max(10,state.step)],yLabel:'MSE / eV²',series:[{data:state.history.map(p=>({r:p.step,v:p.train.mse})),color:H2UI.blue},{data:state.history.map(p=>({r:p.step,v:p.validation.mse})),color:H2UI.orange}]});const region=(a,b)=>{const pts=state.curve.filter(p=>p.r>=a&&p.r<=b);return Math.sqrt(pts.reduce((s,p)=>s+(p.prediction-p.energy)**2,0)/pts.length);};$('region-metrics').textContent=`蓝：训练集，橙：验证集。完整参考网格的分区 RMSE：势阱 0.45–1.25 Å = ${h2fmt(region(.45,1.25))} eV；长键区 1.20–3.00 Å = ${h2fmt(region(1.2,3))} eV（分区值不是验证集指标）。`;}
- let gridKey='';function grid(){const s=state,key=`${version}-${s.step}-${s.lesson?.trace.token??'live'}`;if(key===gridKey)return;gridKey=key;const batch=s.lesson?.trace.batchIds??s.lastBatch;$('batch-count').textContent=`${s.stepsPerEpoch} Steps/Epoch`;$('batch-description').textContent=s.lesson&&s.lesson.phase<4?`高亮准备提交的 ${batch.length} 个样本；尚未更新参数。`:s.step?`最近更新 ${s.lastBatch.length} 个样本 · 更新前 MSE ${h2fmt(s.lastBatchLoss)} eV²`:'每轮重新打乱训练样本，尾批次保留。';$('sample-grid').innerHTML=s.order.map((id,i)=>`<button class="sample${i<s.cursor?' done':''}${batch.includes(id)?' recent':''}" data-sample="${id}" style="background:hsl(${Math.floor(i/s.cfg.batch)*47%360},55%,45%)" title="样本 ${id} · 点击作为主图探针">${id}</button>`).join('');$('validation-points').innerHTML=s.data.filter(p=>p.split==='validation').map(p=>`<button data-sample="${p.id}" title="验证点 ${p.id} · 不参与更新">${p.id}</button>`).join('');}
+ const bounds=()=>$('range').value==='well'?[.45,1.25]:$('range').value==='tail'?[1.2,3]:[.3,3];
+ function energy(){
+  if(!state||view!=='overview')return;
+  const curve=state.curve,refs=curve.map(reference).filter(Number.isFinite),lo=Math.min(...refs),hi=Math.max(...refs),pad=Math.max(.05,(hi-lo)*.12);
+  const locked=$('plot-scale').value==='locked',domain=locked?(residual?(quantity==='force'?[-5,5]:[-1,1]):[lo-pad,hi+pad]):null;
+  const series=[...(residual?[]:[{data:curve.map(p=>({r:p.r,v:reference(p)})),color:H2UI.ink,reference:true}])];
+  if(comparison)series.push({data:comparison.curve.map(p=>({r:p.r,v:prediction(p)-(residual?reference(p):0)})),color:'#8056aa',dash:'7 4'});
+  series.push({data:curve.map(p=>({r:p.r,v:prediction(p)-(residual?reference(p):0)})),color:H2UI.blue});
+  const result=h2Plot($('energy-chart'),{height:$('energy-chart').clientHeight||360,bounds:bounds(),domain,coverage:[state.cfg.rMin,state.cfg.rMax],yLabel:`${residual?'残差':quantity==='force'?'Fᵣ':'E'} / ${unit()}`,series,dots:state.data.map(p=>({id:p.id,r:p.r,v:residual?prediction(p)-reference(p):reference(p),validation:p.split==='validation'})),probe:state.probe.r});
+  $('energy-chart').setAttribute('aria-label',`${quantity==='force'?'力':'能量'}${residual?'残差':'参考与预测'}，模型 Step ${state.step}，可移动探针`);
+  $('coverage-note').textContent=`灰色区域：样本采样区间之外。当前覆盖 ${h2fmt(state.cfg.rMin,2)}–${h2fmt(state.cfg.rMax,2)} Å。${result.clipped?' △ 预测超出锁定纵轴，边缘三角为提示；可切换自动范围。':''}${state.warning?' '+state.warning:''}`;
+  $('energy-view').setAttribute('aria-pressed',quantity==='energy'&&!residual);$('force-view').setAttribute('aria-pressed',quantity==='force'&&!residual);
+  $('residual-view').setAttribute('aria-pressed',residual);$('residual-view').textContent=(quantity==='force'?'力':'能量')+'残差';
+ }
+ function probe(){
+  if(!state)return;const p=state.probe,ref=quantity==='force'?p.referenceForce:p.reference,pred=quantity==='force'?p.predictionForce:p.prediction;
+  $('probe-r').textContent=h2fmt(p.r,4)+' Å';$('probe-ref').textContent=h2fmt(ref);$('probe-pred').textContent=h2fmt(pred);$('probe-error').textContent=h2fmt(pred-ref);
+  $('probe-ref-label').textContent='参考 / '+unit();$('probe-pred-label').textContent='预测 / '+unit();$('probe-error-label').textContent='预测 − 参考 / '+unit();
+  const dist=50+Math.min(125,(p.r-.3)/2.7*125),x1=140-dist/2,x2=140+dist/2,F=p.predictionForce,len=Number.isFinite(F)?Math.min(32,6+8*Math.log1p(Math.abs(F))):0,sgn=Math.sign(F),arrow=(x,d)=>Math.abs(F)>1e-8&&Number.isFinite(F)?`<line x1="${x}" y1="78" x2="${x+d*len}" y2="78" stroke="#d47522" stroke-width="2.5"/><path d="M${x+d*len-d*6},73 L${x+d*len},78 L${x+d*len-d*6},83" fill="none" stroke="#d47522" stroke-width="2.5"/>`:'';
+  $('molecule').innerHTML=`<line x1="${x1}" y1="32" x2="${x2}" y2="32" stroke="#8faac2" stroke-width="3"/><circle cx="${x1}" cy="32" r="18" fill="#deedff" stroke="#2378df"/><circle cx="${x2}" cy="32" r="18" fill="#deedff" stroke="#2378df"/><text x="${x1}" y="37" text-anchor="middle" font-size="14">H₁</text><text x="${x2}" y="37" text-anchor="middle" font-size="14">H₂</text>${arrow(x1,-sgn)}${arrow(x2,sgn)}<text x="140" y="103" text-anchor="middle" font-size="12">预测力 ${F>1e-8?'排斥':F< -1e-8?'吸引':'接近零'} · 箭长压缩显示</text>`;
+  $('force-note').textContent=`Fᵣ = −dE/dr，F₂ = Fᵣ r̂₁₂，F₁ = −F₂。预测 Fᵣ = ${h2fmt(F)} eV/Å。${state.cfg.activations.some(a=>['relu','leaky'].includes(a))?'直接输入键长的一维 ReLU 类网络可产生分段常力；折点处导数按程序约定显示。':'力由同一可微能量函数解析求导；加入力标签用于约束拟合。'}`;
+ }
+ function history(){
+  const force=quantity==='force',key=force?'forceMse':'mse';
+  h2Plot($('loss-chart'),{height:$('loss-chart').clientHeight||240,xStep:true,bounds:[0,Math.max(10,state.step)],yLabel:force?'MSE / (eV/Å)²':'MSE / eV²',series:[{data:state.history.map(p=>({r:p.step,v:p.train[key]})),color:H2UI.blue},{data:state.history.map(p=>({r:p.step,v:p.validation[key]})),color:H2UI.orange}]});
+  $('history-note').textContent=`完整训练／验证集的${force?'力':'能量'} MSE，按真实评估点记录。蓝色为训练集，橙色为验证集。`;
+  const region=check=>{const pts=state.curve.filter(check);return pts.length?h2fmt(Math.sqrt(pts.reduce((s,p)=>s+(prediction(p)-reference(p))**2,0)/pts.length))+' '+unit():'无此区间';},lo=state.cfg.rMin,hi=state.cfg.rMax;
+  $('region-metrics').textContent=`完整参考网格上的${force?'力':'能量'} RMSE：覆盖区内 ${region(p=>p.r>=lo&&p.r<=hi)}；左侧外推 ${region(p=>p.r<lo)}；右侧外推 ${region(p=>p.r>hi)}。这些网格不参与训练，分区值不是验证集指标。`;
+ }
+ const dataIdentity=s=>JSON.stringify(s.data.map(p=>[p.r,p.split]));
+ const modelIdentity=c=>JSON.stringify([c.hiddenLayers,c.activations,c.initialization,c.seed]);
+ function renderComparisonNote(){
+  $('comparison-legend').hidden=$('clear-comparison').hidden=!comparison;
+  if(!comparison){$('comparison-note').textContent='保存后可重新初始化，以相同坐标比较两次实际结果。';return;}
+  const sameData=dataIdentity(state)===comparison.dataId,sameModel=modelIdentity(state.cfg)===modelIdentity(comparison.cfg);
+  $('comparison-note').textContent=`紫色虚线：${comparison.cfg.trainingTarget==='energy-force'?'能量＋力':'仅能量'}，Step ${comparison.step}；数据划分${sameData?'一致':'不同'}，模型结构与初始化${sameModel?'一致':'不同'}。对照验证 RMSE：能量 ${h2fmt(comparison.latest.validation.rmse)} eV，力 ${h2fmt(comparison.latest.validation.forceRmse)} eV/Å。仅保存当前页面内存中的只读结果。`;
+ }
+ $('save-comparison').onclick=()=>{if(!state)return;comparison=clone({curve:state.curve,cfg:state.cfg,step:state.step,latest:state.latest,dataId:dataIdentity(state)});renderComparisonNote();energy();};
+ $('clear-comparison').onclick=()=>{comparison=null;renderComparisonNote();energy();};
+ function grid(){const s=state,key=`${version}-${s.step}-${s.lesson?.trace.token??'live'}-${s.lesson?.phase??0}`;if(key===gridKey)return;gridKey=key;const batch=s.lesson?.trace.batchIds??s.lastBatch;$('batch-count').textContent=`${s.stepsPerEpoch} Steps/Epoch`;$('batch-description').textContent=s.lesson&&s.lesson.phase<4?`高亮准备提交的 ${batch.length} 个样本；尚未更新参数。`:s.step?`最近更新 ${s.lastBatch.length} 个样本 · 更新前能量 MSE ${h2fmt(s.lastBatchLoss)} eV²`:'每轮重新打乱训练样本，尾批次保留。';$('sample-grid').innerHTML=s.order.map((id,i)=>`<button class="sample${i<s.cursor?' done':''}${batch.includes(id)?' recent':''}" data-sample="${id}" style="background:hsl(${Math.floor(i/s.cfg.batch)*47%360},55%,45%)" title="样本 ${id} · 点击作为主图探针">${id}</button>`).join('');$('validation-points').innerHTML=s.data.filter(p=>p.split==='validation').map(p=>`<button data-sample="${p.id}" title="验证点 ${p.id} · 不参与更新">${p.id}</button>`).join('');}
  function requestProbe(r){$('probe').value=r;nextProbe=r;if(probeTimer)return;probeTimer=setTimeout(()=>{probeTimer=null;post('probe',{r:nextProbe});},45);}
- for(const id of ['sample-grid','validation-points'])$(id).onclick=e=>{const b=e.target.closest('[data-sample]');if(b&&state){requestProbe(state.data[+b.dataset.sample-1].r);switchView('overview');requestAnimationFrame(()=>$('energy-chart').scrollIntoView({block:'center'}));}};$('probe').oninput=()=>requestProbe(+$('probe').value);$('energy-chart').onpointermove=e=>{if(!state||e.pointerType==='touch'&&!e.buttons)return;const el=$('energy-chart'),rect=el.getBoundingClientRect(),[a,b]=bounds(),x=Math.max(0,Math.min(1,(e.clientX-rect.left-55)/(rect.width-73)));requestProbe(a+(b-a)*x);};$('energy-chart').onpointerdown=e=>$('energy-chart').setPointerCapture(e.pointerId);
- $('play').onclick=()=>post(state?.running?'pause':'play');$('step').onclick=()=>post('step');$('reset').onclick=()=>{settings.resetDirty();reset();};$('csv').onclick=()=>post('export');$('speed').onchange=()=>{let n=Math.round(+$('speed').value);n=Math.max(1,Math.min(100,Number.isFinite(n)?n:100));$('speed').value=n;post('speed',{speed:n});};$('range').onchange=energy;$('plot-scale').onchange=()=>{energy();if(view==='computation')panel.refresh();};for(const m of ['energy','residual'])$(m+'-view').onclick=()=>{mode=m;$('energy-view').setAttribute('aria-pressed',m==='energy');$('residual-view').setAttribute('aria-pressed',m==='residual');energy();};
- const guides={step:{text:'暂停在一次真实更新：依次查看前向、平均损失、反向，最后提交。已完成阶段可回放，只有提交才使 Step +1。',choices:[['默认 32×32 网络',{}]],targets:['net-lesson']},capacity:{text:'在相同样本、种子和训练轮次下比较模型容量。无隐藏层只能拟合直线；参数更多也不保证每次结果都更好。请同时比较 Step、Epoch、参数量与验证 RMSE。',choices:[['线性基线',{hiddenLayers:[],activations:[]}],['小型 4×4',{hiddenLayers:[4,4],activations:['tanh','tanh']}],['默认 32×32',{}]],targets:['depth','layer-editors']},batch:{text:'保持数据、种子与 Epoch 数相同，比较批次大小。不同 Batch Size 对应不同更新次数；观察噪声、拟合与实际耗时，不预设优胜者。',choices:[['Batch 1',{batch:1}],['Batch 8',{batch:8}],['Batch 64',{batch:64}]],targets:['batch']},activation:{text:'比较激活函数的形状、导数及神经元响应。选择隐藏神经元查看局部导数和饱和状态；结合下方势阱／长键区真实误差观察。全零初始化用于观察对称性。',choices:[['tanh',{}],['sigmoid',{activations:['sigmoid','sigmoid']}],['ReLU',{activations:['relu','relu']}],['全零初始化',{initialization:'zero'}]],targets:['layer-editors','initialization']}};
- function fillGuide(name,index=0){const g=guides[name];document.querySelectorAll('.experiment-target').forEach(e=>e.classList.remove('experiment-target'));document.querySelectorAll('[data-guide]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.guide===name));$('guide-detail').hidden=false;$('guide-detail').innerHTML=`<p>${g.text}</p><div class="guide-choices">${g.choices.map(([label],i)=>`<button data-guide-choice="${i}" aria-pressed="${i===index}">${label}</button>`).join('')}</div><p class="hint">以上设置尚未应用；请点击“应用并重新初始化”。</p>`;$('guide-detail').querySelectorAll('[data-guide-choice]').forEach(b=>b.onclick=()=>fillGuide(name,+b.dataset.guideChoice));settings.draft({...H2Defaults,...g.choices[index][1]});openSettings();g.targets.forEach(id=>{const el=$(id);el.classList.add('experiment-target');for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;});if(name==='step')$('tab-computation').classList.add('experiment-target');}
- document.querySelectorAll('[data-guide]').forEach(b=>b.onclick=()=>fillGuide(b.dataset.guide));$('guide-clear').onclick=()=>{$('guide-detail').hidden=true;document.querySelectorAll('.experiment-target').forEach(e=>e.classList.remove('experiment-target'));document.querySelectorAll('[data-guide]').forEach(b=>b.setAttribute('aria-pressed',false));};
- let resizing=false;const dimensions=new WeakMap();const observer=new ResizeObserver(entries=>{let changed=false;for(const entry of entries){const el=entry.target,w=el.clientWidth,h=el.clientHeight;if(el.classList.contains('training-bar')){document.documentElement.style.setProperty('--bar-height',Math.ceil(el.getBoundingClientRect().height)+'px');continue;}if(w===0||h===0)continue;const size=el.id==='network'?String(w):w+','+h;if(dimensions.get(el)!==size){dimensions.set(el,size);changed=true;}}if(!changed||resizing)return;resizing=true;requestAnimationFrame(()=>{resizing=false;drawVisible();updateButtons();});});['energy-chart','loss-chart','network'].forEach(id=>observer.observe($(id)));observer.observe(document.querySelector('.training-bar'));window.addEventListener('pagehide',()=>{worker?.terminate();URL.revokeObjectURL(workerURL);});reset();
- window.addEventListener('message',event=>{if(event.source===parent&&event.data?.type==='mlip-pause')post('pause');});
+ for(const id of ['sample-grid','validation-points'])$(id).onclick=e=>{const b=e.target.closest('[data-sample]');if(b&&state){requestProbe(state.data[+b.dataset.sample-1].r);switchView('overview');requestAnimationFrame(()=>$('energy-chart').scrollIntoView({block:'center'}));}};
+ $('probe').oninput=()=>requestProbe(+$('probe').value);
+ $('energy-chart').onpointermove=e=>{if(!state||e.pointerType==='touch'&&!e.buttons)return;const el=$('energy-chart'),rect=el.getBoundingClientRect(),[a,b]=bounds(),left=Number(el.dataset.left)||55,right=Number(el.dataset.right)||18,x=Math.max(0,Math.min(1,(e.clientX-rect.left-left)/(rect.width-left-right)));requestProbe(a+(b-a)*x);};
+ $('energy-chart').onpointerdown=e=>$('energy-chart').setPointerCapture(e.pointerId);
+ $('play').onclick=()=>post(state?.running?'pause':'play');$('step').onclick=()=>post('step');$('reset').onclick=()=>{settings.resetDirty();reset();};$('csv').onclick=()=>post('export');
+ $('speed').onchange=()=>{let n=Math.round(+$('speed').value);n=Math.max(1,Math.min(100,Number.isFinite(n)?n:100));$('speed').value=n;post('speed',{speed:n});};
+ $('range').onchange=energy;$('plot-scale').onchange=()=>{energy();if(view==='computation')panel.refresh();};
+ for(const q of ['energy','force'])$(q+'-view').onclick=()=>{quantity=q;residual=false;energy();history();probe();};
+ $('residual-view').onclick=()=>{residual=!residual;energy();};
+ const guides={
+  step:{text:'依次查看前向、平均损失、反向，最后提交。已完成阶段可回放，只有提交使 Step +1。',choices:[['默认 32×32 网络',{}]],targets:['net-lesson']},
+  forces:{text:'先训练仅能量模型并保存对照，再以相同数据、网络和种子进行联合训练。分别比较能量和力，不预设哪次结果更好。',choices:[['仅能量',{trainingTarget:'energy'}],['能量＋力 · λF=1',{trainingTarget:'energy-force',forceWeight:1}]],targets:['trainingTarget','forceWeight']},
+  coverage:{text:'保持完整 Morse 参考曲线，限制训练与验证样本覆盖。灰色区是外推区域；参考网格指标独立于验证集。tanh 常趋于常值，错误外推不一定表现为发散。',choices:[['完整 0.30–3.00 Å',{rMin:.3,rMax:3}],['平衡附近 0.60–1.20 Å',{rMin:.6,rMax:1.2}],['缺少短程 0.90–3.00 Å',{rMin:.9,rMax:3}]],targets:['rMin','rMax']},
+  capacity:{text:'相同样本、种子和 Epoch 下比较容量。无隐藏层只能拟合直线；参数更多也不保证结果更好。同时比较 Step、参数量和验证误差。',choices:[['线性基线',{hiddenLayers:[],activations:[]}],['小型 4×4',{hiddenLayers:[4,4],activations:['tanh','tanh']}],['默认 32×32',{}]],targets:['depth','layer-editors']},
+  batch:{text:'相同 Epoch 下不同 Batch 对应不同更新次数。观察拟合与实际耗时，不预设优胜者。',choices:[['Batch 1',{batch:1}],['Batch 8',{batch:8}],['Batch 64',{batch:64}]],targets:['batch']},
+  activation:{text:'比较激活、导数和力曲线。直接输入键长的一维 ReLU 类网络可产生分段常力；tanh、sigmoid、Softplus 平滑。全零初始化用于观察对称性。',choices:[['tanh',{}],['Softplus',{activations:['softplus','softplus']}],['sigmoid',{activations:['sigmoid','sigmoid']}],['ReLU',{activations:['relu','relu']}],['全零初始化',{initialization:'zero'}]],targets:['layer-editors','initialization']}
+ };
+ function fillGuide(name,index=0){const g=guides[name];document.querySelectorAll('.experiment-target').forEach(e=>e.classList.remove('experiment-target'));document.querySelectorAll('[data-guide]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.guide===name));$('guide-detail').hidden=false;$('guide-detail').innerHTML=`<p>${g.text}</p><div class="guide-choices">${g.choices.map(([label],i)=>`<button data-guide-choice="${i}" aria-pressed="${i===index}">${label}</button>`).join('')}</div><p class="hint">设置尚未应用；请点击“应用并重新初始化”。</p>`;$('guide-detail').querySelectorAll('[data-guide-choice]').forEach(b=>b.onclick=()=>fillGuide(name,+b.dataset.guideChoice));settings.draft({...H2Defaults,...g.choices[index][1]});openSettings();g.targets.forEach(id=>{const el=$(id);el.classList.add('experiment-target');for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;});if(name==='step')$('tab-computation').classList.add('experiment-target');}
+ document.querySelectorAll('[data-guide]').forEach(b=>b.onclick=()=>fillGuide(b.dataset.guide));
+ $('guide-clear').onclick=()=>{$('guide-detail').hidden=true;document.querySelectorAll('.experiment-target').forEach(e=>e.classList.remove('experiment-target'));document.querySelectorAll('[data-guide]').forEach(b=>b.setAttribute('aria-pressed',false));};
+ let resizing=false;const dimensions=new WeakMap();
+ const observer=new ResizeObserver(entries=>{let changed=false;for(const entry of entries){const el=entry.target,w=el.clientWidth,h=el.clientHeight;if(el.classList.contains('training-bar')){document.documentElement.style.setProperty('--bar-height',Math.ceil(el.getBoundingClientRect().height)+'px');continue;}if(w===0||h===0)continue;const size=el.id==='network'?String(w):w+','+h;if(dimensions.get(el)!==size){dimensions.set(el,size);changed=true;}}if(!changed||resizing)return;resizing=true;requestAnimationFrame(()=>{resizing=false;drawVisible();updateButtons();});});
+ ['energy-chart','loss-chart','network'].forEach(id=>observer.observe($(id)));observer.observe(document.querySelector('.training-bar'));
+ window.addEventListener('pagehide',()=>{worker?.terminate();URL.revokeObjectURL(workerURL);});
+ /** Only the embedding parent may exchange versioned settings. Import is a draft. */
+ window.addEventListener('message',event=>{
+  if(event.source!==parent)return;const m=event.data;
+  if(m?.type==='mlip-pause'){post('pause');return;}
+  if(m?.channel!=='mlip-h2-bridge'||typeof m.requestId!=='string'||m.requestId.length>100)return;
+  const reply=(type,extra={})=>parent.postMessage({channel:'mlip-h2-bridge',type,requestId:m.requestId,...extra},'*');
+  try{
+   if(m.type==='get-config')reply('config',{payload:settings.exportEnvelope()});
+   else if(m.type==='validate-config')reply('validated',{payload:{schema:'h2-lab-config',version:2,config:settings.parseEnvelope(m.payload)}});
+   else if(m.type==='stage-config'){settings.importEnvelope(m.payload);reply('staged');}
+  }catch(e){reply('error',{message:e.message});}
+ });
+ reset();
+ if(parent!==window)parent.postMessage({channel:'mlip-h2-bridge',type:'ready'},'*');
 })();
 </script></body></html>

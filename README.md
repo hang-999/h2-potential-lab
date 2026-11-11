@@ -1,4 +1,4 @@
-# MLIP 方法交互实验室 · 科学与交互修复版（2026-11-11）
+# MLIP 方法交互实验室 v5.1 · 能量与力（2026-11-11）
 
 [在线演示](https://hang-999.github.io/h2-potential-lab/) · [源码](https://github.com/hang-999/h2-potential-lab) · [保留的 v4](https://github.com/hang-999/h2-potential-lab/tree/archive/v4-20261106)
 
@@ -6,11 +6,13 @@
 
 「交互阅读馆」提供 Distill 图神经网络入门和 PAIR 语言模型文章的中英文版本。两版共享作者的交互组件和数据。阅读馆资源位于 `reading/`，在本地用 `npm run serve` 打开；见[阅读馆说明](reading-src/README.md)。
 
-此目录是阅读馆显示修复版。修复内容、验收范围和复用本机模型的启动方法见[显示修复与验收](显示修复与验收.md)。
+v5.1 增加 H₂ 解析力曲线、能量与力联合训练、覆盖区与外推对照，以及可分享的实验配置；重排顶部导航并明确初始化状态。计算约定见[能量与力说明](ENERGY_FORCE.md)，验证结果见[V5.1 验收报告](VALIDATION-V5.1.md)。阅读馆及原有模型资源沿用既有版本。
+
+**English overview.** An interactive, browser-local laboratory for machine-learning interatomic potentials, from fixed descriptors to equivariant message passing. H₂ supports analytic energy derivatives, optional energy–force joint training, extrapolation experiments and frozen comparisons. Seven multi-atom teaching models retain real energy training. All laboratory chapters run offline in one HTML file; the reading library has separate assets, and some Distill components require internet access. Custom PAIR inputs require the optional local model service. See [contributing](CONTRIBUTING.md), [numerical conventions](ENERGY_FORCE.md), and [API](API.md).
 
 ## 离线使用与分发
 
-下载根目录 **index.html**，双击在桌面 Chrome / Edge 中打开方法和训练章节。文件已内嵌脚本、样式、Three.js、H₂ 页面与 Worker。实验室单文件可独立离线分发。交互阅读馆另外读取文章目录中的图表资源。
+下载根目录 **index.html**，双击在桌面 Chrome / Edge 中打开方法和训练章节。文件已内嵌脚本、样式、Three.js、H₂ 页面与 Worker。实验室单文件可独立离线分发。交互阅读馆需另附 `reading/` 目录并通过本地预览服务打开。部分 Distill 图表、公式库及分子模型仍依赖外部资源，需要联网；PAIR 预置结果随项目提供，自定义句子需另行启动本地模型服务。详见[阅读馆运行条件](reading-src/README.md)。
 
 GitHub Pages 托管静态网页，GitHub Actions 构建与测试。**训练和数值计算使用访问者本地 CPU**；三维绘图通常使用本地图形硬件。没有 WebGL 时保留可操作的 SVG 投影、公式与数值。
 
@@ -44,7 +46,7 @@ GitHub Pages 托管静态网页，GitHub Actions 构建与测试。**训练和�
 
 能量切片固定其他自由度，不能代表整个多维势能面。全验证集散点图和 RMSE / MAE 另行显示；验证构型不参与梯度或标准化统计。图线允许局部变差，不使用预设下降曲线。
 
-本版只训练能量。参考力来自解析梯度，按需计算的预测力来自能量中心差分。潜在向量不是力，原子贡献是模型数学分解。小模型用于讲解，**不是完整工业 BPNN、SchNet、PaiNN、NequIP 或 MACE 实现**。
+多原子案例只训练能量。其参考力来自解析梯度，按需计算的预测力来自能量中心差分。H₂ 可选择仅能量或能量＋力训练，其预测力直接由网络输入导数得到。潜在向量不是力，原子贡献是模型数学分解。小模型用于讲解，**不是完整工业 BPNN、SchNet、PaiNN、NequIP 或 MACE 实现**。
 
 公式、范围、核目标及边界见 [TRAINING.md](TRAINING.md)、[SCIENCE.md](SCIENCE.md)、[NUMERICS.md](NUMERICS.md)。来源见 [REFERENCES.md](REFERENCES.md)；综述 PDF 不在分发包中。
 
@@ -52,7 +54,7 @@ GitHub Pages 托管静态网页，GitHub Actions 构建与测试。**训练和�
 
 编辑模型或数据设置后先暂停，点击“应用并重新初始化”生效。相机、探针、速度和布局不清除训练；切换章节暂停并保留页面会话中的模型，刷新网页不恢复权重。
 
-训练配置为 `mlip-training-config` v1，原理配置仍为 `mlip-methods-config` v1，H₂ 配置独立导入。配置只保存设置，不保存权重或进度。CSV 包含构型坐标、划分、参考能量、预测、残差和模型 Step。
+训练配置为 `mlip-training-config` v1，原理配置仍为 `mlip-methods-config` v1，H₂ 配置为 `h2-lab-config` v2，并兼容 v1。配置与实验链接只保存设置，不保存训练权重或训练进度；原理页的可调示例系数属于实验设置。分享使用已应用配置；打开链接后先查看摘要，再应用，保持暂停。H₂ CSV 在原有能量列后增加参考力、预测力、力残差及模型 Step。
 
 ## 开发、测试与发布
 
@@ -68,6 +70,19 @@ npm run serve
 预览地址为 `http://127.0.0.1:4185`。端口占用时，可通过 `MLIP_PREVIEW_PORT` 指定其他本地端口。依赖由 lockfile 锁定，构建结果为自包含单文件。
 
 `operators.js` 与 `methods-worker.js` 保留原理算子；`training-data.js`、`training-models.js`、`training-engine.js`、`training-worker.js` 实现真实训练；`training-ui.js` 与 `scene.js` 负责交互；`h2/` 保留独立 H₂ 引擎。接口见 [API.md](API.md)，三维约定见 [SCENE.md](SCENE.md)。
+
+```mermaid
+flowchart LR
+  UI[交互与视图] --> P[原理算子 Worker]
+  UI --> T[多原子训练 Worker]
+  UI --> H[独立 H₂ Worker]
+  P --> S[同一版本的数值快照]
+  T --> S
+  H --> S
+  S --> V[结构、公式、曲线与讲解]
+  C[配置校验与分享] --> UI
+  B[构建脚本] --> O[单文件离线实验室]
+```
 
 测试覆盖原有六组检查、新模型梯度与对称性、数据与事务、Worker 和默认收敛。实际结果与浏览器验收范围见 [VALIDATION.md](VALIDATION.md)。独立参考样例随源码保存；`generate-reference.py` 仅用于开发者重建 NumPy 参考，不是运行依赖。
 

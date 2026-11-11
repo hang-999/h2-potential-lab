@@ -1,4 +1,6 @@
 import './operators.js';
+import './sharing.js';
+import './h2/engine.js';
 import {createScene} from './scene.js';
 import {lessons,methodCards,resources} from './lessons.js';
 import {createTrainingLab} from './training-ui.js';
@@ -35,7 +37,7 @@ function makeMap(){
  $('method-cards').innerHTML=methodCards.map(c=>`<article class="library-card"><span class="family">${esc(c.family)}</span><h3>${esc(c.name)}</h3><p>${esc(c.description)}</p><div><a href="#/${c.chapter}">相关实验 →</a>　<a href="${c.url}" target="_blank" rel="noopener">官方项目 ↗</a></div></article>`).join('');
  $('resource-list').innerHTML=resources.map(r=>`<div class="resource-row"><a href="${r.url}" target="_blank" rel="noopener">${esc(r.name)} ↗</a><p>${esc(r.use)}</p></div>`).join('');
 }
-function navigate(){clearFormulaInspection();const [requested='map',query='']=location.hash.replace(/^#\/?/,'').split('?');route=isLesson(requested)||['map','h2','reading'].includes(requested)?requested:'map';stop();trainingLab?.pause();trainingMode=isLesson(route)&&new URLSearchParams(query).get('mode')==='train';
+function navigate(){const incoming=new URLSearchParams(location.hash.split('?')[1]||'').get('experiment');if(incoming){receiveShared(incoming);return;}clearFormulaInspection();const [requested='map',query='']=location.hash.replace(/^#\/?/,'').split('?');route=isLesson(requested)||['map','h2','reading'].includes(requested)?requested:'map';stop();trainingLab?.pause();trainingMode=isLesson(route)&&new URLSearchParams(query).get('mode')==='train';
  $('map-view').hidden=route!=='map';$('lab-view').hidden=!isLesson(route);$('h2-view').hidden=route!=='h2';
  $('reading-view').hidden=route!=='reading';if(route==='reading'){let note=$('reading-runtime-note');if(!note){note=document.createElement('p');note.id='reading-runtime-note';note.className='caution';$('reading-view').prepend(note);}note.textContent=location.protocol==='file:'?'阅读馆需启动本地预览服务（node serve.cjs）；部分原版图表需联网。实验室其他章节可离线使用。':'部分原版图表需联网；PAIR 优先使用预置结果，自定义输入需启动本地推理服务。';}
  document.querySelectorAll('[data-reading-link]').forEach(link=>{if(route==='reading')link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
@@ -44,17 +46,17 @@ function navigate(){clearFormulaInspection();const [requested='map',query='']=lo
  sceneA?.setVisible(isLesson(route)&&!trainingMode);sceneB?.setVisible(isLesson(route)&&!trainingMode&&$('compare').checked);
  if(!trainingMode)trainingLab?.hide();
  if(h2Loaded&&route!=='h2')$('h2-frame').contentWindow?.postMessage({type:'mlip-pause'},'*');
- if(route==='h2'){if(!h2Loaded){$('h2-frame').srcdoc=assets.h2.replace('<body>','<body class="embedded">');h2Loaded=true;}document.title='H₂ 真实训练 · MLIP 实验室';}
+ if(route==='h2'){ensureH2();document.title='H₂ 真实训练 · MLIP 实验室';}
  else if(isLesson(route)){state.chapter=route;state.stage=0;position=0;featureIndex=0;featurePage=0;roundView=Math.min(roundView,state.params.rounds);if(trainingMode){if(!trainingLab)trainingLab=createTrainingLab($('training-view'),{createScene,onError:showError,onMethodChange:m=>location.hash='#/'+m+'?mode=train'});trainingLab.show(route==='symmetry'?'vectors':route);}else{$('compare').checked=route==='soap';renderLesson();ensureScenes();if(snapshot)renderSnapshot();requestCompute();}document.title=lesson().title+' · MLIP 实验室';}
  else document.title=route==='reading'?'交互阅读馆 · MLIP 实验室':'MLIP 方法交互实验室 · 从描述符到等变网络';
- window.scrollTo({top:0,behavior:'instant'});
+ $('share-experiment').disabled=!isLesson(route)&&route!=='h2';$('more-nav').open=matchMedia('(min-width:1200px)').matches;window.scrollTo({top:0,behavior:'instant'});
 }
 function ensureScenes(){if(sceneA)return;sceneA=createScene($('scene-a'),{onSelect:selectAtom,onMove:moveAtom,onEdge:selectEdge,onCamera:view=>sceneB?.setCamera(view)});sceneB=createScene($('scene-b'),{onSelect:i=>{if(!(state.chapter==='soap'||referencePinned&&['acsf','moments'].includes(state.chapter)))selectAtom(i);},onEdge:()=>{},onCamera:view=>sceneA?.setCamera(view)});}
 function selectAtom(index){stop();state.selected=index;featureIndex=0;selectedEdge=null;highlight=[];requestCompute();renderAtomEditor();}
 function selectEdge(from,to){state.selected=to===state.center?from:to;selectedEdge=[from,to];requestCompute();toast(`已选择消息 ${from+1} → ${to+1}`);}
 let selectedEdge=null;
 function moveAtom(index,pos){const atoms=clone(state.atoms);atoms[index].pos=pos.map(x=>+x.toFixed(5));updateState({atoms},{editor:true});}
-function renderLesson(){harmonicL=Math.min(harmonicL,state.params.lmax);harmonicM=Math.max(-harmonicL,Math.min(harmonicL,harmonicM));const l=lesson();$('lesson-number').textContent=l.number;$('lesson-kicker').textContent=l.kicker;$('lesson-title').textContent=l.title;$('lesson-intro').textContent=l.intro;$('lesson-badge').textContent=l.badge;$('lesson-question').textContent=l.question;$('lesson-caution').textContent=l.caution;$('lesson-refs').innerHTML=l.refs.map(r=>`<a href="${r.url}" target="_blank" rel="noopener">${esc(r.label)} ↗</a>`).join('');$('guided-action').title=l.experiment||'';
+function renderLesson(){harmonicL=Math.min(harmonicL,state.params.lmax);harmonicM=Math.max(-harmonicL,Math.min(harmonicL,harmonicM));const l=lesson();$('lesson-number').textContent=l.number;$('lesson-kicker').textContent=l.kicker;$('lesson-title').textContent=l.title;$('lesson-intro').textContent=l.intro;$('lesson-badge').textContent=l.badge;$('lesson-question').textContent=l.question;$('chapter-train-link').href='#/'+state.chapter+'?mode=train';$('lesson-caution').textContent=l.caution;$('lesson-refs').innerHTML=l.refs.map(r=>`<a href="${r.url}" target="_blank" rel="noopener">${esc(r.label)} ↗</a>`).join('');$('guided-action').title=l.experiment||'';
  $('stage-tabs').innerHTML=l.stages.map((s,i)=>`<button role="tab" data-stage="${i}" title="${esc(s.title)}" aria-selected="${i===0}">${i+1}</button>`).join('');$('stage-tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>setPosition(+b.dataset.stage));
  $('timeline').max=String(l.stages.length*1000-1);renderParameters();renderAtomEditor();renderStage();
 }
@@ -242,7 +244,61 @@ function initTheme(){let theme='light';try{if(localStorage.getItem('mlip-theme')
 function setTheme(theme,save=true){document.documentElement?.setAttribute('data-theme',theme);if(save){try{localStorage.setItem('mlip-theme',theme);}catch{}}const btn=$('toggle-theme');if(btn){btn.textContent=theme==='dark'?'☀️':'🌙';btn.title=theme==='dark'?'切换至浅色模式':'切换至深色模式';btn.setAttribute('aria-label',btn.title);btn.setAttribute('aria-pressed',String(theme==='dark'));}}
 function toggleTheme(){const current=document.documentElement?.getAttribute('data-theme')==='dark'?'dark':'light';setTheme(current==='dark'?'light':'dark',true);}
 
-function bind(){const featureHost=document.querySelector('.feature-card');document.querySelector('.calculation-column').insertBefore(featureHost,document.querySelector('.check-card'));
+
+// Sharing reuses engine validators, and loads configuration as a draft.
+let pendingShare=null,sharedExport=null,lastIncoming='',h2Ready=false,bridgeCounter=0;
+const bridgeRequests=new Map(),h2ReadyWaiters=[];
+function ensureH2(){if(!h2Loaded){$('h2-frame').srcdoc=assets.h2.replace('<body>','<body class="embedded">');h2Loaded=true;}}
+function shareValidators(){return{methods:M.validate,training:globalThis.MLIPTrainingData.validate,h2:globalThis.H2Config.validate};}
+function pauseExperiments(){stop();trainingLab?.pause();if(h2Loaded)$('h2-frame').contentWindow?.postMessage({type:'mlip-pause'},'*');}
+function principleConfig(){return{schema:'mlip-methods-config',version:1,chapter:state.chapter,atoms:clone(state.atoms),center:state.center,selected:state.selected,params:clone(state.params),transform:clone(state.transform),referenceAtoms:clone(state.referenceAtoms),referenceCenter:state.referenceCenter};}
+async function h2Bridge(type,payload){
+ ensureH2();
+ if(!h2Ready)await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{const i=h2ReadyWaiters.findIndex(w=>w.resolve===resolve);if(i>=0)h2ReadyWaiters.splice(i,1);reject(Error('H₂ 页面尚未就绪，请稍后重试。'));},10000);h2ReadyWaiters.push({resolve,reject,timer});});
+ return new Promise((resolve,reject)=>{const requestId='share-'+(++bridgeCounter),timer=setTimeout(()=>{bridgeRequests.delete(requestId);reject(Error('H₂ 设置请求超时，请重试。'));},10000);bridgeRequests.set(requestId,{resolve,reject,timer});$('h2-frame').contentWindow.postMessage({channel:'mlip-h2-bridge',type,requestId,payload},'*');});
+}
+function showShareError(error){$('share-error').hidden=false;$('share-error').textContent=error.message||String(error);}
+function shareSummary(p){const name=p.chapter==='h2'?'H₂':lessons.find(l=>l.id===p.chapter)?.short||p.chapter;const c=p.config.config||p.config.cfg;return name+' · '+(p.mode==='principle'?'原理构型，应用后重新计算。':p.chapter==='h2'?(c.trainingTarget==='energy-force'?'能量＋力':'仅能量')+' · '+c.n+' 个样本 · 种子 '+c.seed+'。载入后请点击“应用并重新初始化”。':'真实训练 · 案例 '+c.case+' · '+c.n+' 个构型 · 种子 '+c.seed+'。载入后请点击“应用并重新初始化”。');}
+function stageShared(value){const clean=globalThis.MLIPShare.validate(value,shareValidators());pauseExperiments();pendingShare=Object.freeze(clean);$('share-error').hidden=true;$('share-pending').hidden=false;$('share-summary').textContent=shareSummary(clean);$('load-shared').textContent=clean.mode==='principle'?'应用原理构型':'载入待应用设置';return clean;}
+function receiveShared(encoded){if(encoded===lastIncoming&&pendingShare)return;try{const value=globalThis.MLIPShare.decode(encoded);stageShared(value);lastIncoming=encoded;}catch(error){showShareError(error);}}
+async function loadShared(){
+ if(!pendingShare)return;const value=pendingShare;const clean=globalThis.MLIPShare.validate(value,shareValidators());$('load-shared').disabled=true;
+ try{
+  pauseExperiments();
+  if(clean.mode==='principle'){
+   state=M.validate({...state,...clean.config,stage:0,version:state.version});snapshot=null;position=0;referencePinned=true;
+  }
+  history.replaceState(null,'','#/'+clean.chapter+(clean.mode==='train'?'?mode=train':''));navigate();
+  if(clean.chapter==='h2')await h2Bridge('stage-config',clean.config);
+  else if(clean.mode==='train')trainingLab.stageImportedConfig(clean.config);
+  else{renderLesson();renderAtomEditor();requestCompute(true);}
+  pendingShare=null;lastIncoming='';$('share-pending').hidden=true;toast(clean.mode==='principle'?'原理设置已应用。':'设置已载入，等待应用并重新初始化。');
+ }catch(error){showShareError(error);}finally{$('load-shared').disabled=false;}
+}
+async function openShare(){
+ $('share-result').textContent='正在读取已应用的实验设置…';$('share-url').value='';$('copy-share').disabled=true;$('download-share').disabled=true;sharedExport=null;$('share-dialog').showModal();
+ try{
+  const config=route==='h2'?await h2Bridge('get-config'):trainingMode?trainingLab.getAppliedConfig():principleConfig();
+  sharedExport=globalThis.MLIPShare.validate({schema:'mlip-experiment',version:1,chapter:route,mode:route==='h2'||trainingMode?'train':'principle',config},shareValidators());
+  $('download-share').disabled=false;
+  try{const hash=globalThis.MLIPShare.hash(sharedExport),base=location.protocol==='file:'?'https://hang-999.github.io/h2-potential-lab/':location.href.split('#')[0];$('share-url').value=base+hash;$('copy-share').disabled=false;$('share-result').textContent=location.protocol==='file:'?'链接打开在线网站；离线分发请导出实验 JSON。':'链接包含已应用设置。待应用编辑不包含在内。';}catch(error){$('share-result').textContent=error.message;}
+ }catch(error){$('share-result').textContent=error.message;}
+}
+function bindSharing(){
+ $('share-experiment').onclick=openShare;$('close-share').onclick=()=>$('share-dialog').close();$('share-dialog').onclick=e=>{if(e.target===$('share-dialog'))$('share-dialog').close();};
+ $('copy-share').onclick=async()=>{try{await navigator.clipboard.writeText($('share-url').value);$('share-result').textContent='已复制实验链接。';}catch{$('share-url').focus();$('share-url').select();$('share-result').textContent='请使用 Ctrl+C（或长按）复制选中的链接。';}};
+ $('download-share').onclick=()=>{if(sharedExport)download('mlip-experiment-v1.json',JSON.stringify(sharedExport,null,2));};
+ $('share-file').onchange=async e=>{try{const file=e.target.files?.[0];if(!file)return;if(file.size>131072)throw Error('实验 JSON 应小于 128 KB。');stageShared(JSON.parse(await file.text()));$('share-dialog').close();}catch(error){$('share-result').textContent=error.message;}finally{e.target.value='';}};
+ $('load-shared').onclick=loadShared;$('discard-shared').onclick=()=>{pendingShare=null;lastIncoming='';$('share-pending').hidden=true;history.replaceState(null,'','#/'+route+(trainingMode?'?mode=train':''));};
+ window.addEventListener('message',e=>{if(e.source!==$('h2-frame').contentWindow||e.data?.channel!=='mlip-h2-bridge')return;const m=e.data;if(m.type==='ready'){h2Ready=true;for(const w of h2ReadyWaiters.splice(0)){clearTimeout(w.timer);w.resolve();}return;}const pending=bridgeRequests.get(m.requestId);if(!pending)return;bridgeRequests.delete(m.requestId);clearTimeout(pending.timer);if(m.type==='error')pending.reject(Error(m.message||'H₂ 配置无效。'));else if(['config','staged','validated'].includes(m.type))pending.resolve(m.payload);else pending.reject(Error('H₂ 返回了未知设置响应。'));});
+}
+
+function restoreSourcesFocus(){
+ const menu=$('more-nav');
+ const target=!matchMedia('(min-width:1200px)').matches&&!menu.open?menu.querySelector('summary'):$('open-sources');
+ target.focus();
+}
+function bind(){bindSharing();const navWidth=matchMedia('(min-width:1200px)'),syncNav=()=>{$('more-nav').open=navWidth.matches;$('more-nav').querySelector('summary').hidden=navWidth.matches;};navWidth.addEventListener('change',syncNav);syncNav();const featureHost=document.querySelector('.feature-card');document.querySelector('.calculation-column').insertBefore(featureHost,document.querySelector('.check-card'));
  const themeBtn=$('toggle-theme');if(themeBtn)themeBtn.onclick=toggleTheme;initTheme();
  const formulaEl=$('stage-formula');
  const hint=document.createElement('p');hint.id='formula-hint';hint.className='formula-hint';hint.hidden=true;formulaEl.after(hint);
@@ -254,7 +310,7 @@ function bind(){const featureHost=document.querySelector('.feature-card');docume
  formulaEl.onkeydown=e=>{if(e.key==='Escape')clearFormulaInspection();};
  document.querySelector('.explanation-card>.card-heading').prepend(document.querySelector('.playback-buttons'));
  $('toggle-nav').onclick=()=>document.body.classList.toggle('nav-expanded');$('mode-principle').onclick=()=>location.hash='#/'+state.chapter;$('mode-training').onclick=()=>location.hash='#/'+state.chapter+'?mode=train';$('compare-a').onclick=()=>{$('scene-pair').classList.remove('show-reference');$('compare-a').setAttribute('aria-pressed','true');$('compare-b').setAttribute('aria-pressed','false');};$('compare-b').onclick=()=>{$('scene-pair').classList.add('show-reference');$('compare-a').setAttribute('aria-pressed','false');$('compare-b').setAttribute('aria-pressed','true');};if(typeof ResizeObserver!=='undefined'){new ResizeObserver(layoutComparison).observe($('scene-pair'));let chartWidth=0;new ResizeObserver(([entry])=>{const w=Math.round(entry.contentRect.width);if(w&&w!==chartWidth){chartWidth=w;if(snapshot&&isLesson(route)&&!trainingMode)renderFeatures();}}).observe($('feature-chart'));}
- window.addEventListener('hashchange',navigate);$('classroom').onclick=()=>{const on=document.body.classList.toggle('classroom');$('classroom').setAttribute('aria-pressed',on);requestAnimationFrame(()=>renderScenes());};$('open-sources').onclick=()=>$('source-dialog').showModal();$('close-sources').onclick=()=>$('source-dialog').close();$('source-dialog').addEventListener('click',e=>{if(e.target===$('source-dialog'))$('source-dialog').close();});
+ window.addEventListener('hashchange',navigate);$('classroom').onclick=()=>{const on=document.body.classList.toggle('classroom');$('classroom').setAttribute('aria-pressed',on);requestAnimationFrame(()=>renderScenes());};$('open-sources').onclick=()=>$('source-dialog').showModal();$('close-sources').onclick=()=>$('source-dialog').close();$('source-dialog').addEventListener('click',e=>{if(e.target===$('source-dialog'))$('source-dialog').close();});$('source-dialog').addEventListener('close',restoreSourcesFocus);$('more-nav').addEventListener('keydown',e=>{if(e.key==='Escape'){$('more-nav').open=matchMedia('(min-width:1200px)').matches;$('more-nav').querySelector('summary').focus();}});document.addEventListener('click',e=>{if(!$('more-nav').contains(e.target))$('more-nav').open=matchMedia('(min-width:1200px)').matches;});
  $('show-settings').onclick=()=>{const hidden=!$('settings').hidden;$('settings').hidden=hidden;$('show-settings').setAttribute('aria-expanded',!hidden);};$('reset-params').onclick=()=>{stop();updateState({params:clone(M.defaults)});renderParameters();};
  $('preset').onchange=e=>{stop();const atoms=clone(M.presets[e.target.value]);selectedEdge=null;highlight=[];updateState({atoms,center:0,selected:1},{immediate:true,editor:true});highlight=[];sceneA?.resetCamera();sceneB?.resetCamera();};$('reset-geometry').onclick=()=>$('preset').dispatchEvent(new Event('change'));$('pin-reference').onclick=()=>pinReference();$('compare').onchange=renderScenes;
  $('rotation-angle').oninput=e=>{stop();updateState({transform:{...state.transform,angle:+e.target.value}});$('rotation-output').textContent=e.target.value+'°';};$('rotation-axis').onchange=e=>updateState({transform:{...state.transform,axis:e.target.value}});$('reflection').onchange=e=>updateState({transform:{...state.transform,reflection:e.target.checked}});
