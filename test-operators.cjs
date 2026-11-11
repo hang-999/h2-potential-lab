@@ -58,9 +58,9 @@ for(const sigma of [.1,.35,1])for(const radial of [1,4])for(const lmax of [0,2])
   const pp={...p,sigma,radial,lmax,cutoff:5};
   const a=M.soap(atoms,0,pp),b=M.soap(atoms,0,pp,{quadrature:192});
   close(a.coefficients.map(x=>x.value),b.coefficients.map(x=>x.value),1e-7,`quadrature sigma${sigma}/radial${radial}/l${lmax}`);
-  close(M.kernel(a,a),1,1e-12);
+  close(M.kernel(a,a),(a.norm*a.norm/(a.norm*a.norm+1e-16))**2,1e-12);
 }
-const pinned=M.compute({...state,referenceAtoms:atoms,referenceCenter:0});close(pinned.soap.kernel,1,1e-12,'pinned reference kernel');
+const pinned=M.compute({...state,referenceAtoms:atoms,referenceCenter:0});close(pinned.soap.kernel,(pinned.soap.norm**2/(pinned.soap.norm**2+1e-16))**2,1e-12,'regularized pinned reference kernel');
 const empty=M.compute({...state,params:{...p,cutoff:.5}});assert.equal(empty.geometry.neighbors.length,0);assert.equal(empty.soap.kernel,0);assert.ok(empty.warnings.length);assert.ok(numbers(empty).every(Number.isFinite));
 // At the cutoff both value and first derivative vanish; no singular boundary force.
 const atBoundary=clone(tri);atBoundary[1].pos=[3,0,0];const e1=M.energyForces(atBoundary,p);atBoundary[1].pos=[3+1e-7,0,0];const e2=M.energyForces(atBoundary,p);close(e1.value,e2.value,1e-7);close(e1.forces,e2.forces,1e-7);

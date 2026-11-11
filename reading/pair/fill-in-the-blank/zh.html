@@ -1,0 +1,142 @@
+<!--
+@license
+Copyright 2020 Google. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!doctype html>
+
+<html lang="zh-CN">
+<!-- Adapted for MLIP Lab. Article navigation and service access are integrated with the reading library. -->
+<head>
+	<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://pair.withgoogle.com/images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://pair.withgoogle.com/images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://pair.withgoogle.com/images/favicon/favicon-16x16.png">
+  <link rel="mask-icon" href="https://pair.withgoogle.com/images/favicon/safari-pinned-tab.svg" color="#00695c">
+  <link rel="shortcut icon" href="https://pair.withgoogle.com/images/favicon.ico">
+
+  
+
+  <title>语言模型学到了什么？</title>
+  <meta property="og:title" content="What Have Language Models Learned?">
+  <meta property="og:url" content="https://pair.withgoogle.com/explorables/fill-in-the-blank/">
+
+  <meta name="og:description" content="By asking language models to fill in the blank, we can probe their understanding of the world.">
+  <meta property="og:image" content="https://pair.withgoogle.com/explorables/images/fill-in-the-blank.png">
+  <meta name="twitter:card" content="summary_large_image">
+  
+	<link rel="stylesheet" type="text/css" href="../style.css">
+
+  <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,500,700|Roboto:700,500,300' rel='stylesheet' type='text/css'>  
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans:400,500,700" rel="stylesheet">
+
+	<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="../../edition.css"></head>
+<body><nav class="reading-edition" aria-label="阅读版本">
+    <a href="../../../index.html#/reading">← 交互阅读馆</a>
+    <a href="index.html" lang="en">English</a>
+    <span aria-current="page">中文</span>
+    <a href="https://pair.withgoogle.com/explorables/fill-in-the-blank/">作者原站 ↗</a>
+    <a href="https://github.com/PAIR-code/ai-explorables">源码与许可 ↗</a>
+    <span class="reading-edition-credit">Adam Pearce · 2021</span>
+  </nav>
+  <h1 class="headline">语言模型学到了什么？</h1>
+<div class="post-summary">请语言模型做填空题，可以帮助我们探查它如何理解世界。</div>
+<p class="reading-translation-note">Adam Pearce 原著。中文译本保留作者的图表和模型示例。英语例句、词元和候选词是 BERT／Zari 的实验输入与输出。</p>
+<p>大型语言模型让计算机能够<a href="https://openai.com/blog/better-language-models/">写故事</a>、<a href="https://twitter.com/sharifshameem/status/1282676454690451457">编写网页</a>，也能<a href="https://openai.com/blog/dall-e/">根据文字说明生成图像</a>。</p>
+<p><a href="https://ai.googleblog.com/2018/11/open-sourcing-bert-state-of-art-pre.html">BERT</a> 是早期的这类模型之一。训练时，把句子拆成词，随机遮住其中一些，再让模型预测被遮住的词。经过数百万次这样的练习，BERT 已经“读过”足够多的莎士比亚，能预测下面这句话通常怎样收尾。</p>
+<div class="sent hamlet"></div>
+<p>这个页面连接到一个在维基百科和书籍上训练过的 BERT 版本。<a class="footstart">¹</a>试着点击不同的词，看看模型如何填空。你也可以输入另一句英语，看看 BERT 还学到了什么。</p>
+<div class="hamlet-edit"></div>
+
+<h3 id="cattle-or-clothes-">买牲畜还是买衣服？</h3>
+<p>除了哈姆雷特对生存的忧虑，BERT 的训练文本里还有许多别的规律。</p>
+<div class="sent texas"></div>
+<p>不过，牛和马并非在每个州都排在购买预测的前列。在纽约，衣服、书和艺术品更有可能出现在预测中。</p>
+<div class="sent new-york"></div>
+<p>BERT 的<a href="https://huggingface.co/transformers/tokenizer_summary.html">词表</a>收录了三万多个词、标点和词片段。每次填空时，BERT 都会给这些候选项分配概率。比较两句稍有不同的话如何改变这些概率，可以窥见模型怎样理解不同地方的消费习惯。</p>
+<div class="pair texas-ohio"></div>
+<p>你可以<strong>编辑这些句子</strong>，也可以先试试以下对照示例。<span class="texas-ohio-alts"></span></p>
+<p>如果可以说一个程序“知道”某件事，那么 BERT 对你居住的地方知道些什么？</p>
+
+<h3 id="what-s-in-a-name-">名字能透露什么？</h3>
+<p>同样的方法也能探查 BERT 对不同人群学到了哪些关联。例如，模型倾向于预测叫 Elsie 的人比叫 Lauren 的人年龄大。</p>
+<div class="pair age-name"></div>
+<p>它还倾向于给 Jim 预测更<a href="https://flowingdata.com/2017/09/11/most-female-and-male-occupations-since-1950/">通常被视为男性从事</a>的职业，而给 Jane 预测的职业有所不同。</p>
+<div class="pair jim-jane"></div>
+<p>这些关联有现实统计依据。名叫 Elsie 的人的确更可能<a href="https://rhiever.github.io/name-age-calculator/">年长</a>。<a class="footstart"></a>模型与女性名字相联系的职业中，女性从业者的<a href="https://purehost.bath.ac.uk/ws/portalfiles/portal/168480066/CaliskanEtAl_authors_full.pdf">占比也更高</a>。</p>
+<p>我们需要担心这些关联吗？BERT 原本是为维基百科和书籍中的填空任务训练的，而且做得很好。但模型学到的语言内部表示被广泛用于其他任务。按<a href="https://super.gluebenchmark.com/leaderboard">某些评测</a>，它们是当时让计算机理解和处理文本最有效的方法。</p>
+<p>如果聊天对象或招聘人员随口认定医生都是男性，我们很可能会认为这是性别偏见。仓促把 BERT 用在聊天机器人或人力资源软件里，模型也可能作出类似的假设。</p>
+<div class="pair nurse-name"></div>
+<p>纠正这类假设并不简单。我们对机器学习系统<em>为何</em>给出特定结果仍缺乏了解。比如，一个基于 BERT 的信贷模型拒绝了贷款申请，要查明是否存在<a href="https://pair.withgoogle.com/explorables/hidden-bias/">性别歧视</a>可能相当困难。</p>
+<p>大规模部署语言模型还可能<a href="https://machinesgonewrong.com/bias_i/#harms-of-representation">放大</a>和<a href="http://faculty.washington.edu/ebender/papers/Stochastic_Parrots.pdf">延续</a>现实中有害的刻板印象。例如，用“两名穆斯林走进了一家……”作为<a href="https://arxiv.org/pdf/2101.05783v1.pdf#page=3">提示</a>时，<a href="https://en.wikipedia.org/wiki/GPT-3">GPT-3</a> 往往会续写暴力场景。</p>
+
+<h3 id="how-can-we-fix-this-">怎样缓解这些偏差？</h3>
+<p>一个思路是减少训练数据中不希望模型学到的关联，从而<a href="https://arxiv.org/abs/1906.08976">缓解</a>模型<a href="https://arxiv.org/abs/2005.14050">偏差</a>。</p>
+<p>2020 年，研究人员训练了一个名为 <a href="https://ai.googleblog.com/2020/10/measuring-gendered-correlations-in-pre.html">Zari</a> 的 BERT 版本，<a href="https://arxiv.org/pdf/2010.06032.pdf#page=6">训练中</a>加入了自动生成的句子。每遇到含 <i>boy</i> 或 <i>aunt</i> 等<a href="https://github.com/uclanlp/corefBias/blob/master/WinoBias/wino/generalized_swaps.txt">带有性别的名词</a>的句子，就加入一句替换为另一性别对应词的版本。例如，在“The <em>lady</em> doth protest too much”之外，再加上“The <em>gentleman</em> doth protest too much”。</p>
+<div class="pair nurse-name-zari-cda"></div>
+<p>在经过这种替换句训练后，Zari 对护士和医生预测“she”或“he”时，给出的概率接近相等，区别于原来的 BERT。这一方法仍留下一些性别关联。人名没有参与替换，因此 Zari 只略微减弱了原先男性名字与医生的关联。<a class="footstart"></a>重新训练也没有改变模型对非二元性别的理解。</p>
+<p>其他<a href="https://arxiv.org/abs/1607.06520">尝试</a>消除词表示中性别偏差的方法也遇到了类似情况。可以用数学刻画偏差，再给模型做一次“脑外科手术”来消除它。但语言本身处处体现性别。模型可以用数十亿参数学到刻板印象。换用略有不同的指标后，人们发现重新训练的模型可能只是<a href="https://www.aclweb.org/anthology/N19-1061/">挪动了刻板印象</a>，使原指标无法检测。</p>
+<p>和机器学习的<a href="https://pair.withgoogle.com/explorables/measuring-fairness/">其他应用</a>一样，把重点放在具体可能发生的伤害上会更有帮助。<a href="https://allennlp.org/">AllenNLP</a>、<a href="http://lmdiff.net/">LMdiff</a> 和 <a href="https://pair-code.github.io/lit/">Language Interpretability Tool</a> 等工具让人们更容易操作模型、寻找失效情形。<a class="footstart"></a>定位问题后，<a href="https://arxiv.org/abs/2004.07667">针对任务</a>设计的缓解措施可能比修改整个模型更简单。</p>
+<p>随着模型能力提高，它们也可能<a href="https://arxiv.org/abs/2004.14546">解释</a>预测，并承担部分缓解偏差的工作。以“那位医生”的性别为例，可以让模型表达<a href="https://arr.am/2020/07/25/gpt-3-uncertainty-prompts/">不确定性</a>，把它<a href="https://ai.googleblog.com/2018/12/providing-gender-specific-translations.html">显示给用户</a>，同时允许用户修正假设。</p>
+
+<h3 id="credits">致谢</h3>
+<p>Adam Pearce · 2021 年 7 月</p>
+<p>感谢 Ben Wedin、Emily Reif、James Wexler、Fernanda Viégas、Ian Tenney、Kellie Webster、Kevin Robinson、Lucas Dixon、Ludovic Peran、Martin Wattenberg、Michael Terry、Tolga Bolukbasi、Vinodkumar Prabhakaran、Xuezhi Wang、Yannick Assogba 和 Zan Armstrong 对本文的帮助。</p>
+<h3 id="footnotes">注释</h3>
+<p><a class="footend"></a> 本页使用 Hugging Face 上的 <a href="https://huggingface.co/bert-large-uncased-whole-word-masking">bert-large-uncased-whole-word-masking</a>。BERT 也指一种模型架构，已经有数百个 BERT 模型完成<a href="https://huggingface.co/models?filter=bert">训练和发布</a>。模型和图表代码可在 <a href="https://github.com/PAIR-code/ai-explorables">GitHub</a> 获取。</p>
+<p><a class="footend"></a> “1800”“1900”和“2000”也出现在高概率预测中。现实中人并没有更可能出生在世纪之交。但在 BERT 的书籍和维基百科训练语料中，整百这样的整数<a href="https://blocks.roadtolarissa.com/1wheel/cea123a8c17d51d9dacbd1c17e6fe601">出现得更频繁</a>。<br><br><img aria-label="维基百科中年份数字的频率散点图，整百等整数对应峰值。" src="img/wiki-years.png" alt="整数年份的词频更高"></p>
+<p><a class="footend"></a> 在这个界面比较 BERT 和 Zari 时，需要仔细跟踪过渡中的词元。<a href="https://colab.research.google.com/drive/1xfPGKqjdE635cVSi-Ggt-cRBU5pyJNWP">BERT 差异图</a> Colab 笔记给出了进一步系统分析模型输出差异的思路。</p>
+<p><a class="footend"></a> 模型上线后仍需继续分析。语言与模型用法都会变化，需要持续调查并缓解可能的伤害。</p>
+
+<h3 id="appendix-differences-over-time">附录　关联随时间的变化</h3>
+<p>除了比较给定句子对<c0>男性</c0>和<c1>女性</c1>的预测，还可以画出这些差异如何随时间变化。</p>
+<div class="gender-over-time"></div>
+<p>近些年预测趋于接近，提示了另一种缓解办法。给句子加前缀，引导模型避开不希望出现的关联，同时保留模型对自然语言的理解。</p>
+<p>用“In $year”作前缀的局限较大。它处理不了<c2>性别中立</c2>的代词，还可能<a href="https://www.pnas.org/content/pnas/115/16/E3635.full.pdf#page=8">增强</a>其他关联。不过，只需<a href="https://www.openai.com/blog/improving-language-model-behavior/">几十个示例</a>，也有可能<a href="https://arxiv.org/abs/2104.08691">找到更好的前缀</a>，以缓解特定偏差。</p>
+<div class="gender-over-time"></div>
+<p>仔细观察两组差异之间的变化，也能看出这样从 BERT 获取事实的限度。</p>
+<p>下面上排图表展示了 1908 年至 2018 年间，模型对不同职业的男女预测差异如何变化。最右图把 1908 年的 he/she 差异和 2018 年的差异直接对照。</p>
+<p>最右图中较平的趋势表明，各职业的男女预测差异减少的幅度大致相同。真实的<a href="https://www.weforum.org/agenda/2016/03/a-visual-history-of-gender-and-employment">就业结构变化</a>却并不均匀。有些职业，例如会计，已从男性居多变为女性居多。</p>
+<div class="difference-difference pair difference"></div>
+<p>现实与预测不一致，可能源于训练数据不足、模型容量有限，或探查方式过于粗略。这些模型包含大量常识。只需要少量定向训练，它们甚至能成为<a href="https://t5-trivia.glitch.me/">知识问答</a>高手。</p>
+<h3>更多交互文章</h3>
+<p><a href="https://pair.withgoogle.com/explorables/">浏览 PAIR AI Explorables ↗</a></p>
+
+<link rel="stylesheet" href="style.css">
+
+<script src='../third_party/regl.min.js'></script>
+<script src='../third_party/d3_.js'></script>
+<script src='../third_party/d3-scale-chromatic.v1.min.js'></script>
+<script src='../third_party/params.js'></script>
+
+<script src='data/cachekey2filename.js'></script>
+<script src='post.js'></script>
+<script src='tokenizer.js'></script>
+<script src='scatter.js'></script>
+
+<script src='init-pair.js'></script>
+<script src='init-diff.js'></script>
+<script src='init-sent.js'></script>
+<script src='init-gender-over-time.js'></script>
+<script src='init.js'></script>
+
+
+
+</body>
+
+</html>

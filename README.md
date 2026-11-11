@@ -1,12 +1,16 @@
-# MLIP 方法交互实验室 v5
+# MLIP 方法交互实验室 · 科学与交互修复版（2026-11-11）
 
 [在线演示](https://hang-999.github.io/h2-potential-lab/) · [源码](https://github.com/hang-999/h2-potential-lab) · [保留的 v4](https://github.com/hang-999/h2-potential-lab/tree/archive/v4-20261106)
 
 面向研究生方法课的交互网站：从手工描述符到等变图神经网络。每章可切换“原理观察”和“真实训练实验”，同时查看原子构型、公式、预测与一次参数更新。原 H₂ 训练实验室独立保留。
 
+「交互阅读馆」提供 Distill 图神经网络入门和 PAIR 语言模型文章的中英文版本。两版共享作者的交互组件和数据。阅读馆资源位于 `reading/`，在本地用 `npm run serve` 打开；见[阅读馆说明](reading-src/README.md)。
+
+此目录是阅读馆显示修复版。修复内容、验收范围和复用本机模型的启动方法见[显示修复与验收](显示修复与验收.md)。
+
 ## 离线使用与分发
 
-下载根目录 **index.html**，双击在桌面 Chrome / Edge 中打开。文件已内嵌脚本、样式、Three.js、H₂ 页面与 Worker，无需安装 Node.js、Python、账号或服务器。直接把这个文件发送给别人即可离线演示，不依赖 CDN 或远程模型。
+下载根目录 **index.html**，双击在桌面 Chrome / Edge 中打开方法和训练章节。文件已内嵌脚本、样式、Three.js、H₂ 页面与 Worker。实验室单文件可独立离线分发。交互阅读馆另外读取文章目录中的图表资源。
 
 GitHub Pages 托管静态网页，GitHub Actions 构建与测试。**训练和数值计算使用访问者本地 CPU**；三维绘图通常使用本地图形硬件。没有 WebGL 时保留可操作的 SVG 投影、公式与数值。
 
@@ -16,6 +20,7 @@ GitHub Pages 托管静态网页，GitHub Actions 构建与测试。**训练和�
 | --- | --- |
 | `#/map` | 方法分支地图；表示与回归器分开理解 |
 | `#/h2` | H₂ Morse 经验势拟合，保留网络设置、四阶段讲解与导出 |
+| `#/reading` | 中英双版交互文章，GNN 消息传递与 BERT 填空预测 |
 | `#/symmetry` | 几何与变换；训练模式进入可选模型实验 |
 | `#/acsf?mode=train` | ACSF → 元素分支网络 → 原子贡献求和 |
 | `#/soap?mode=train` | SOAP → 结构核 → 核岭回归系数求解 |
@@ -60,10 +65,12 @@ npm run build
 npm run serve
 ```
 
-预览地址为 `http://127.0.0.1:4184`。依赖由 lockfile 锁定，构建结果为自包含单文件。
+预览地址为 `http://127.0.0.1:4185`。端口占用时，可通过 `MLIP_PREVIEW_PORT` 指定其他本地端口。依赖由 lockfile 锁定，构建结果为自包含单文件。
 
 `operators.js` 与 `methods-worker.js` 保留原理算子；`training-data.js`、`training-models.js`、`training-engine.js`、`training-worker.js` 实现真实训练；`training-ui.js` 与 `scene.js` 负责交互；`h2/` 保留独立 H₂ 引擎。接口见 [API.md](API.md)，三维约定见 [SCENE.md](SCENE.md)。
 
 测试覆盖原有六组检查、新模型梯度与对称性、数据与事务、Worker 和默认收敛。实际结果与浏览器验收范围见 [VALIDATION.md](VALIDATION.md)。独立参考样例随源码保存；`generate-reference.py` 仅用于开发者重建 NumPy 参考，不是运行依赖。
 
 main 推送后，Actions 通过测试与可复现构建才部署 Pages，产物仅包含网页。旧 [v3.1 提交](https://github.com/hang-999/h2-potential-lab/tree/2597ffbc626e2b3c6dcf7a89e74bb39ee430e232)与 [v4 归档分支](https://github.com/hang-999/h2-potential-lab/tree/archive/v4-20261106)可继续查看。
+
+本版修复详情与验证范围见 [本版修复与验收](本版修复与验收.md)。原理与训练共享连续 SOAP 归一化；本地阅读馆不会自动转发自定义句子至远端。

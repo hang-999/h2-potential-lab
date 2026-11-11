@@ -27,14 +27,14 @@ async function trainingPump(){if(trainingBusy)return;trainingBusy=true;let delay
     if(m.type==='play'){for(const other of trainingSessions.values())if(other!==s)other.running=false;s.engine.cancelStep();s.lastError=null;s.running=!s.engine.finished();await trainingPublish(s);}
     else if(m.type==='pause'||m.type==='snapshot')await trainingPublish(s);
     else if(m.type==='step'){s.engine.cancelStep();await s.engine.stepOnce();s.lastError=null;await trainingPublish(s);}
-    else if(m.type==='prepare'){const trace=await s.engine.prepareStep();await trainingPublish(s,'prepared',{trace});}
-    else if(m.type==='commit'){const trace=s.engine.commitStep(m.token);await trainingPublish(s,'committed',{trace});}
+    else if(m.type==='prepare'){const trace=await s.engine.prepareStep();await trainingPublish(s,'prepared',{trace,lessonRequest:m.lessonRequest});}
+    else if(m.type==='commit'){const trace=s.engine.commitStep(m.token);await trainingPublish(s,'committed',{trace,lessonRequest:m.lessonRequest});}
     else if(m.type==='cancel'){s.engine.cancelStep();await trainingPublish(s);}
     else if(m.type==='probe'){s.engine.probe(m);s.appliedView=m.viewRequestId||0;await trainingPublish(s);}
     else if(m.type==='select'){s.engine.select(m);s.appliedView=m.viewRequestId||0;await trainingPublish(s);}
     else if(m.type==='force'){await s.engine.force();await trainingPublish(s);}
     else if(m.type==='direct'){trainingSend(s,'direct',{result:s.engine.directSolution()});}
-    else if(m.type==='export')trainingSend(s,'export',{csv:s.engine.csv()});
+    else if(m.type==='export')trainingSend(s,'export',{csv:s.engine.csv(),step:s.engine.save().step});
    }
   }catch(error){s.running=false;s.lastError=error.message;trainingSend(s,'error',{message:error.message,field:error.field});}
  }else{

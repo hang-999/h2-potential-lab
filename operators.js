@@ -173,7 +173,9 @@
     }
     return {coefficients,power,norm:length,density,radialBasis,convention:'实球谐 ∫Y²dΩ=1；正交多项式径向基；积分域 0≤r≤r_cut；ρ=Σ f_cut(r_j) exp(−|r−r_j|²/2σ²)，不含中心；p=π√[8/(2l+1)]Σₘcₙₗₘcₙ′ₗₘ；保留完整物种交叉功率谱。'};
   }
-  function kernel(a,b){const x=a.power?a.power.map(p=>p.value):a,y=b.power?b.power.map(p=>p.value):b;const den=norm(x)*norm(y);return den>1e-30?Math.max(0,Math.min(1,dot(x,y)/den))**2:0;}
+  const SOAP_NORM_EPS=1e-8;
+  function soapNormalize(p){const d=Math.hypot(norm(p),SOAP_NORM_EPS);return p.map(x=>x/d);}
+  function kernel(a,b){const x=a.power?a.power.map(p=>p.value):a,y=b.power?b.power.map(p=>p.value):b;return Math.max(0,Math.min(1,dot(soapNormalize(x),soapNormalize(y))))**2;}
   function moments(atoms,center,p){
     const neighbors=geometry(atoms,center,p).neighbors.map(j=>({...j,w:j.cutoff*Math.exp(-j.r*j.r/2)}));
     let s=0,v=zero(),Q=zeros();for(const j of neighbors){s+=j.w;v=add(v,scale(j.unit,j.w));for(let a=0;a<3;a++)for(let b=0;b<3;b++)Q[a][b]+=j.w*(j.unit[a]*j.unit[b]-(a===b?1/3:0));}
@@ -188,9 +190,9 @@
     for(let round=1;round<=p.rounds;round++){
       const edges=[],next=[];
       for(let i=0;i<atoms.length;i++){
-        const geo=geometry(atoms,i,p),S=Array(C).fill(0),V=Array.from({length:C},zero),den=Math.sqrt(Math.max(1,geo.neighbors.length));
+        const geo=geometry(atoms,i,p),S=Array(C).fill(0),V=Array.from({length:C},zero),den=Math.sqrt(4);
         for(const j of geo.neighbors){
-          let angular=0;if(p.angleMessages&&geo.neighbors.length>1)for(const k of geo.neighbors)if(k.index!==j.index)angular+=dot(j.unit,k.unit)*k.cutoff/(geo.neighbors.length-1);
+          let angular=0;if(p.angleMessages&&geo.neighbors.length>1)for(const k of geo.neighbors)if(k.index!==j.index)angular+=dot(j.unit,k.unit)*k.cutoff/4;
           const filter=[],message=[],vectorMessage=[];
           for(let c=0;c<C;c++){
             const f=j.cutoff*Math.exp(-.7*(j.r-(c+1)*p.cutoff/(C+1))**2)*(w[0]+filterCoefficients[c])*(1+w[1]*angular);
@@ -244,7 +246,7 @@
     const referenceAtoms=s.referenceAtoms||presets.tetrahedron,referenceCenter=s.referenceCenter??0;
     const reference=soap(referenceAtoms,referenceCenter,p,{compact:true});so.kernel=kernel(so,reference);so.referencePower=reference.power.map(f=>f.value);so.referenceAtoms=clone(referenceAtoms);so.referenceCenter=referenceCenter;
     const dir=s.selected!==center?sub(atoms[s.selected].pos,atoms[center].pos):geo.neighbors[0]?.unit||[0,0,1];
-    const u=geo.neighbors[0]?.unit||[1,0,0],v=geo.neighbors[1]?.unit||[0,1,0],tp=tensorProduct(u,v);
+    const u=geo.neighbors[0]?.unit||zero(),v=geo.neighbors[1]?.unit||zero(),tp=tensorProduct(u,v);tp.available=geo.neighbors.length>=2;
     const t=s.transform,R=rotation(t),ta=transformAtoms(atoms,t),tmo=moments(ta,center,p),tv=messagePassing(ta,p,true),tm=messagePassing(ta,p,false),te=energyForces(ta,p),taAc=acsf(ta,center,p),taSo=soap(ta,center,p,{compact:true});
     const tVector=tv.layers[tv.layers.length-1].nodes[center].v[0],expectedVector=mv(R,vec.vector),expectedQ=mm(mm(R,mo.Q),transpose(R));
     const hs=harmonics(dir,p.lmax),ths=harmonics(mv(R,dir),p.lmax),expectedHarmonics=hs.groups.map(g=>({l:g.l,values:rotateSH(R,g.l,g.values)}));
@@ -261,6 +263,6 @@
     if(flatNumbers(out).some(x=>!Number.isFinite(x)))throw new Error('计算产生非有限数，请检查构型及参数。');return out;
   }
   function flatNumbers(x){if(typeof x==='number')return[x];if(Array.isArray(x))return x.flatMap(flatNumbers);if(x&&typeof x==='object')return Object.values(x).flatMap(flatNumbers);return[];}
-  return {defaults,presets,validate,compute,transformAtoms,geometry,acsf,soap,kernel,moments,messagePassing,harmonics,tensorProduct,correlations,energyForces,
+  return {defaults,presets,validate,compute,transformAtoms,geometry,acsf,soap,soapNormalize,kernel,moments,messagePassing,harmonics,tensorProduct,correlations,energyForces,
     math:{add,sub,scale,dot,norm,cross,outer,transpose,mm,mv,trace,error,rotation,realSH,rotateSH,fc,dfc,gaussLegendre,scaledBessel},clone};
 });

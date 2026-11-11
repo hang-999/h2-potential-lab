@@ -5,9 +5,10 @@
   "description": "Offline interactive ML interatomic-potential teaching laboratory",
   "scripts": {
     "build": "node build.cjs",
-    "test": "node test-operators.cjs && node test-ui-contract.cjs && node test-methods-worker.cjs && node h2/test-engine.cjs && node h2/test-worker.cjs && node h2/test-robustness.cjs && node test-training-models.cjs && node test-training-engine.cjs && node test-training-worker.cjs && node test-training-robustness.cjs && node test-training-convergence.cjs",
+    "test": "node test-operators.cjs && node test-ui-contract.cjs && node test-methods-worker.cjs && node h2/test-engine.cjs && node h2/test-worker.cjs && node h2/test-robustness.cjs && node test-training-models.cjs && node test-training-engine.cjs && node test-training-worker.cjs && node test-training-robustness.cjs && node test-training-convergence.cjs && node test-audit-regressions.cjs && node test-reading.cjs",
     "serve": "node serve.cjs",
-    "test:quick": "node test-operators.cjs && node test-ui-contract.cjs && node test-methods-worker.cjs && node h2/test-engine.cjs && node h2/test-worker.cjs && node h2/test-robustness.cjs && node test-training-models.cjs && node test-training-engine.cjs && node test-training-worker.cjs && node test-training-robustness.cjs"
+    "test:quick": "node test-operators.cjs && node test-ui-contract.cjs && node test-methods-worker.cjs && node h2/test-engine.cjs && node h2/test-worker.cjs && node h2/test-robustness.cjs && node test-training-models.cjs && node test-training-engine.cjs && node test-training-worker.cjs && node test-training-robustness.cjs && node test-audit-regressions.cjs && node test-reading.cjs",
+    "test:audit": "node test-audit-regressions.cjs"
   },
   "dependencies": {
     "three": "0.187.0"

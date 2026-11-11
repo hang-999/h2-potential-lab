@@ -32,9 +32,11 @@ jobs:
       - name: Reproducible offline build
         run: |
           npm run build
-          git diff --exit-code -- index.html h2/index.html
+          node test-reading.cjs
+          git diff --exit-code -- index.html h2/index.html reading
           mkdir -p _site
           cp index.html _site/index.html
+          cp -R reading _site/reading
       - uses: actions/configure-pages@v5
         if: github.event_name != 'pull_request'
       - uses: actions/upload-pages-artifact@v4

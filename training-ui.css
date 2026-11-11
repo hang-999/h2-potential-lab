@@ -32,3 +32,49 @@
 .tr-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;padding:8px 10px;margin:0 0 9px}.tr-control-buttons{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;width:100%}.tr-control-buttons button{font-size:14px;min-height:35px;padding:5px 4px}.tr-counts{grid-column:1/-1;flex-direction:row;align-items:center;gap:8px;width:auto}.tr-counts strong{font-size:17px}.tr-counts span{font-size:12px}.tr-controls>label{font-size:12px;margin:0;gap:5px}.tr-controls>label input{width:57px;min-height:30px;padding:3px 5px}.tr-controls>button{min-height:31px;padding:4px 8px;font-size:13px}
 .tr-scene{height:290px}.tr-card-title{min-height:36px;padding:6px 10px}.tr-card-title>button{display:none}
 }
+
+/* Residual Error Tiers for Samples */
+.tr-samples button{position:relative;border-radius:4px;overflow:hidden;transition:all .15s ease}
+.tr-samples button.res-low{border-bottom:2px solid #10b981}
+.tr-samples button.res-med{border-bottom:2px solid #3b82f6}
+.tr-samples button.res-high{border-bottom:2px solid #f97316;color:#c2410c}
+.tr-samples button.res-extreme{border-bottom:2px solid #ef4444;color:#b91c1c;font-weight:700}
+.tr-grid-line{transition:stroke .2s ease}
+
+/* Dark Theme Overrides for Training Lab */
+[data-theme="dark"] .training-lab{--tr-border:#334155;--tr-muted:#94a3b8;--tr-blue:#38bdf8;color:#f1f5f9}
+[data-theme="dark"] .tr-scene-card,[data-theme="dark"] .tr-chart-card,[data-theme="dark"] .tr-stage-card,[data-theme="dark"] .tr-metrics-card,[data-theme="dark"] .tr-parameters,[data-theme="dark"] .tr-checks,[data-theme="dark"] .tr-controls,[data-theme="dark"] .tr-data-details,[data-theme="dark"] .tr-settings{background:#0f172a;border-color:#334155}
+[data-theme="dark"] .tr-card-title{border-bottom-color:#1e293b}
+[data-theme="dark"] .tr-card-title h2{color:#f8fafc}
+[data-theme="dark"] .tr-formula{background:#132338;border-left-color:#0284c7;color:#e2e8f0}
+[data-theme="dark"] .tr-stages>button,[data-theme="dark"] .tr-stages>span{background:#1e293b;border-color:#334155;color:#94a3b8}
+[data-theme="dark"] .tr-stages>button[aria-selected=true]{background:#0284c7;border-color:#38bdf8;color:#ffffff;box-shadow:0 2px 10px rgba(56,189,248,0.35)}
+[data-theme="dark"] .tr-core-values>div{border-color:#1e293b;background:#131d2e}
+[data-theme="dark"] .tr-core-values strong{color:#38bdf8}
+[data-theme="dark"] .tr-prediction{border-top-color:#1e293b}
+[data-theme="dark"] .tr-prediction>div+div{border-left-color:#1e293b}
+[data-theme="dark"] .tr-prediction strong{color:#38bdf8}
+[data-theme="dark"] .tr-prediction>div:last-child strong{color:#fb923c}
+[data-theme="dark"] .tr-metrics strong{color:#38bdf8}
+[data-theme="dark"] .tr-metrics>div:last-child strong{color:#fb923c}
+[data-theme="dark"] .tr-atom-row{border-top-color:#1e293b}
+[data-theme="dark"] .tr-atom-row button{background:#1e293b;border-color:#334155;color:#94a3b8}
+[data-theme="dark"] .tr-atom-row button[aria-pressed=true]{background:rgba(56,189,248,0.18);border-color:#0284c7;color:#38bdf8}
+[data-theme="dark"] .tr-chart-tabs{border-bottom-color:#1e293b}
+[data-theme="dark"] .tr-chart-tabs>button[aria-selected=true]{background:rgba(56,189,248,0.15);border-color:#0284c7;color:#38bdf8}
+[data-theme="dark"] .tr-svg-holder svg text{fill:#94a3b8}
+[data-theme="dark"] .tr-svg-holder svg .tr-axis-title{fill:#38bdf8}
+[data-theme="dark"] .tr-svg-holder svg line.tr-grid-line{stroke:#1e293b}
+[data-theme="dark"] .tr-samples button{background:#1e293b;border-color:#334155;color:#94a3b8}
+[data-theme="dark"] .tr-samples button.validation{background:#2d2218;border-color:#633e1e;color:#f6ad55}
+[data-theme="dark"] .tr-samples button.batch{outline-color:#38bdf8}
+[data-theme="dark"] .tr-samples button.res-high{color:#fb923c}
+[data-theme="dark"] .tr-samples button.res-extreme{color:#f87171}
+[data-theme="dark"] .training-lab pre{background:#0b111a;border-color:#1e293b;color:#94a3b8}
+[data-theme="dark"] .tr-table-scroll th,[data-theme="dark"] .tr-table-scroll td{border-bottom-color:#1e293b}
+[data-theme="dark"] .tr-fields input,[data-theme="dark"] .tr-fields select{background:#1e293b;border-color:#334155;color:#f1f5f9}
+[data-theme="dark"] .tr-teaching{background:#064e3b;border-color:#059669;color:#6ee7b7}
+[data-theme="dark"] .tr-counts strong{color:#38bdf8}
+[data-theme="dark"] .tr-progress{background:#132338}
+[data-theme="dark"] .tr-dirty{background:#2a1f0a;border-color:#785317;color:#fde047}
+[data-theme="dark"] .tr-alert{background:#30130d;border-color:#7f1d1d;color:#fca5a5}

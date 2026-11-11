@@ -1,6 +1,6 @@
 # Third-party notices
 
-The standalone HTML includes Three.js 0.187.0 and OrbitControls from the same package. All dependencies are bundled locally; no CDN is required. esbuild 0.28.2 is a build-time dependency only. Other visualization projects listed in REFERENCES.md are design references, not bundled code.
+The standalone laboratory HTML includes Three.js 0.187.0 and OrbitControls from the same package. esbuild 0.28.2 is a build-time dependency. The separate reading library redistributes the two credited articles and their interactive assets. See reading-src/README.md and the LICENSE files alongside the articles.
 
 ## Three.js — MIT
 

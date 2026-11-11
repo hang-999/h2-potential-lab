@@ -31,3 +31,5 @@ h1,h2,h3,p{overflow-wrap:break-word}h1{font-size:27px;line-height:1.3;margin:4px
 @media(min-width:761px){.network-scroll{height:clamp(370px,54vh,520px)}}
 @media(min-width:1001px){.controls{max-height:calc(100dvh - var(--bar-height) - 182px)}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+body.embedded .header{display:none}body.embedded main{padding-top:8px}body.embedded{overflow:hidden;min-height:0;height:auto}

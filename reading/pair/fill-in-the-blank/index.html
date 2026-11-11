@@ -1,0 +1,150 @@
+<!--
+@license
+Copyright 2020 Google. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!doctype html>
+
+<html lang="en">
+<!-- Adapted for MLIP Lab. Article navigation and service access are integrated with the reading library. -->
+<head>
+	<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://pair.withgoogle.com/images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://pair.withgoogle.com/images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://pair.withgoogle.com/images/favicon/favicon-16x16.png">
+  <link rel="mask-icon" href="https://pair.withgoogle.com/images/favicon/safari-pinned-tab.svg" color="#00695c">
+  <link rel="shortcut icon" href="https://pair.withgoogle.com/images/favicon.ico">
+
+  
+
+  <title>What Have Language Models Learned?</title>
+  <meta property="og:title" content="What Have Language Models Learned?">
+  <meta property="og:url" content="https://pair.withgoogle.com/explorables/fill-in-the-blank/">
+
+  <meta name="og:description" content="By asking language models to fill in the blank, we can probe their understanding of the world.">
+  <meta property="og:image" content="https://pair.withgoogle.com/explorables/images/fill-in-the-blank.png">
+  <meta name="twitter:card" content="summary_large_image">
+  
+	<link rel="stylesheet" type="text/css" href="../style.css">
+
+  <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,500,700|Roboto:700,500,300' rel='stylesheet' type='text/css'>  
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans:400,500,700" rel="stylesheet">
+
+	<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="../../edition.css"></head>
+<body><nav class="reading-edition" aria-label="Article editions">
+    <a href="../../../index.html#/reading">← 交互阅读馆</a>
+    <span aria-current="page" lang="en">English</span>
+    <a href="zh.html" lang="zh-CN">中文</a>
+    <a href="https://pair.withgoogle.com/explorables/fill-in-the-blank/">Original publication ↗</a>
+    <a href="https://github.com/PAIR-code/ai-explorables">Source &amp; license ↗</a>
+    <span class="reading-edition-credit">Adam Pearce · 2021</span>
+  </nav>
+  <h1 class='headline'>What Have Language Models Learned?</h1>
+  
+  <div class="post-summary">By asking language models to fill in the blank, we can probe their understanding of the world.</div>
+  <p>Large language models are making it possible for computers to <a href="https://openai.com/blog/better-language-models/">write stories</a>, <a href="https://twitter.com/sharifshameem/status/1282676454690451457">program a website</a> and <a href="https://openai.com/blog/dall-e/">turn captions into images</a>.</p>
+<p>One of the first of these models, <a href="https://ai.googleblog.com/2018/11/open-sourcing-bert-state-of-art-pre.html">BERT</a>, is trained by taking sentences, splitting them into individual words, randomly hiding some of them, and predicting what the hidden words are. After doing this millions of times, BERT has “read” enough Shakespeare to predict how this phrase usually ends: </p>
+<div class='sent hamlet'></div>
+
+<p>This page is hooked up to a version of BERT trained on Wikipedia and books.<a class='footstart'>¹</a> Try clicking on different words to see how they’d be filled in or typing in another sentence to see what else has BERT picked up on. </p>
+<div class='hamlet-edit'></div>
+
+<h3 id="cattle-or-clothes-">Cattle or Clothes?</h3>
+<p>Besides Hamlet’s existential dread, the text BERT was trained on also contains more patterns: </p>
+<div class='sent texas'></div>
+
+<p>Cattle and horses aren’t top purchase predictions in every state, though! In New York, some of the most likely words are clothes, books and art:</p>
+<div class='sent new-york'></div>
+
+<p>There are more than 30,000 words, punctuation marks and word fragments in BERT’s <a href="https://huggingface.co/transformers/tokenizer_summary.html">vocabulary</a>. Every time BERT fills in a hidden word, it assigns each of them a probability. By looking at how slightly different sentences shift those probabilities, we can get a glimpse at how purchasing patterns in different places are understood.     </p>
+<div class='pair texas-ohio'></div>
+
+<p>You can <strong>edit these sentences</strong>. Or try one of these comparisons to get started: <span class='texas-ohio-alts'></span></p>
+<p>To the extent that a computer program can “know” something, what does BERT know about where you live? </p>
+<h3 id="what-s-in-a-name-">What’s in a Name?</h3>
+<p>This technique can also probe what associations BERT has learned about different groups of people. For example, it predicts people named Elsie are older than people named Lauren:  </p>
+<div class='pair age-name'></div>
+
+<p>It’s also learned that people named Jim have more <a href="https://flowingdata.com/2017/09/11/most-female-and-male-occupations-since-1950/">typically masculine</a> jobs than people named Jane: </p>
+<div class='pair jim-jane'></div>
+
+<p>These aren’t just spurious correlations — Elsies really are more likely to be <a href="https://rhiever.github.io/name-age-calculator/">older</a> than Laurens.<a class='footstart'></a> And occupations the model associates with feminine names are held by a <a href="https://purehost.bath.ac.uk/ws/portalfiles/portal/168480066/CaliskanEtAl_authors_full.pdf">higher percentage</a> of women.  </p>
+<p>Should we be concerned about these correlations? BERT was trained to fill in blanks in Wikipedia articles and books —  it does a great job at that! The problem is that the internal representations of language these models have learned are used for much more – by some <a href="https://super.gluebenchmark.com/leaderboard">measures</a>, they’re the best way we have of getting computers to understand and manipulate text.</p>
+<p>We wouldn’t hesitate to call a conversation partner or recruiter who blithely assumed that doctors are men sexist, but that’s exactly what BERT might do if heedlessly incorporated into a chatbot or HR software:</p>
+<div class='pair nurse-name'></div>
+
+<p>Adjusting for assumptions like this isn’t trivial. <em>Why</em> machine learning systems produce a given output still isn’t well understood – determining if a credit model built on top of BERT rejected a loan application because of <a href="https://pair.withgoogle.com/explorables/hidden-bias/">gender discrimation</a> might be quite difficult.</p>
+<p>Deploying large language models at scale also risks <a href="https://machinesgonewrong.com/bias_i/#harms-of-representation">amplifying</a> and <a href="http://faculty.washington.edu/ebender/papers/Stochastic_Parrots.pdf">perpetuating</a> today’s harmful stereotypes. When <a href="https://arxiv.org/pdf/2101.05783v1.pdf#page=3">prompted</a> with “Two Muslims walked into a…”, for example, <a href="https://en.wikipedia.org/wiki/GPT-3">GPT-3</a> typically finishes the sentence with descriptions of violence. </p>
+<h3 id="how-can-we-fix-this-">How Can We Fix This?</h3>
+<p>One conceptually straightforward approach: reduce unwanted correlations from the training data to <a href="https://arxiv.org/abs/1906.08976">mitigate</a> model <a href="https://arxiv.org/abs/2005.14050">bias</a>. </p>
+<p>Last year a version of BERT called <a href="https://ai.googleblog.com/2020/10/measuring-gendered-correlations-in-pre.html">Zari</a> was <a href="https://arxiv.org/pdf/2010.06032.pdf#page=6">trained</a> with an additional set of generated sentences. For every sentence with a <a href="https://github.com/uclanlp/corefBias/blob/master/WinoBias/wino/generalized_swaps.txt">gendered noun</a>, like boy or aunt, another sentence that replaced the noun with its gender-partner was added to the training data: in addition to “The <em>lady</em> doth protest too much,” Zari was also trained on “The <em>gentleman</em> doth protest too much.”        </p>
+<div class='pair nurse-name-zari-cda'></div>
+
+<p>Unlike BERT, Zari assigns nurses and doctors an equal probability of being a “she” or a “he” after being trained on the swapped sentences. This approach hasn’t removed all the gender correlations; because names weren’t swapped, Zari’s association between masculine names and doctors has only slightly decreased from BERT’s.<a class='footstart'></a> And the retraining doesn’t change how the model understands nonbinary gender.    </p>
+<p>Something similar happened with <a href="https://arxiv.org/abs/1607.06520">other attempts</a> to remove gender bias from models’ representations of words. It’s possible to mathematically define bias and perform “brain surgery” on a model to remove it, but language is steeped in gender. Large models can have billions of parameters in which to learn stereotypes — slightly different measures of bias have found the retrained models only <a href="https://www.aclweb.org/anthology/N19-1061/">shifted the stereotypes</a> around to be undetectable by the initial measure.</p>
+<p>As with <a href="https://pair.withgoogle.com/explorables/measuring-fairness/">other applications</a> of machine learning, it’s helpful to focus instead on the actual harms that could occur. Tools like <a href="https://allennlp.org/">AllenNLP</a>, <a href="http://lmdiff.net/">LMdiff</a> and the <a href="https://pair-code.github.io/lit/">Language Interpretability Tool</a> make it easier to interact with language models to find where they might be falling short.<a class='footstart'></a> Once those shortcomings are spotted, <a href="https://arxiv.org/abs/2004.07667">task specific</a> mitigation measures can be simpler to apply than modifying the entire model.  </p>
+<p>It’s also possible that as models grow more capable, they might be able to <a href="https://arxiv.org/abs/2004.14546">explain</a> and perform some of this debiasing themselves. Instead of forcing the model to tell us the gender of “the doctor,” we could let it respond with <a href="https://arr.am/2020/07/25/gpt-3-uncertainty-prompts/">uncertainty</a> that’s <a href="https://ai.googleblog.com/2018/12/providing-gender-specific-translations.html">shown to the user</a> and controls to override assumptions. </p>
+<h3 id="credits">Credits</h3>
+<p>Adam Pearce // July 2021</p>
+<p>Thanks to Ben Wedin, Emily Reif, James Wexler, Fernanda Viégas, Ian Tenney, Kellie Webster, Kevin Robinson, Lucas Dixon, Ludovic Peran, Martin Wattenberg, Michael Terry, Tolga Bolukbasi, Vinodkumar Prabhakaran, Xuezhi Wang, Yannick Assogba, and Zan Armstrong for their help with this piece. </p>
+<h3 id="footnotes">Footnotes</h3>
+<p><a class='footend'></a> The BERT model used on this page is the Hugging Face version of <a href="https://huggingface.co/bert-large-uncased-whole-word-masking">bert-large-uncased-whole-word-masking</a>. “BERT” also refers to a type of model architecture; hundreds of BERT models have been <a href="https://huggingface.co/models?filter=bert">trained and published</a>. The model and chart code used here are available on <a href="https://github.com/PAIR-code/ai-explorables">GitHub</a>. </p>
+<p><a class='footend'></a> Notice that “1800”, “1900” and “2000” are some of the top predictions, though. People aren’t actually more likely to be born at the start of a century, but in BERT’s training corpus of books and Wikipedia articles round numbers are <a href="https://blocks.roadtolarissa.com/1wheel/cea123a8c17d51d9dacbd1c17e6fe601">more common</a>. <br><br><img aria-label='Scatter plot showing the frequency of numbers between 1400 and 1800 in Wikipedia; round number of large peaks.' src='img/wiki-years.png'></img> </p>
+<p><a class='footend'></a>Comparing BERT and Zari in this interface requires carefully tracking tokens during a transition. The <a href="https://colab.research.google.com/drive/1xfPGKqjdE635cVSi-Ggt-cRBU5pyJNWP">BERT Difference Plots</a> colab has ideas for extensions to systemically look at differences between the models’ output. </p>
+<p><a class='footend'></a> This analysis shouldn’t stop once a model is deployed — as language and model usage shifts, it’s important to continue studying and mitigating potential harms. </p>
+<h3 id="appendix-differences-over-time">Appendix: Differences Over Time</h3>
+<p>In addition to looking at how predictions for <c0>men</c0> and <c1>women</c1> are different for a given sentence, we can also chart how those differences have changed over time: </p>
+<div class='gender-over-time'></div>
+
+<p>The convergence in more recent years suggests another potential mitigation technique: using a prefix to steer the model away from unwanted correlations while preserving its understanding of natural language.  </p>
+<p>Using “In $year” as the prefix is quite limited, though, as it doesn’t handle <c2>gender-neutral</c2> pronouns and potentially <a href="https://www.pnas.org/content/pnas/115/16/E3635.full.pdf#page=8">increases</a> other correlations. However, it may be possible to <a href="https://arxiv.org/abs/2104.08691">find a better prefix</a> that mitigates a specific type of bias with just a <a href="https://www.openai.com/blog/improving-language-model-behavior/">couple of dozen examples</a>. </p>
+<div class='gender-over-time'></div>
+
+<p>Closer examination of these differences in differences also shows there’s a limit to the facts we can pull out of BERT this way. </p>
+<p>Below, the top row of charts shows how predicted differences in occupations between men and women change between 1908 and 2018. The rightmost chart shows the he/she difference in 1908 against the he/she difference in 2018. </p>
+<p>The flat slope of the rightmost chart indicates that the he/she difference has decreased for each job by about the same amount. But in reality, <a href="https://www.weforum.org/agenda/2016/03/a-visual-history-of-gender-and-employment">shifts in occupation</a> weren’t nearly so smooth and some occupations, like accounting, switched from being majority male to majority female. </p>
+<div class='difference-difference pair difference'></div>   
+
+<p>This reality-prediction mismatch could be caused by lack of training data, model size or the coarseness of the probing method. There’s an immense amount of general knowledge inside of these models — with a little bit of focused training, they can even become expert <a href="https://t5-trivia.glitch.me/">trivia</a> players. </p>
+<h3>More Explorables</h3>
+
+<p><a href="https://pair.withgoogle.com/explorables/">Explore more from PAIR ↗</a></p>
+
+<link rel="stylesheet" href="style.css">
+
+<script src='../third_party/regl.min.js'></script>
+<script src='../third_party/d3_.js'></script>
+<script src='../third_party/d3-scale-chromatic.v1.min.js'></script>
+<script src='../third_party/params.js'></script>
+
+<script src='data/cachekey2filename.js'></script>
+<script src='post.js'></script>
+<script src='tokenizer.js'></script>
+<script src='scatter.js'></script>
+
+<script src='init-pair.js'></script>
+<script src='init-diff.js'></script>
+<script src='init-sent.js'></script>
+<script src='init-gender-over-time.js'></script>
+<script src='init.js'></script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,36 @@
+.reading-edition {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 12px clamp(14px, 5vw, 72px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  background: #f0f6fc;
+  border-bottom: 1px solid #d7e5f2;
+  color: #204663;
+  font: 14px/1.4 system-ui, sans-serif;
+  text-transform: none;
+}
+.reading-edition a { color: #245d87; }
+.reading-edition [aria-current="page"] { font-weight: 700; }
+.reading-edition-credit { margin-left: auto; }
+.reading-inference-error {
+  display: block;
+  padding: 10px 14px;
+  margin: 8px auto;
+  max-width: 740px;
+  background: #fff6e8;
+  color: #7a410c;
+  border: 1px solid #f0d6ac;
+  border-radius: 6px;
+  font: 15px/1.5 system-ui, sans-serif;
+}
+html[lang="zh-CN"] .reading-translation-note {
+  max-width: 740px;
+  margin: 20px auto;
+  padding: 0 16px;
+  color: #49657c;
+  font: 14px/1.6 system-ui, sans-serif;
+}

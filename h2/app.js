@@ -1,5 +1,5 @@
 (()=>{'use strict';
- const $=id=>document.getElementById(id);let worker=null,version=0,state=null,pending=null,scheduled=false,dirty=false,lastError='',mode='energy',probeTimer=null,nextProbe=null,view='overview',inspector='summary';
+ const $=id=>document.getElementById(id);if(document.body.classList.contains('embedded')){new ResizeObserver(()=>parent.postMessage({type:'mlip-h2-size',height:Math.ceil(document.body.getBoundingClientRect().height)},'*')).observe(document.body);}let worker=null,version=0,state=null,pending=null,scheduled=false,dirty=false,lastError='',mode='energy',probeTimer=null,nextProbe=null,view='overview',inspector='summary';
  const workerURL=URL.createObjectURL(new Blob([$('worker-source').textContent],{type:'text/javascript'}));
  const post=(type,extra={})=>worker?.postMessage({type,version,...extra});
  const panel=createNetworkPanel(post);
