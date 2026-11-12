@@ -47,7 +47,7 @@ function navigate(){const incoming=new URLSearchParams(location.hash.split('?')[
  if(!trainingMode)trainingLab?.hide();
  if(h2Loaded&&route!=='h2')$('h2-frame').contentWindow?.postMessage({type:'mlip-pause'},'*');
  if(route==='h2'){ensureH2();document.title='H₂ 真实训练 · MLIP 实验室';}
- else if(isLesson(route)){state.chapter=route;state.stage=0;position=0;featureIndex=0;featurePage=0;roundView=Math.min(roundView,state.params.rounds);if(trainingMode){if(!trainingLab)trainingLab=createTrainingLab($('training-view'),{createScene,onError:showError,onMethodChange:m=>location.hash='#/'+m+'?mode=train'});trainingLab.show(route==='symmetry'?'vectors':route);}else{$('compare').checked=route==='soap';renderLesson();ensureScenes();if(snapshot)renderSnapshot();requestCompute();}document.title=lesson().title+' · MLIP 实验室';}
+ else if(isLesson(route)){state.chapter=route;state.stage=0;position=0;featureIndex=0;featurePage=0;roundView=Math.min(roundView,state.params.rounds);if(trainingMode){if(!trainingLab)trainingLab=createTrainingLab($('training-view'),{createScene,onError:showError,onMethodChange:m=>location.hash='#/'+m+'?mode=train'});trainingLab.show(route);}else{$('compare').checked=route==='soap';renderLesson();ensureScenes();if(snapshot)renderSnapshot();requestCompute();}document.title=lesson().title+' · MLIP 实验室';}
  else document.title=route==='reading'?'交互阅读馆 · MLIP 实验室':'MLIP 方法交互实验室 · 从描述符到等变网络';
  $('share-experiment').disabled=!isLesson(route)&&route!=='h2';$('more-nav').open=matchMedia('(min-width:1200px)').matches;window.scrollTo({top:0,behavior:'instant'});
 }

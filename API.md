@@ -1,4 +1,4 @@
-# Numerical API（v5.1；原理接口兼容 v4）
+# Numerical API（v5.2；原理接口兼容 v4）
 
 本文件前半部分描述原理观察的 `MLIP.compute`；固定种子模型不等于后半部分的真实训练模型。训练设置、物理单位和算法目标详见 [TRAINING.md](TRAINING.md)。
 
@@ -107,6 +107,24 @@ parameters 只发送所选参数所在的256项页；`parameterOffset` 标识该
 - 普通连续训练最多每500ms发布完整快照；暂停、单步、讲解提交和完成立即发布。动画只读快照，不调用训练更新。
 
 配置文件为 `{schema:'mlip-training-config',version:1,cfg}`。它只保存设置；原理 `mlip-methods-config` 与 H₂ 格式仍独立处理。`#/方法?mode=train` 打开训练模式，原有 hash 路由保持有效。三维视图接口见 [SCENE.md](SCENE.md)。
+
+## v5.2 语义解释与诊断
+
+`describe().blocks` 给出稳定的参数 ID、参数索引、矩阵形状及元素／层／轮次／路径元数据。界面不解析参数名称推测网络。`forward(prepared,{parameters,trace,gradient})` 可只读使用完整参数覆盖；不修改活动参数。
+
+`model.explain(prepared,selection,{parameters})` 返回所选计算的真实输入、乘积、和、局部导数、伴随量、参数使用位置与语义记录。`model.responseValue(prepared,selection,{parameters})` 读取所选特征／通道。`selection` 可含 `atomIndex,edgeFrom,round,channel,layerIndex,neuronIndex,featureIndex,paramIndex,blockId,detailId,readout,component`。内部索引从零开始，消息轮次从一开始。
+
+`await engine.explain({selection,token,phase,response})` 不进行整数据重新评估。返回 `datasetId,step,baseStep,targetStep,token,catalog,block,modelExplain,gradient,optimizer,response` 等。`gradient.sampleContributions` 区分归一化输出导数和每个样本对批次平均梯度的贡献，`gradient.modelStep` 标识梯度使用的更新前模型。第 4 阶段前向数值已是提交后模型，梯度仍对应该次更新前计算。
+
+`engine.symmetry({kind,selection,token,phase,angle})` 使用同一组冻结参数，返回原构型和变换构型、能量及适用的内部表示残差。支持 translation / rotation / reflection / permutation。所有选择、解释和变换检查均不训练。
+
+`probe` 新增 `mode:'baseline'|'local'`、`anchorSampleId`、`atomIndex`。局部 `slice` 包括 `anchorId,anchorAtoms,atomIndex,anchorValue`，原始锚点不会随探针移动而漂移。讲解记录新增完整数据的 `beforePredictions,afterPredictions`，仅存 `{id,prediction}`；数据误差表和回放不会混用提交前后模型。
+
+`snapshot.batches` 区分神经模型的实际 Epoch 顺序、已处理位置、分批状态和尾批次，以及 SOAP 的完整训练集。准备跨 Epoch 的候选讲解时带 `preview:true`，显示候选新顺序，不提前消耗已提交随机流。
+
+Worker 新增独立 `explain` 和 `symmetry` 请求，分别返回 `explained` 和 `symmetry`，带 `explainRequestId`。同类请求仅保留最新意图；两类请求有独立取消序列。暂停或变更模型作废旧解释。只读错误标注 `readonly:true,requestType`，不污染训练状态。界面同时校验会话、配置版本、数据标识、Step、讲解 token 和选择，拒绝过期返回。
+
+显示状态与冻结对照不改变现有配置 JSON 格式、CSV 格式或分享链接格式。
 
 ## v5.1 H₂ 力接口
 

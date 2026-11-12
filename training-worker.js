@@ -11,9 +11,9 @@ onmessage=({data:m})=>{
   const s={id:m.session,version:m.version,engine:null,running:false,speed:100,published:0};trainingSessions.set(s.id,s);trainingQueue.push({s,message:m});
  }else{
   const s=trainingSessions.get(m.session);if(!s||s.version!==m.version)return;
-  if(m.type==='pause'){s.running=false;for(let i=trainingQueue.length-1;i>=0;i--)if(trainingQueue[i].s===s&&trainingQueue[i].message.type==='play')trainingQueue.splice(i,1);trainingQueue.unshift({s,message:m});}
+  if(m.type==='pause'){s.running=false;s.inspectionRequests={};for(let i=trainingQueue.length-1;i>=0;i--)if(trainingQueue[i].s===s&&trainingQueue[i].message.type==='play')trainingQueue.splice(i,1);trainingQueue.unshift({s,message:m});}
   else if(m.type==='speed'){s.speed=Math.max(1,Math.min(100,Number(m.value)||1));}
-  else{if(['prepare','step','commit','cancel','force','direct'].includes(m.type))s.running=false;if(['probe','select'].includes(m.type)){for(let i=trainingQueue.length-1;i>=0;i--)if(trainingQueue[i].s===s&&trainingQueue[i].message.type===m.type)trainingQueue.splice(i,1);}trainingQueue.push({s,message:m});}
+  else{if(['prepare','step','commit','cancel','force','direct'].includes(m.type))s.running=false;if(['play','prepare','step','commit','cancel'].includes(m.type))s.inspectionRequests={};if(['probe','select','explain','symmetry'].includes(m.type)){for(let i=trainingQueue.length-1;i>=0;i--)if(trainingQueue[i].s===s&&trainingQueue[i].message.type===m.type)trainingQueue.splice(i,1);}if(['explain','symmetry'].includes(m.type)){s.inspectionRequests??={};s.inspectionRequests[m.type]=m.explainRequestId??0;}trainingQueue.push({s,message:m});}
  }
  scheduleTraining();
 };
@@ -32,11 +32,15 @@ async function trainingPump(){if(trainingBusy)return;trainingBusy=true;let delay
     else if(m.type==='cancel'){s.engine.cancelStep();await trainingPublish(s);}
     else if(m.type==='probe'){s.engine.probe(m);s.appliedView=m.viewRequestId||0;await trainingPublish(s);}
     else if(m.type==='select'){s.engine.select(m);s.appliedView=m.viewRequestId||0;await trainingPublish(s);}
+    else if(m.type==='explain'||m.type==='symmetry'){
+     const requestId=m.explainRequestId??0,cancelled=()=>trainingSessions.get(s.id)!==s||s.inspectionRequests?.[m.type]!==requestId;
+     if(!cancelled()){const result=await s.engine[m.type](m,{cancelled});if(!cancelled())trainingSend(s,m.type==='explain'?'explained':'symmetry',{...(m.type==='explain'?{inspection:result}:{result}),explainRequestId:requestId,viewRequestId:m.viewRequestId??0});}
+    }
     else if(m.type==='force'){await s.engine.force();await trainingPublish(s);}
     else if(m.type==='direct'){trainingSend(s,'direct',{result:s.engine.directSolution()});}
     else if(m.type==='export')trainingSend(s,'export',{csv:s.engine.csv(),step:s.engine.save().step});
    }
-  }catch(error){s.running=false;s.lastError=error.message;trainingSend(s,'error',{message:error.message,field:error.field});}
+  }catch(error){if(!error.cancelled){const readonly=['explain','symmetry'].includes(m.type);if(!readonly){s.running=false;s.lastError=error.message;}trainingSend(s,'error',{message:error.message,field:error.field,explainRequestId:m.explainRequestId,requestType:m.type,readonly});}}
  }else{
   const s=[...trainingSessions.values()].find(x=>x.running&&x.engine);if(s){const start=Date.now();try{await s.engine.stepOnce();if(s.engine.finished())s.running=false;if(!s.running||Date.now()-s.published>=500)await trainingPublish(s);}catch(error){s.running=false;s.lastError=error.message;trainingSend(s,'error',{message:error.message});await trainingPublish(s);}delay=Math.max(0,1000/s.speed-(Date.now()-start));}
  }

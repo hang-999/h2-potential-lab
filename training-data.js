@@ -39,5 +39,27 @@ function generate(cfg){const c=validate(cfg),dr=rng(c.seed^0x85ebca6b),sr=rng(c.
 }
 function scanSpec(which,axis='angle'){return axis==='bond'?{axis,label:'第一条中心键长 / Å',min:which==='A'?.75:.9,max:which==='A'?1.35:1.5,value:which==='A'?1:1.2}:{axis:'angle',label:which==='A'?'H—O—H 夹角 / °':'第一邻居极角 / °',min:which==='A'?70:35,max:which==='A'?145:75,value:which==='A'?104.5:Math.acos(1/Math.sqrt(3))*180/Math.PI};}
 function scanAtoms(which,axis,value){const s=scanSpec(which,axis),v=Math.max(s.min,Math.min(s.max,value));if(which==='A')return axis==='bond'?geometryA(v,1,104.5):geometryA(1,1,v);const a=geometryB();a[1].pos=axis==='bond'?scale(tetra[0],v):[1.2*Math.sin(v*Math.PI/180)/Math.sqrt(2),1.2*Math.sin(v*Math.PI/180)/Math.sqrt(2),1.2*Math.cos(v*Math.PI/180)];return a;}
-return{defaults,methods,validate,rng,shuffle,clone,generate,reference,scanSpec,scanAtoms,geometryA,geometryB};
+/** A local scan changes exactly one selected coordinate of an immutable anchor. */
+function localScanSpec(which,axis,atoms,atomIndex=1){
+ const selected=axis==='bond2'&&which==='A'?2:Math.max(1,Math.min(atoms.length-1,atomIndex||1));
+ const d=atoms[selected].pos.map((x,k)=>x-atoms[0].pos[k]),r=Math.hypot(...d);let value,label;
+ if(axis==='angle'){
+  if(which==='A'){const u=atoms[1].pos.map((x,k)=>x-atoms[0].pos[k]),v=atoms[2].pos.map((x,k)=>x-atoms[0].pos[k]);value=Math.acos(Math.max(-1,Math.min(1,u.reduce((s,x,k)=>s+x*v[k],0)/(Math.hypot(...u)*Math.hypot(...v)))))*180/Math.PI;label='H—O—H 夹角 / °';}
+  else{value=Math.acos(Math.max(-1,Math.min(1,d[2]/r)))*180/Math.PI;label=`邻居 ${selected+1} 相对输入 z 轴的极角 / °`;}
+ }else{value=r;label=`中心—原子 ${selected+1} 键长 / Å`;}
+ const base=scanSpec(which,axis==='angle'?'angle':'bond');return{...base,axis,atomIndex:selected,label,value,anchorValue:value,min:Math.min(base.min,value),max:Math.max(base.max,value)};
+}
+function localScanAtoms(which,axis,value,atoms,atomIndex=1){
+ const out=clone(atoms),spec=localScanSpec(which,axis,atoms,atomIndex),a=spec.atomIndex,center=atoms[0].pos,d=atoms[a].pos.map((x,k)=>x-center[k]),r=Math.hypot(...d),v=Math.max(spec.min,Math.min(spec.max,value));
+ if(v===spec.value)return out;
+ if(axis!=='angle'){out[a].pos=center.map((x,k)=>x+d[k]*v/r);return out;}
+ const theta=v*Math.PI/180;
+ if(which==='A'){
+  const d1=atoms[1].pos.map((x,k)=>x-center[k]),d2=atoms[2].pos.map((x,k)=>x-center[k]),r1=Math.hypot(...d1),r2=Math.hypot(...d2),u=d1.map(x=>x/r1),proj=d2.reduce((s,x,k)=>s+x*u[k],0);let perpendicular=d2.map((x,k)=>x-proj*u[k]),n=Math.hypot(...perpendicular);
+  if(n<1e-10){const basis=Math.abs(u[0])<.8?[1,0,0]:[0,1,0],p=basis.reduce((s,x,k)=>s+x*u[k],0);perpendicular=basis.map((x,k)=>x-p*u[k]);n=Math.hypot(...perpendicular);}
+  out[2].pos=center.map((x,k)=>x+r2*(Math.cos(theta)*u[k]+Math.sin(theta)*perpendicular[k]/n));
+ }else{const phi=Math.atan2(d[1],d[0]);out[a].pos=[r*Math.sin(theta)*Math.cos(phi),r*Math.sin(theta)*Math.sin(phi),r*Math.cos(theta)].map((x,k)=>x+center[k]);}
+ return out;
+}
+return{defaults,methods,validate,rng,shuffle,clone,generate,reference,scanSpec,scanAtoms,localScanSpec,localScanAtoms,geometryA,geometryB};
 });

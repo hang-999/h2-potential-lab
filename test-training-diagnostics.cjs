@@ -1,0 +1,7 @@
+const assert=require('node:assert/strict'),D=require('./training-diagnostics.js');
+const p={cfg:{method:'acsf',seed:42},datasetId:'fixed',step:2,completedEpochs:1,parameterCount:7,latest:{validation:{rmse:.2}},data:[{id:1,split:'train',reference:0,prediction:.1,atoms:[{pos:[0,0,0]},{pos:[1,0,0]},{pos:[0,1,0]}]},{id:2,split:'validation',reference:1,prediction:.5,atoms:[]}],slice:{axis:'bond',mode:'local',anchorId:1,points:[{x:1,reference:0,prediction:.1}]},history:[]};
+assert.equal(D.rows(p).length,1);assert.equal(D.rows(p,'all').length,2);assert.deepEqual(D.geometry(p.data[0]),{bond:1,angle:90});assert.equal(D.worst(p.data)[0].id,2);
+for(const subset of ['train','validation','all']){const data=D.rows(p,subset),bins=D.histogram(data);assert.equal(bins.reduce((n,b)=>n+b.train+b.validation,0),data.length);assert.equal(new Set(bins.flatMap(b=>b.ids)).size,data.length);}
+assert.equal(D.histogram([{id:3,split:'validation',reference:0,prediction:0}]).reduce((n,b)=>n+b.ids.length,0),1);
+const frozen=D.freeze(p,'first');p.data[0].prediction=99;p.cfg.seed=2;p.step=9;assert.equal(frozen.data[0].prediction,.1);assert.equal(frozen.cfg.seed,42);assert.equal(frozen.step,2);assert.equal(D.compatible(frozen,p),true);assert.equal(D.compatible(frozen,{datasetId:'another'}),false);assert.notEqual(D.sliceKey(frozen.slice),D.sliceKey({...frozen.slice,anchorId:2}));assert.deepEqual(D.histogram([]),[]);
+console.log('Training diagnostics: physical residuals, split counts, geometry, anchored slice identity and immutable comparisons passed.');

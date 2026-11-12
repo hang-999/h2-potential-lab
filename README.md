@@ -1,4 +1,4 @@
-# MLIP 方法交互实验室 v5.1 · 能量与力（2026-11-11）
+# MLIP 方法交互实验室 v5.2 · 训练可视化（2026-11-12）
 
 [在线演示](https://hang-999.github.io/h2-potential-lab/) · [源码](https://github.com/hang-999/h2-potential-lab) · [保留的 v4](https://github.com/hang-999/h2-potential-lab/tree/archive/v4-20261106)
 
@@ -6,9 +6,11 @@
 
 「交互阅读馆」提供 Distill 图神经网络入门和 PAIR 语言模型文章的中英文版本。两版共享作者的交互组件和数据。阅读馆资源位于 `reading/`，在本地用 `npm run serve` 打开；见[阅读馆说明](reading-src/README.md)。
 
-v5.1 增加 H₂ 解析力曲线、能量与力联合训练、覆盖区与外推对照，以及可分享的实验配置；重排顶部导航并明确初始化状态。计算约定见[能量与力说明](ENERGY_FORCE.md)，验证结果见[V5.1 验收报告](VALIDATION-V5.1.md)。阅读馆及原有模型资源沿用既有版本。
+v5.2 将 01–08 章训练组织为“拟合与诊断／模型与计算／样本与批次”。支持逐轮逐通道消息、完整特征分页、实际参数矩阵与梯度贡献、局部扫描、冻结对照和当前训练模型的对称性检查。详见[训练可视化说明](TRAINING-INSPECTOR.md)和[V5.2 验收报告](VALIDATION-V5.2.md)。
 
-**English overview.** An interactive, browser-local laboratory for machine-learning interatomic potentials, from fixed descriptors to equivariant message passing. H₂ supports analytic energy derivatives, optional energy–force joint training, extrapolation experiments and frozen comparisons. Seven multi-atom teaching models retain real energy training. All laboratory chapters run offline in one HTML file; the reading library has separate assets, and some Distill components require internet access. Custom PAIR inputs require the optional local model service. See [contributing](CONTRIBUTING.md), [numerical conventions](ENERGY_FORCE.md), and [API](API.md).
+H₂ 的解析力、能量与力联合训练、外推对照和配置分享继续保留。计算约定见[能量与力说明](ENERGY_FORCE.md)，此前结果见[V5.1 验收报告](VALIDATION-V5.1.md)。阅读馆及原有模型资源沿用既有版本。
+
+**English overview.** An interactive, browser-local laboratory for machine-learning interatomic potentials, from fixed descriptors to equivariant message passing. Version 5.2 adds semantic calculation inspection, real gradient contributions, local scans, residual diagnostics and frozen comparisons for seven energy-training models. H₂ retains energy–force training. Laboratory chapters run offline in one HTML file; the reading library has separate assets, and some Distill components require internet access. Custom PAIR inputs require the optional local model service. See [contributing](CONTRIBUTING.md), [numerical conventions](TRAINING-INSPECTOR.md), and [API](API.md).
 
 ## 离线使用与分发
 
@@ -23,7 +25,7 @@ GitHub Pages 托管静态网页，GitHub Actions 构建与测试。**训练和�
 | `#/map` | 方法分支地图；表示与回归器分开理解 |
 | `#/h2` | H₂ Morse 经验势拟合，保留网络设置、四阶段讲解与导出 |
 | `#/reading` | 中英双版交互文章，GNN 消息传递与 BERT 填空预测 |
-| `#/symmetry` | 几何与变换；训练模式进入可选模型实验 |
+| `#/symmetry` | 几何与变换；训练模式验证当前或新初始化模型，不自动训练 |
 | `#/acsf?mode=train` | ACSF → 元素分支网络 → 原子贡献求和 |
 | `#/soap?mode=train` | SOAP → 结构核 → 核岭回归系数求解 |
 | `#/moments?mode=train` | 径向矩与不变量 → 线性系数学习 |
@@ -69,7 +71,7 @@ npm run serve
 
 预览地址为 `http://127.0.0.1:4185`。端口占用时，可通过 `MLIP_PREVIEW_PORT` 指定其他本地端口。依赖由 lockfile 锁定，构建结果为自包含单文件。
 
-`operators.js` 与 `methods-worker.js` 保留原理算子；`training-data.js`、`training-models.js`、`training-engine.js`、`training-worker.js` 实现真实训练；`training-ui.js` 与 `scene.js` 负责交互；`h2/` 保留独立 H₂ 引擎。接口见 [API.md](API.md)，三维约定见 [SCENE.md](SCENE.md)。
+`operators.js` 与 `methods-worker.js` 保留原理算子；`training-data.js`、`training-models.js`、`training-engine.js`、`training-worker.js` 实现真实训练；`training-ui.js` 组织工作区，`training-inspector.js` 展示方法专属记录，`training-diagnostics.js` 组织诊断数据，`scene.js` 绘制构型；`h2/` 保留独立 H₂ 引擎。接口见 [API.md](API.md)，三维约定见 [SCENE.md](SCENE.md)。
 
 ```mermaid
 flowchart LR
