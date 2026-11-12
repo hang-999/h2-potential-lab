@@ -122,7 +122,17 @@ function explainPanel(v,view){const ds=v.details,selected=ds.find(d=>d.id===view
  return html;
 }
 function linkedParameter(v,detail){
- if(!detail)return null;const direct=Number.isInteger(detail.paramIndex)?detail.paramIndex:detail.rows?.find(r=>Number.isInteger(r.paramIndex))?.paramIndex??detail.rows?.find(r=>Number.isInteger(r.parameterIndices?.[0]))?.parameterIndices?.[0]??(detail.id==='node-update'?detail.gate?.paramIndex:undefined);
+ if(!detail)return null;
+ const selection=v.selection,rows=(detail.rows??[]).filter(r=>Number.isInteger(r.paramIndex)||r.parameterIndices?.some(Number.isInteger));
+ const parameterFor=row=>!row?undefined:Number.isInteger(row.paramIndex)?row.paramIndex:row.parameterIndices.includes(selection.paramIndex)?selection.paramIndex:row.parameterIndices.find(Number.isInteger);
+ const sameContext=row=>['atomIndex','channel','round'].every(key=>!Number.isInteger(row[key])||!Number.isInteger(selection[key])||row[key]===selection[key]);
+ const scoped=rows.filter(sameContext),selectedRow=scoped.find(row=>row.selected===true)??rows.find(row=>row.selected===true);
+ let matchedRow;
+ if(detail.id==='embedding')matchedRow=scoped.find(row=>row.channel===selection.channel);
+ else if(['paths','radial'].includes(detail.id))matchedRow=scoped.find(row=>row.path===selection.pathIndex);
+ else if(['correlations','linear-readout'].includes(detail.id))matchedRow=scoped.find(row=>row.featureIndex===selection.featureIndex);
+ const existingRow=scoped.find(row=>row.paramIndex===selection.paramIndex||row.parameterIndices?.includes(selection.paramIndex));
+ const direct=parameterFor(selectedRow)??(Number.isInteger(detail.paramIndex)?detail.paramIndex:undefined)??parameterFor(matchedRow)??parameterFor(existingRow)??parameterFor(scoped[0])??parameterFor(rows[0])??(detail.id==='node-update'?detail.gate?.paramIndex:undefined);
  let block=Number.isInteger(direct)?v.catalog.find(b=>b.parameterIndices.includes(direct)):null,index=direct;
  if(!block&&v.method==='acsf'){block=v.catalog.find(b=>b.element===v.atoms[v.selection.atomIndex]?.element&&b.layerIndex===Math.max(1,v.selection.layerIndex??1)&&b.kind==='matrix');if(block){const input=v.selection.layerIndex===0?v.selection.featureIndex??0:0,output=v.selection.layerIndex===0?0:v.selection.neuronIndex??0;index=block.parameterIndices[Math.min(block.parameterIndices.length-1,output*block.shape.at(-1)+input)];}}
  if(!block&&detail.id==='embedding'){block=v.catalog.find(b=>b.group==='embedding'&&b.element===v.atoms[v.selection.atomIndex]?.element);index=block?.parameterIndices[v.selection.channel??0];}

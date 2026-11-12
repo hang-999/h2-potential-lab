@@ -1,6 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const source=fs.readFileSync(__dirname+'/training-inspector.js','utf8').replace(/export function /g,'function ');
-const sandbox={};vm.createContext(sandbox);vm.runInContext(source+'\nthis.api={inspectorPhasePolicy,createInspectorViewState,renderInspectorContent,inspectorResponseSVG};',sandbox);const {api}=sandbox;
+const sandbox={};vm.createContext(sandbox);vm.runInContext(source+'\nthis.api={inspectorPhasePolicy,createInspectorViewState,renderInspectorContent,inspectorResponseSVG,linkedParameter};',sandbox);const {api}=sandbox;
 const clone=x=>JSON.parse(JSON.stringify(x));
 const block={id:'H.L1.w',title:'H 层 1 权重',element:'H',kind:'matrix',shape:[1,1],layerIndex:1,parameterIndices:[0]};
 const trace={layers:[{atom:0,element:'H',activations:[[.3],[.4],[.5]],zs:[[.42],[.5]]}],atomicContributions:[.5],offset:.1};
@@ -48,6 +48,22 @@ console.log('Inspector UI: phase disclosure, CG semantics, identity isolation, e
    const readout=await engine.explain({selection:{...inspection.selection,readout:true,layerIndex:2,neuronIndex:0}});
    view.detailId='mlp';const linear=api.renderInspectorContent({...ctx,inspection:readout,selection:readout.selection},view);
    assert(!linear.includes('局部非线性与斜率'),method+' linear readout incorrectly shown as tanh');
+   const secondChannel=await engine.explain({selection:{...inspection.selection,atomIndex:1,channel:1,paramIndex:0}}),embedding=secondChannel.modelExplain.details.find(d=>d.id==='embedding'),linkedContext={method,selection:secondChannel.selection,catalog:secondChannel.catalog.blocks,atoms:secondChannel.atoms};
+   const embeddingParameter=embedding.rows.find(row=>row.atomIndex===1&&row.channel===1).paramIndex;
+   assert.equal(api.linkedParameter(linkedContext,embedding).paramIndex,embeddingParameter,method+' embedding must follow selected atom and channel');
+   assert.notEqual(embeddingParameter,embedding.rows[0].paramIndex,'regression payload must exercise a non-first channel');
+  }
+  if(method==='harmonics'){
+   for(const round of [1,2]){
+    const selectedPath=await engine.explain({selection:{...inspection.selection,round,channel:1,pathIndex:7,paramIndex:0}}),details=selectedPath.modelExplain.details,linkedContext={method,selection:selectedPath.selection,catalog:selectedPath.catalog.blocks,atoms:selectedPath.atoms},path=details.find(d=>d.id==='paths'),radial=details.find(d=>d.id==='radial'),selected=path.rows.find(row=>row.selected===true);
+    assert.equal(selected.path,7,'actual explanation must mark path 7 selected');
+    assert.equal(selected.channel,1);
+    assert.equal(api.linkedParameter(linkedContext,path).paramIndex,selected.parameterIndices[0],'selected tensor path must win over the first path');
+    const filter=radial.rows.find(row=>row.path===7&&row.channel===1);
+    assert.equal(api.linkedParameter(linkedContext,radial).paramIndex,filter.parameterIndices[0],'radial detail must follow selected path and channel');
+    const exactParameter=selected.parameterIndices.at(-1),samePathContext={...linkedContext,selection:{...linkedContext.selection,paramIndex:exactParameter}};
+    assert.equal(api.linkedParameter(samePathContext,path).paramIndex,exactParameter,'keep the selected radial component inside its selected path');
+   }
   }
   if(method==='acsf'){view.detailId='descriptor';assert(api.renderInspectorContent(ctx,view).includes('固定预缩放'));view.detailId='mlp';assert(api.renderInspectorContent(ctx,view).includes('局部非线性与斜率'));}
   if(method==='soap')assert(html.includes('kernel-matrix-row-next')&&html.includes('kernel-matrix-col-next'));
